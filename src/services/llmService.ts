@@ -50,13 +50,23 @@ export type GenerateImagesArgs = {
   apiKeys: { openai: string; fal: string };
 };
 
-const ENDPOINTS: Record<Provider, { url: string; init: (key: string) => RequestInit }> = {
+type ValidationConfig = {
+  url: string;
+  init: (key: string) => RequestInit;
+  // Returns true if the auth layer accepted the key. Per-provider because
+  // some endpoints return non-2xx even for valid keys (fal.ai's generate
+  // endpoint returns 422 for a body-less POST when the key authenticated).
+  isAuthOk: (status: number) => boolean;
+};
+
+const ENDPOINTS: Record<Provider, ValidationConfig> = {
   openai: {
     url: 'https://api.openai.com/v1/models',
     init: (key) => ({
       method: 'GET',
       headers: { Authorization: `Bearer ${key}` },
     }),
+    isAuthOk: (s) => s >= 200 && s < 300,
   },
   anthropic: {
     url: 'https://api.anthropic.com/v1/models',
@@ -65,8 +75,10 @@ const ENDPOINTS: Record<Provider, { url: string; init: (key: string) => RequestI
       headers: {
         'x-api-key': key,
         'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
       },
     }),
+    isAuthOk: (s) => s >= 200 && s < 300,
   },
   eleven: {
     url: 'https://api.elevenlabs.io/v1/user',
@@ -74,13 +86,24 @@ const ENDPOINTS: Record<Provider, { url: string; init: (key: string) => RequestI
       method: 'GET',
       headers: { 'xi-api-key': key },
     }),
+    isAuthOk: (s) => s >= 200 && s < 300,
   },
   fal: {
-    url: 'https://rest.alpha.fal.ai/applications',
+    // POST with an empty body to the actual generation endpoint. fal.ai's
+    // legacy /applications endpoint returns 401 even for valid keys, so
+    // we hit the path the demo actually uses. The empty body produces a
+    // 422 schema-validation error — never generates an image, costs $0.
+    // 401/403 alone means the key itself was rejected at the auth layer.
+    url: 'https://fal.run/fal-ai/flux/schnell',
     init: (key) => ({
-      method: 'GET',
-      headers: { Authorization: `Key ${key}` },
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${key}`,
+        'Content-Type': 'application/json',
+      },
+      body: '{}',
     }),
+    isAuthOk: (s) => s !== 401 && s !== 403,
   },
 };
 
@@ -92,8 +115,7 @@ async function validateKey(provider: Provider, key: string): Promise<ValidateRes
   const cfg = ENDPOINTS[provider];
   try {
     const res = await fetch(cfg.url, cfg.init(trimmed));
-    const ok = res.status >= 200 && res.status < 400;
-    return { provider, ok, status: res.status };
+    return { provider, ok: cfg.isAuthOk(res.status), status: res.status };
   } catch (err) {
     return {
       provider,
