@@ -1,4 +1,5 @@
 import { useAppStore } from '../store';
+import { useT } from '../i18n/hooks';
 import { PROVIDER_LABELS, type Provider, type ValidationStatus } from '../types';
 
 const PROVIDERS: Provider[] = ['fal', 'eleven', 'openai', 'anthropic'];
@@ -27,6 +28,7 @@ export function SettingsDrawer() {
   const closeDrawer = useAppStore((s) => s.closeDrawer);
   const validateAll = useAppStore((s) => s.validateAll);
   const clearKeys = useAppStore((s) => s.clearKeys);
+  const t = useT();
 
   return (
     <>
@@ -42,15 +44,15 @@ export function SettingsDrawer() {
       >
         <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
           <div>
-            <h2 className="text-base font-semibold">Settings</h2>
-            <p className="text-xs text-neutral-500">Keys are kept in this tab&apos;s sessionStorage only.</p>
+            <h2 className="text-base font-semibold">{t('settings.title')}</h2>
+            <p className="text-xs text-neutral-500">{t('settings.subtitle')}</p>
           </div>
           <button
             type="button"
             onClick={closeDrawer}
             className="rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-700 hover:bg-neutral-50"
           >
-            Close
+            {t('settings.close')}
           </button>
         </header>
 
@@ -70,7 +72,7 @@ export function SettingsDrawer() {
                 spellCheck={false}
                 value={keys[p]}
                 onChange={(e) => setKey(p, e.target.value)}
-                placeholder={`${PROVIDER_LABELS[p]} API key`}
+                placeholder={t('settings.placeholder', { provider: PROVIDER_LABELS[p] })}
                 className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm font-mono outline-none focus:border-neutral-900"
               />
             </div>
@@ -83,7 +85,7 @@ export function SettingsDrawer() {
             onClick={clearKeys}
             className="rounded-md border border-neutral-200 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
           >
-            Clear
+            {t('settings.clear')}
           </button>
           <button
             type="button"
@@ -91,7 +93,7 @@ export function SettingsDrawer() {
             disabled={validating}
             className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:bg-ink-faint"
           >
-            {validating ? 'Validating…' : 'Validate keys'}
+            {validating ? t('settings.validating') : t('settings.validate')}
           </button>
         </footer>
       </aside>

@@ -1,14 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../store';
 import { applySamplePreset, loadSamplePreset, type SamplePreset } from '../services/sampleLoader';
+import { useT } from '../i18n/hooks';
 import type { Brief } from '../types';
 
 type FieldKey = keyof Brief;
 
-const FIELDS: { key: FieldKey; label: string; placeholder: string; multiline?: boolean }[] = [
-  { key: 'productName', label: 'Product name', placeholder: 'e.g. Lumen Sleep Mist' },
-  { key: 'targetAudience', label: 'Target audience', placeholder: 'e.g. Burned-out parents, 30–45' },
-  { key: 'adAngle', label: 'Ad angle', placeholder: 'e.g. Fall asleep in seven minutes flat', multiline: true },
+type FieldDef = {
+  key: FieldKey;
+  labelKey: string;
+  placeholderKey: string;
+  multiline?: boolean;
+};
+
+const FIELDS: FieldDef[] = [
+  { key: 'productName', labelKey: 'brief.field.productName', placeholderKey: 'brief.placeholder.productName' },
+  { key: 'targetAudience', labelKey: 'brief.field.targetAudience', placeholderKey: 'brief.placeholder.targetAudience' },
+  { key: 'adAngle', labelKey: 'brief.field.adAngle', placeholderKey: 'brief.placeholder.adAngle', multiline: true },
 ];
 
 export function BriefForm() {
@@ -16,6 +24,7 @@ export function BriefForm() {
   const setBriefField = useAppStore((s) => s.setBriefField);
   const submitBrief = useAppStore((s) => s.submitBrief);
   const beginFirstStep = useAppStore((s) => s.beginFirstStep);
+  const t = useT();
   const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
   const [sample, setSample] = useState<SamplePreset | null>(null);
 
@@ -32,9 +41,9 @@ export function BriefForm() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const next: Partial<Record<FieldKey, string>> = {};
-    for (const { key, label } of FIELDS) {
+    for (const { key, labelKey } of FIELDS) {
       if (brief[key].trim().length === 0) {
-        next[key] = `${label} is required.`;
+        next[key] = t('brief.required', { label: t(labelKey) });
       }
     }
     setErrors(next);
@@ -47,23 +56,21 @@ export function BriefForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <header>
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent">The brief</p>
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent">{t('brief.eyebrow')}</p>
         <h1 className="font-serif mt-2 text-3xl font-medium leading-tight tracking-tight text-ink">
-          Three lines, four assets.
+          {t('brief.heading')}
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
-          The director&apos;s cockpit will walk you through copy, image, script, and audio — one at
-          a time.
+          {t('brief.intro')}
         </p>
       </header>
 
       {sample && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3">
           <div>
-            <p className="text-sm font-medium text-neutral-800">First time? Try the sample brief.</p>
+            <p className="text-sm font-medium text-neutral-800">{t('brief.sample.title')}</p>
             <p className="mt-0.5 text-xs text-neutral-500">
-              Pre-cached run for <span className="font-medium text-neutral-700">{sample.brief.productName}</span>. The
-              whole pipeline restores instantly — see the shape of the tool, then write your own.
+              {t('brief.sample.body', { product: sample.brief.productName })}
             </p>
           </div>
           <button
@@ -71,15 +78,15 @@ export function BriefForm() {
             onClick={() => applySamplePreset(sample)}
             className="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100"
           >
-            Try sample brief &amp; explore →
+            {t('brief.sample.cta')}
           </button>
         </div>
       )}
 
-      {FIELDS.map(({ key, label, placeholder, multiline }) => (
+      {FIELDS.map(({ key, labelKey, placeholderKey, multiline }) => (
         <div key={key} className="space-y-1.5">
           <label htmlFor={`brief-${key}`} className="text-sm font-medium text-neutral-800">
-            {label}
+            {t(labelKey)}
           </label>
           {multiline ? (
             <textarea
@@ -87,7 +94,7 @@ export function BriefForm() {
               rows={3}
               value={brief[key]}
               onChange={(e) => setBriefField(key, e.target.value)}
-              placeholder={placeholder}
+              placeholder={t(placeholderKey)}
               className="w-full resize-none rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
             />
           ) : (
@@ -96,7 +103,7 @@ export function BriefForm() {
               type="text"
               value={brief[key]}
               onChange={(e) => setBriefField(key, e.target.value)}
-              placeholder={placeholder}
+              placeholder={t(placeholderKey)}
               className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
             />
           )}
@@ -109,7 +116,7 @@ export function BriefForm() {
           type="submit"
           className="rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-dark"
         >
-          Start
+          {t('brief.start')}
         </button>
       </div>
     </form>

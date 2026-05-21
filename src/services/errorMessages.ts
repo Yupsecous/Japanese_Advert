@@ -6,6 +6,7 @@
 //
 // To add a new error: pick a code, add an entry to MESSAGES, throw an
 // AppError(code) from the service.
+import { translate, type Locale } from '../i18n';
 
 export type ErrorCode =
   | 'openai/auth-failed'
@@ -163,7 +164,10 @@ export function isAppError(e: unknown): e is AppError {
   return e instanceof Error && e.name === 'AppError' && 'code' in e;
 }
 
-export function humanize(err: unknown): { message: string; pointToSettings: boolean; code: ErrorCode } {
+export function humanize(
+  err: unknown,
+  locale: Locale = 'en',
+): { message: string; pointToSettings: boolean; code: ErrorCode } {
   if (isAppError(err)) {
     if (err.detail) {
       // Technical detail to console only; keeps the UI calm.
@@ -172,7 +176,7 @@ export function humanize(err: unknown): { message: string; pointToSettings: bool
     }
     const entry = MESSAGES[err.code];
     return {
-      message: entry.message,
+      message: translate(locale, `err.${err.code}`),
       pointToSettings: entry.pointToSettings ?? false,
       code: err.code,
     };
@@ -180,7 +184,7 @@ export function humanize(err: unknown): { message: string; pointToSettings: bool
   if (err instanceof Error) {
     // eslint-disable-next-line no-console
     console.debug('[UnknownError]', err.message);
-    return { message: MESSAGES.unknown.message, pointToSettings: false, code: 'unknown' };
+    return { message: translate(locale, 'err.unknown'), pointToSettings: false, code: 'unknown' };
   }
-  return { message: MESSAGES.unknown.message, pointToSettings: false, code: 'unknown' };
+  return { message: translate(locale, 'err.unknown'), pointToSettings: false, code: 'unknown' };
 }

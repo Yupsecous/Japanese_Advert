@@ -6,6 +6,8 @@ import { BriefForm } from './components/BriefForm';
 import { StepShell } from './components/StepShell';
 import { OnboardingState } from './components/OnboardingState';
 import { TranslatorHarness } from './components/TranslatorHarness';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { useT } from './i18n/hooks';
 import { computeStepHash } from './services/stepHash';
 import { loadSamplePreset, type SamplePreset } from './services/sampleLoader';
 import { STEP_ORDER, type RefineEntry, type StepId } from './types';
@@ -121,6 +123,7 @@ export default function App() {
   const openDrawer = useAppStore((s) => s.openDrawer);
   const resetBrief = useAppStore((s) => s.resetBrief);
   const resetSteps = useAppStore((s) => s.resetSteps);
+  const t = useT();
   const [sample, setSample] = useState<SamplePreset | null>(null);
   const autoOpenedRef = useRef(false);
 
@@ -176,10 +179,10 @@ export default function App() {
           <div className="flex items-baseline gap-3">
             <div className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
             <p className="font-serif text-lg font-medium tracking-tight text-ink">
-              Director&apos;s Cockpit
+              {t('app.title')}
             </p>
             <p className="hidden text-xs uppercase tracking-[0.18em] text-ink-faint sm:block">
-              v2
+              {t('app.version')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -189,7 +192,7 @@ export default function App() {
                 onClick={restart}
                 className="rounded-md border border-rule px-3 py-1.5 text-sm text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink"
               >
-                New brief
+                {t('app.newBrief')}
               </button>
             )}
             <button
@@ -197,8 +200,9 @@ export default function App() {
               onClick={openDrawer}
               className="rounded-md border border-rule px-3 py-1.5 text-sm text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink"
             >
-              Settings
+              {t('app.settings')}
             </button>
+            <LanguageSwitcher />
           </div>
         </div>
         {!showOnboarding && (

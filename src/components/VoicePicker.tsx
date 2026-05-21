@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../store';
+import { useT } from '../i18n/hooks';
 import { VOICE_LIBRARY, VOICE_SAMPLE_SENTENCE, type VoiceSample } from '../data/voiceLibrary';
 import { fetchUserVoices } from '../services/voicesService';
 
@@ -35,6 +36,7 @@ export function VoicePicker({
   onSelect: (voice: VoiceSample) => void;
 }) {
   const elevenKey = useAppStore((s) => s.keys.eleven);
+  const t = useT();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [voices, setVoices] = useState<VoiceSample[]>(VOICE_LIBRARY);
@@ -139,7 +141,7 @@ export function VoicePicker({
         setPlayingId(null);
         setCardErrors((e) => ({
           ...e,
-          [voice.id]: "Preview couldn't load. You can still select this voice — the final render will use it.",
+          [voice.id]: t('voice.previewError'),
         }));
       });
       audioRef.current = a;
@@ -157,7 +159,7 @@ export function VoicePicker({
         setPlayingId(null);
         setCardErrors((e) => ({
           ...e,
-          [voice.id]: "Preview couldn't load. You can still select this voice — the final render will use it.",
+          [voice.id]: t('voice.previewError'),
         }));
       });
   }
@@ -174,53 +176,39 @@ export function VoicePicker({
     <section className="space-y-4">
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <h3 className="text-base font-semibold tracking-tight">Pick a voice</h3>
+          <h3 className="text-base font-semibold tracking-tight">{t('voice.heading')}</h3>
           <p className="mt-1 text-sm text-neutral-500">
             {source === 'user-account'
-              ? 'Pulled from your ElevenLabs account — these are the voices the final render can actually use.'
+              ? t('voice.userAccountHint')
               : (
                 <>
-                  Each sample reads:{' '}
+                  {t('voice.sampleHint')}{' '}
                   <em className="not-italic text-neutral-700">&ldquo;{VOICE_SAMPLE_SENTENCE}&rdquo;</em>
                 </>
               )}
           </p>
         </div>
         <span className="text-xs text-neutral-500">
-          {voices.length} voice{voices.length === 1 ? '' : 's'}
+          {t('voice.count', { n: voices.length, s: voices.length === 1 ? '' : 's' })}
         </span>
       </header>
 
       {source === 'hardcoded' && fetchError && (
         <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-          <p className="font-medium">Couldn&apos;t load voices from your ElevenLabs account.</p>
-          <p className="mt-1">
-            {fetchError} — using the demo&apos;s built-in voice library. If the final render fails with
-            <code className="mx-1 font-mono">voice_not_found</code>, add the chosen voice to your account
-            at{' '}
-            <a
-              href="https://elevenlabs.io/app/voice-library"
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              ElevenLabs Voice Library
-            </a>
-            .
-          </p>
+          <p className="font-medium">{t('voice.fetchFailedTitle')}</p>
+          <p className="mt-1">{t('voice.fetchFailedBody', { detail: fetchError })}</p>
         </div>
       )}
 
       {source === 'hardcoded' && libraryReady === false && (
         <div className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-600">
-          Voice previews are loading. If they don&apos;t appear, refresh the page or open Settings to
-          add your ElevenLabs key — the picker will then use your account&apos;s voices directly.
+          {t('voice.libraryProbeFail')}
         </div>
       )}
 
       {source === 'loading' && elevenKey.trim().length > 0 ? (
         <div className="rounded-md border border-neutral-200 bg-white p-6 text-sm text-neutral-600">
-          Loading your ElevenLabs account voices…
+          {t('voice.loading')}
         </div>
       ) : (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -249,7 +237,7 @@ export function VoicePicker({
                         ? 'border-brand bg-brand text-white hover:bg-brand-dark'
                         : 'border-neutral-300 bg-white hover:bg-neutral-50'
                     }`}
-                    aria-label={isPlaying ? `Pause ${voice.displayName}` : `Play ${voice.displayName}`}
+                    aria-label={isPlaying ? t('voice.pause', { name: voice.displayName }) : t('voice.play', { name: voice.displayName })}
                   >
                     {isPlaying ? <PauseIcon /> : <PlayIcon />}
                   </button>
@@ -263,7 +251,7 @@ export function VoicePicker({
                 onClick={() => onSelect(voice)}
                 className="mt-4 rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
               >
-                Select this voice
+                {t('voice.select')}
               </button>
             </article>
           );

@@ -4,6 +4,7 @@ import { downloadPackage } from '../services/exportService';
 import { WaveformPlayer } from './WaveformPlayer';
 import { DirectorsNotes } from './DirectorsNotes';
 import { BackButton } from './BackButton';
+import { useT } from '../i18n/hooks';
 import { resolveVoice } from '../data/voiceLibrary';
 import {
   audioVariantsOf,
@@ -19,6 +20,7 @@ function scrollToStepper() {
 export function FinalPackage() {
   const state = useAppStore();
   const reopenStep = useAppStore((s) => s.reopenStep);
+  const t = useT();
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [downloadWarning, setDownloadWarning] = useState<string | null>(null);
@@ -32,10 +34,8 @@ export function FinalPackage() {
   if (!copy || !image || !script || !audio || !voice) {
     return (
       <section className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-        <p className="font-medium">Final package incomplete.</p>
-        <p className="mt-1">
-          One or more approved assets are missing. Re-approve the affected steps in the stepper.
-        </p>
+        <p className="font-medium">{t('final.incompleteTitle')}</p>
+        <p className="mt-1">{t('final.incompleteBody')}</p>
       </section>
     );
   }
@@ -59,16 +59,16 @@ export function FinalPackage() {
   return (
     <article className="space-y-8">
       <div>
-        <BackButton label="Back to audio" onClick={() => reopenStep('audio')} />
+        <BackButton label={t('final.backToAudio')} onClick={() => reopenStep('audio')} />
       </div>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-success-700">Approved</p>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-success-700">{t('final.eyebrow')}</p>
           <h2 className="font-serif mt-2 text-4xl font-medium leading-tight tracking-tight text-ink">
-            Final package
+            {t('final.heading')}
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
-            All four assets locked. Download the bundle or backtrack to any step to revise.
+            {t('final.body')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ export function FinalPackage() {
             onClick={scrollToStepper}
             className="rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-700 hover:bg-neutral-50"
           >
-            Edit any step
+            {t('final.editAny')}
           </button>
           <button
             type="button"
@@ -85,14 +85,14 @@ export function FinalPackage() {
             disabled={downloading}
             className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:bg-ink-faint"
           >
-            {downloading ? 'Packaging…' : 'Download package'}
+            {downloading ? t('final.packaging') : t('final.download')}
           </button>
         </div>
       </header>
 
       {downloadError && (
         <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-          <p className="font-medium">Download failed</p>
+          <p className="font-medium">{t('final.downloadFailed')}</p>
           <p className="mt-1">{downloadError}</p>
         </div>
       )}
@@ -103,18 +103,18 @@ export function FinalPackage() {
       )}
 
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Copy</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('final.copy')}</h3>
         <dl className="mt-3 space-y-3 text-sm">
           <div className="grid grid-cols-[80px_1fr] items-baseline gap-3">
-            <dt className="text-neutral-500">Headline</dt>
+            <dt className="text-neutral-500">{t('final.headline')}</dt>
             <dd className="font-semibold text-neutral-900">{copy.headline}</dd>
           </div>
           <div className="grid grid-cols-[80px_1fr] items-baseline gap-3">
-            <dt className="text-neutral-500">Caption</dt>
+            <dt className="text-neutral-500">{t('final.caption')}</dt>
             <dd className="text-neutral-800">{copy.caption}</dd>
           </div>
           <div className="grid grid-cols-[80px_1fr] items-baseline gap-3">
-            <dt className="text-neutral-500">CTA</dt>
+            <dt className="text-neutral-500">{t('final.cta')}</dt>
             <dd>
               <span className="inline-flex rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700">
                 {copy.cta}
@@ -125,22 +125,22 @@ export function FinalPackage() {
       </section>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Image</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('final.image')}</h3>
         <div className="mt-3 overflow-hidden rounded-md border border-neutral-200">
           <img
             src={image.imageUrl}
-            alt="Approved marketing image"
+            alt={t('final.image')}
             className="w-full object-cover"
           />
         </div>
       </section>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Voiceover</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('final.voiceover')}</h3>
         <div className="mt-3 grid gap-5 md:grid-cols-[1fr_260px]">
           <div className="space-y-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500">Script</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500">{t('final.script')}</p>
               <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
                 {script.script}
               </p>
@@ -151,14 +151,14 @@ export function FinalPackage() {
           </div>
           <aside className="space-y-3 rounded-md border border-neutral-100 bg-neutral-50 p-4">
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500">Voice</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500">{t('final.voice')}</p>
               <p className="mt-1 text-base font-semibold tracking-tight text-neutral-900">
                 {voice.displayName}
               </p>
               <p className="text-xs text-neutral-500">{voice.toneLabel}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500">Tone</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500">{t('final.tone')}</p>
               <p className="mt-1 text-sm text-neutral-800">{script.toneDescription}</p>
             </div>
           </aside>
@@ -167,7 +167,7 @@ export function FinalPackage() {
 
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-          Director&apos;s notes
+          {t('final.directorsNotes')}
         </h3>
         <div className="mt-4">
           <DirectorsNotes />

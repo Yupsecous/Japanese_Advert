@@ -4,6 +4,7 @@ import { messagesJson } from './anthropicClient';
 import { AppError } from './errorMessages';
 import { translateDirection } from './translator';
 import { buildImagePrompt } from './imagePromptBuilder';
+import { languageDirective, type Locale } from '../i18n';
 import type {
   ApiKeys,
   Brief,
@@ -33,6 +34,7 @@ export type GenerateScriptArgs = {
   refineDirection?: string;
   count?: number;
   apiKey: string;
+  locale?: Locale;
 };
 
 export type GenerateCopyArgs = {
@@ -44,6 +46,7 @@ export type GenerateCopyArgs = {
   previousVariants?: CopyVariant[];
   refineDirection?: string;
   count?: number;
+  locale?: Locale;
 };
 
 export type GenerateImagesArgs = {
@@ -53,6 +56,7 @@ export type GenerateImagesArgs = {
   refineDirection?: string;
   count?: number;
   apiKeys: { openai: string; fal: string };
+  locale?: Locale;
 };
 
 type ValidationConfig = {
@@ -252,6 +256,7 @@ async function generateCopy(args: GenerateCopyArgs): Promise<CopyVariant[]> {
     throw new AppError('openai/missing-key');
   }
   const count = args.count ?? 2;
+  const locale: Locale = args.locale ?? 'en';
   const rawDirection = args.refineDirection?.trim();
 
   let enriched: string | undefined;
@@ -263,6 +268,7 @@ async function generateCopy(args: GenerateCopyArgs): Promise<CopyVariant[]> {
       direction: rawDirection,
       assetType: 'copy',
       apiKey,
+      locale,
     });
     if (result.kind !== 'copy') {
       throw new AppError('translator/wrong-shape', 'expected copy mods');
@@ -272,10 +278,11 @@ async function generateCopy(args: GenerateCopyArgs): Promise<CopyVariant[]> {
     avoid = result.mods.avoid;
   }
 
-  const systemPrompt =
+  const basePrompt =
     avoid && avoid.length > 0
       ? `${COPY_SYSTEM_PROMPT}\n\nAdditional banned terms for this generation: ${avoid.join(', ')}.`
       : COPY_SYSTEM_PROMPT;
+  const systemPrompt = `${basePrompt}\n\n${languageDirective(locale)}`;
 
   const userMessage = buildCopyUserMessage({
     brief: args.brief,
@@ -394,6 +401,8 @@ async function generateImages(args: GenerateImagesArgs): Promise<ImageVariant[]>
   if (!fal) throw new AppError('fal/missing-key');
 
   const count = args.count ?? 2;
+  // Image prompt always built in English (Flux performs poorly on non-English
+  // prompts), so args.locale is ignored on this path.
   const rawDirection = args.refineDirection?.trim();
 
   let mods: ImagePromptMods | undefined;
@@ -402,6 +411,7 @@ async function generateImages(args: GenerateImagesArgs): Promise<ImageVariant[]>
       direction: rawDirection,
       assetType: 'image',
       apiKey: openai,
+      locale: 'en',
     });
     if (result.kind !== 'image') {
       throw new AppError('translator/wrong-shape', 'expected image mods');
@@ -632,6 +642,7 @@ async function generateScript(args: GenerateScriptArgs): Promise<ScriptVariant[]
   const apiKey = args.apiKey.trim();
   if (!apiKey) throw new AppError('openai/missing-key');
   const count = args.count ?? 2;
+  const locale: Locale = args.locale ?? 'en';
   const rawDirection = args.refineDirection?.trim();
 
   let mods: VoiceMods | undefined;
@@ -641,6 +652,7 @@ async function generateScript(args: GenerateScriptArgs): Promise<ScriptVariant[]
       direction: rawDirection,
       assetType: 'voice',
       apiKey,
+      locale,
     });
     if (result.kind !== 'voice') {
       throw new AppError('translator/wrong-shape', 'expected voice mods');
@@ -660,7 +672,7 @@ async function generateScript(args: GenerateScriptArgs): Promise<ScriptVariant[]
 
   const raw = await chatCompletionsJson({
     apiKey,
-    system: SCRIPT_SYSTEM_PROMPT,
+    system: `${SCRIPT_SYSTEM_PROMPT}\n\n${languageDirective(locale)}`,
     user: userMessage,
     schemaName: 'script_variants',
     schema: SCRIPT_RESPONSE_SCHEMA as unknown as Record<string, unknown>,

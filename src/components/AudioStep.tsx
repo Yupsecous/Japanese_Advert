@@ -12,6 +12,7 @@ import { CacheRestorePill } from './CacheRestorePill';
 import { InlineError } from './InlineError';
 import { BackButton } from './BackButton';
 import { AppError, isAppError } from '../services/errorMessages';
+import { useT } from '../i18n/hooks';
 import { resolveVoice } from '../data/voiceLibrary';
 import {
   audioVariantsOf,
@@ -37,11 +38,12 @@ function newId(): string {
 // ErrorBanner replaced by shared <InlineError /> with plain-language strings.
 
 function HistoryPanel({ history }: { history: RefineEntry[] }) {
+  const t = useT();
   if (history.length === 0) return null;
   return (
     <details className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm">
       <summary className="cursor-pointer select-none font-medium text-neutral-700">
-        Audio history ({history.length})
+        {t('audio.historyTitle', { n: history.length })}
       </summary>
       <ol className="mt-3 space-y-2">
         {history.map((h, i) => (
@@ -49,20 +51,20 @@ function HistoryPanel({ history }: { history: RefineEntry[] }) {
             <span className="font-mono text-xs text-neutral-400">{i + 1}.</span>
             <span className="flex-1">
               {h.kind === 'initial' && (
-                <em className="not-italic text-neutral-500">Initial render</em>
+                <em className="not-italic text-neutral-500">{t('common.history.initialRender')}</em>
               )}
               {h.kind === 'regenerate' && (
                 <span>
-                  Regenerated
+                  {t('common.history.regenerated')}
                   {h.discardedDurationSeconds !== null && (
                     <span className="ml-2 text-xs text-neutral-500">
-                      discarded ~{Math.round(h.discardedDurationSeconds)}s read
+                      {t('common.history.discarded', { n: Math.round(h.discardedDurationSeconds) })}
                     </span>
                   )}
                 </span>
               )}
               {h.kind === 'cache-restore' && (
-                <em className="not-italic text-neutral-500">Restored from earlier session</em>
+                <em className="not-italic text-neutral-500">{t('common.history.cacheRestore')}</em>
               )}
             </span>
           </li>
@@ -85,6 +87,7 @@ export function AudioStep() {
   const reopenStep = useAppStore((s) => s.reopenStep);
   const revertVoicePick = useAppStore((s) => s.revertVoicePick);
   const openDrawer = useAppStore((s) => s.openDrawer);
+  const t = useT();
 
   const variants = audioVariantsOf(step.variants);
   const current = variants[0];
@@ -237,10 +240,8 @@ export function AudioStep() {
   if (!approvedScript || !voice) {
     return (
       <section className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-        <p className="font-medium">Upstream selection missing.</p>
-        <p className="mt-1">
-          The audio step needs an approved script AND a picked voice. Reopen step 3 and complete both.
-        </p>
+        <p className="font-medium">{t('audio.missingTitle')}</p>
+        <p className="mt-1">{t('audio.missingBody')}</p>
       </section>
     );
   }
@@ -256,31 +257,29 @@ export function AudioStep() {
     <section className="space-y-5">
       <div>
         <BackButton
-          label="Back to voice picker"
+          label={t('audio.backToVoice')}
           onClick={() => revertVoicePick()}
           disabled={isGenerating}
         />
       </div>
       <header className="flex items-baseline justify-between">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Audio</h2>
-          <p className="mt-1 text-sm text-neutral-500">
-            One final render. Approve to assemble the package, or regenerate for a different take.
-          </p>
+          <h2 className="text-lg font-semibold tracking-tight">{t('audio.heading')}</h2>
+          <p className="mt-1 text-sm text-neutral-500">{t('audio.subtitle')}</p>
         </div>
         <span className="text-xs uppercase tracking-wide text-neutral-500">{step.status}</span>
       </header>
 
       {keyMissing && (
         <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <p className="font-medium">ElevenLabs key required</p>
-          <p className="mt-1">Add your key in Settings to render the voiceover.</p>
+          <p className="font-medium">{t('audio.keyMissingTitle')}</p>
+          <p className="mt-1">{t('audio.keyMissingBody')}</p>
           <button
             type="button"
             onClick={openDrawer}
             className="mt-3 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100"
           >
-            Open Settings
+            {t('common.openSettings')}
           </button>
         </div>
       )}
@@ -293,10 +292,7 @@ export function AudioStep() {
           />
           {isAppError(errorObj) && errorObj.code === 'eleven/voice-not-found' && (
             <div className="-mt-2 rounded-md border border-neutral-200 bg-white p-3 text-sm">
-              <p className="text-neutral-700">
-                The voice you picked isn&apos;t in your ElevenLabs account. Go back to step 3 and
-                pick one of your account voices instead.
-              </p>
+              <p className="text-neutral-700">{t('audio.voiceNotFoundBody')}</p>
               <button
                 type="button"
                 onClick={() => {
@@ -305,7 +301,7 @@ export function AudioStep() {
                 }}
                 className="mt-2 rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
               >
-                ← Pick a different voice
+                {t('audio.voiceNotFoundCta')}
               </button>
             </div>
           )}
@@ -316,7 +312,7 @@ export function AudioStep() {
 
       {isDemoAudio && (
         <div className="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-600">
-          Demo audio shown · add ElevenLabs key for live generation.
+          {t('audio.demoNotice')}
         </div>
       )}
 
@@ -324,7 +320,7 @@ export function AudioStep() {
         <div className="grid gap-5 md:grid-cols-[1fr_280px]">
           <div className="space-y-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500">Script</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500">{t('audio.scriptLabel')}</p>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-700">
                 {approvedScript.script}
               </p>
@@ -343,20 +339,20 @@ export function AudioStep() {
 
           <aside className="space-y-4 rounded-md border border-neutral-100 bg-neutral-50 p-4">
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500">Voice</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500">{t('audio.voiceLabel')}</p>
               <p className="mt-1 text-base font-semibold tracking-tight text-neutral-900">
                 {voice.displayName}
               </p>
               <p className="text-xs text-neutral-500">{voice.toneLabel}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500">Tone description</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500">{t('audio.toneLabel')}</p>
               <p className="mt-1 text-sm text-neutral-800">{approvedScript.toneDescription}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-neutral-500">Estimated duration</p>
+              <p className="text-xs uppercase tracking-wide text-neutral-500">{t('audio.estimatedDuration')}</p>
               <p className="mt-1 font-mono text-sm text-neutral-800">
-                ~{approvedScript.durationEstimate}s
+                {t('script.duration', { n: approvedScript.durationEstimate })}
               </p>
             </div>
           </aside>
@@ -370,14 +366,14 @@ export function AudioStep() {
               disabled={isGenerating || keyMissing}
               className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isGenerating ? 'Rendering…' : 'Regenerate'}
+              {isGenerating ? t('audio.rendering') : t('audio.regenerate')}
             </button>
             <button
               type="button"
               onClick={approve}
               className="rounded-md bg-brand px-5 py-2 text-sm font-medium text-white hover:bg-brand-dark"
             >
-              Approve
+              {t('audio.approve')}
             </button>
           </div>
         )}

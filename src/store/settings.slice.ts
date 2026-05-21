@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import type { ApiKeys, Provider, Validations } from '../types';
+import type { Locale } from '../i18n';
 import { llmService } from '../services/llmService';
 
 export type SettingsSlice = {
@@ -7,11 +8,13 @@ export type SettingsSlice = {
   validations: Validations;
   drawerOpen: boolean;
   validating: boolean;
+  locale: Locale;
   setKey: (provider: Provider, value: string) => void;
   openDrawer: () => void;
   closeDrawer: () => void;
   validateAll: () => Promise<void>;
   clearKeys: () => void;
+  setLocale: (locale: Locale) => void;
 };
 
 const emptyKeys: ApiKeys = { fal: '', eleven: '', openai: '', anthropic: '' };
@@ -22,11 +25,18 @@ const emptyValidations: Validations = {
   anthropic: 'unchecked',
 };
 
+function defaultLocale(): Locale {
+  if (typeof navigator === 'undefined') return 'en';
+  const lang = (navigator.language || '').toLowerCase();
+  return lang.startsWith('ja') ? 'ja' : 'en';
+}
+
 export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSlice> = (set, get) => ({
   keys: emptyKeys,
   validations: emptyValidations,
   drawerOpen: false,
   validating: false,
+  locale: defaultLocale(),
   setKey: (provider, value) =>
     set((s) => ({
       keys: { ...s.keys, [provider]: value },
@@ -55,4 +65,5 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
     });
   },
   clearKeys: () => set({ keys: emptyKeys, validations: emptyValidations }),
+  setLocale: (locale) => set({ locale }),
 });

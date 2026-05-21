@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { chatCompletionsJson } from './openaiClient';
+import { IMAGE_PROMPT_LANGUAGE_NOTE } from '../i18n';
 import type { Brief, CopyVariant, ImagePromptMods } from '../types';
 
 export type BuildImagePromptArgs = {
@@ -114,7 +115,7 @@ export async function buildImagePrompt(args: BuildImagePromptArgs): Promise<stri
   const user = buildUserMessage(args);
   const raw = await chatCompletionsJson({
     apiKey: args.apiKey,
-    system: BUILDER_SYSTEM_PROMPT,
+    system: `${BUILDER_SYSTEM_PROMPT}\n\n${IMAGE_PROMPT_LANGUAGE_NOTE}`,
     user,
     schemaName: 'flux_prompt',
     schema: BUILDER_RESPONSE_SCHEMA as unknown as Record<string, unknown>,

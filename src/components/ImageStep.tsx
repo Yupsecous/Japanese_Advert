@@ -6,6 +6,7 @@ import { computeStepHash } from '../services/stepHash';
 import { CacheRestorePill } from './CacheRestorePill';
 import { InlineError } from './InlineError';
 import { BackButton } from './BackButton';
+import { useT } from '../i18n/hooks';
 import {
   copyVariantsOf,
   imageVariantsOf,
@@ -76,18 +77,19 @@ function CritiqueBlock({
   onApply: (text: string) => void;
   onClose: () => void;
 }) {
+  const t = useT();
   return (
     <div className="border-t border-neutral-200 bg-neutral-50 p-4">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-          Creative-director critique
+          {t('image.critiqueLabel')}
         </span>
         <button
           type="button"
           onClick={onClose}
           className="text-xs text-neutral-500 hover:text-neutral-800"
         >
-          Hide
+          {t('image.critiqueHide')}
         </button>
       </div>
 
@@ -101,14 +103,14 @@ function CritiqueBlock({
 
       {error && !loading && (
         <div className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-          <p className="font-medium">Critique failed</p>
+          <p className="font-medium">{t('image.critiqueFailed')}</p>
           <p className="mt-1">{error}</p>
           <button
             type="button"
             onClick={onLoad}
             className="mt-2 rounded-md border border-red-300 bg-white px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
           >
-            Retry
+            {t('image.critiqueRetry')}
           </button>
         </div>
       )}
@@ -122,10 +124,10 @@ function CritiqueBlock({
               onClick={() => onApply(critique.text)}
               className="rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
             >
-              Apply this critique
+              {t('image.applyCritique')}
             </button>
             <span className="text-xs text-neutral-500">
-              Pipes the critique into the refine flow for variant{' '}
+              {t('image.critiqueAppliedTo')}{' '}
               <span className="font-mono">{variantId.slice(0, 6)}</span>.
             </span>
           </div>
@@ -158,6 +160,7 @@ function VariantCard({
   onCritiqueLoad: () => Promise<void>;
   onApplyCritique: (text: string) => void;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -201,10 +204,8 @@ function VariantCard({
       </div>
       <div className="space-y-3 p-4">
         <div className="flex items-center justify-between text-xs text-neutral-500">
-          <span>
-            Option {index + 1} of {total}
-          </span>
-          {isSelected && <span className="font-medium text-emerald-700">Selected</span>}
+          <span>{t('common.optionOf', { n: index + 1, total })}</span>
+          {isSelected && <span className="font-medium text-emerald-700">{t('common.selected')}</span>}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -212,7 +213,7 @@ function VariantCard({
             onClick={onPick}
             className="flex-1 rounded-md bg-brand px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
           >
-            Pick this
+            {t('common.pickThis')}
           </button>
           <button
             type="button"
@@ -221,7 +222,7 @@ function VariantCard({
             title={critiqueDisabled && !critique ? critiqueDisabledReason : undefined}
             className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {open ? 'Hide critique' : critique ? 'Show critique' : 'Critique'}
+            {open ? t('image.hideCritique') : critique ? t('image.showCritique') : t('image.critique')}
           </button>
         </div>
       </div>
@@ -243,11 +244,12 @@ function VariantCard({
 // ErrorBanner replaced by shared <InlineError /> with plain-language strings.
 
 function HistoryPanel({ history }: { history: RefineEntry[] }) {
+  const t = useT();
   if (history.length === 0) return null;
   return (
     <details className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm">
       <summary className="cursor-pointer select-none font-medium text-neutral-700">
-        Direction history ({history.length})
+        {t('common.directionHistory', { n: history.length })}
       </summary>
       <ol className="mt-3 space-y-2">
         {history.map((h, i) => (
@@ -255,14 +257,14 @@ function HistoryPanel({ history }: { history: RefineEntry[] }) {
             <span className="font-mono text-xs text-neutral-400">{i + 1}.</span>
             <span className="flex-1">
               {h.kind === 'initial' && (
-                <em className="not-italic text-neutral-500">Initial generation</em>
+                <em className="not-italic text-neutral-500">{t('common.history.initial')}</em>
               )}
               {h.kind === 'more' && (
-                <em className="not-italic text-neutral-500">Asked for more variants</em>
+                <em className="not-italic text-neutral-500">{t('common.history.more')}</em>
               )}
               {h.kind === 'refine' && (
                 <span>
-                  Refined:{' '}
+                  {t('common.history.refined')}{' '}
                   <span className="font-medium text-neutral-900">
                     &ldquo;{(h.direction ?? '').slice(0, 240)}
                     {(h.direction ?? '').length > 240 ? '…' : ''}&rdquo;
@@ -271,7 +273,7 @@ function HistoryPanel({ history }: { history: RefineEntry[] }) {
               )}
               {h.kind === 'critique-applied' && (
                 <span>
-                  Applied critique:{' '}
+                  {t('common.history.critiqueApplied')}{' '}
                   <span className="font-medium text-neutral-900">
                     &ldquo;{(h.direction ?? '').slice(0, 160)}
                     {(h.direction ?? '').length > 160 ? '…' : ''}&rdquo;
@@ -279,7 +281,7 @@ function HistoryPanel({ history }: { history: RefineEntry[] }) {
                 </span>
               )}
               {h.kind === 'cache-restore' && (
-                <em className="not-italic text-neutral-500">Restored from earlier session</em>
+                <em className="not-italic text-neutral-500">{t('common.history.cacheRestore')}</em>
               )}
               {(h.kind === 'initial' ||
                 h.kind === 'more' ||
@@ -298,6 +300,7 @@ function HistoryPanel({ history }: { history: RefineEntry[] }) {
 export function ImageStep() {
   const brief = useAppStore((s) => s.brief);
   const apiKeys = useAppStore((s) => s.keys);
+  const locale = useAppStore((s) => s.locale);
   const step = useAppStore((s) => s.steps.image);
   const copyStep = useAppStore((s) => s.steps.copy);
   const setStepStatus = useAppStore((s) => s.setStepStatus);
@@ -309,6 +312,7 @@ export function ImageStep() {
   const restoreFromCache = useAppStore((s) => s.restoreFromCache);
   const reopenStep = useAppStore((s) => s.reopenStep);
   const openDrawer = useAppStore((s) => s.openDrawer);
+  const t = useT();
 
   const variants = imageVariantsOf(step.variants);
 
@@ -332,6 +336,7 @@ export function ImageStep() {
         approvedCopy,
         count: 2,
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
+        locale,
       });
       appendVariants('image', next);
       addHistoryEntry('image', makeHistoryEntry('initial', null, next.length));
@@ -354,6 +359,7 @@ export function ImageStep() {
         previousVariants: variants,
         count: 2,
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
+        locale,
       });
       appendVariants('image', next);
       addHistoryEntry('image', makeHistoryEntry('more', null, next.length));
@@ -382,6 +388,7 @@ export function ImageStep() {
         refineDirection: direction,
         count: 2,
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
+        locale,
       });
       addHistoryEntry('image', makeHistoryEntry(kind, direction, next.length));
       replaceVariants('image', next);
@@ -404,6 +411,7 @@ export function ImageStep() {
       approvedCopy,
       brief,
       apiKey: apiKeys.anthropic,
+      locale,
     });
     const c: Critique = {
       variantId: variant.id,
@@ -435,10 +443,8 @@ export function ImageStep() {
   if (!approvedCopy) {
     return (
       <section className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-        <p className="font-medium">Approved copy missing.</p>
-        <p className="mt-1">
-          The image step opened without a selected copy variant. Re-open step 1 and pick one.
-        </p>
+        <p className="font-medium">{t('image.copyMissingTitle')}</p>
+        <p className="mt-1">{t('image.copyMissingBody')}</p>
       </section>
     );
   }
@@ -456,31 +462,26 @@ export function ImageStep() {
   return (
     <section className="space-y-5">
       <div>
-        <BackButton label="Back to copy" onClick={() => reopenStep('copy')} disabled={loading !== null} />
+        <BackButton label={t('image.backToCopy')} onClick={() => reopenStep('copy')} disabled={loading !== null} />
       </div>
       <header className="flex items-baseline justify-between">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Image</h2>
-          <p className="mt-1 text-sm text-neutral-500">
-            Pick an image, ask for more, refine in plain English, or get a director&apos;s critique.
-          </p>
+          <h2 className="text-lg font-semibold tracking-tight">{t('image.heading')}</h2>
+          <p className="mt-1 text-sm text-neutral-500">{t('image.subtitle')}</p>
         </div>
         <span className="text-xs uppercase tracking-wide text-neutral-500">{step.status}</span>
       </header>
 
       {keysMissing && (
         <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <p className="font-medium">Keys required</p>
-          <p className="mt-1">
-            Image generation needs both an OpenAI key (prompt builder) and a fal.ai key
-            (Flux Schnell). Add them in Settings.
-          </p>
+          <p className="font-medium">{t('image.keysMissingTitle')}</p>
+          <p className="mt-1">{t('image.keysMissingBody')}</p>
           <button
             type="button"
             onClick={openDrawer}
             className="mt-3 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100"
           >
-            Open Settings
+            {t('common.openSettings')}
           </button>
         </div>
       )}
@@ -516,7 +517,7 @@ export function ImageStep() {
               onCritiqueLoad={() => loadCritique(v)}
               onApplyCritique={(text) => void runRefine(text, 'critique-applied')}
               critiqueDisabled={anthropicMissing}
-              critiqueDisabledReason="Add Anthropic key in Settings to enable critique."
+              critiqueDisabledReason={t('image.critiqueDisabled')}
             />
           ))
         )}
@@ -541,32 +542,30 @@ export function ImageStep() {
               disabled={loading !== null || keysMissing}
               className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading === 'more' ? 'Generating…' : 'Show me 2 more'}
+              {loading === 'more' ? t('common.generating') : t('common.showMore')}
             </button>
             <span className="text-xs text-neutral-500">
-              {variants.length} variant{variants.length === 1 ? '' : 's'} so far
+              {t('common.variantsSoFar', { n: variants.length, s: variants.length === 1 ? '' : 's' })}
             </span>
             {anthropicMissing && (
               <span className="ml-auto text-xs text-amber-700">
-                Anthropic key missing — critique disabled
+                {t('image.anthropicMissing')}
               </span>
             )}
           </div>
 
           <div className="rounded-lg border border-neutral-200 bg-white p-4">
             <label htmlFor="image-refine" className="text-sm font-medium text-neutral-800">
-              Refine
+              {t('common.refine')}
             </label>
-            <p className="mt-1 text-xs text-neutral-500">
-              Describe a direction. Fresh images take its lead instead of editing the old ones.
-            </p>
+            <p className="mt-1 text-xs text-neutral-500">{t('common.refineDirection')}</p>
             <div className="mt-3 flex flex-col gap-3 md:flex-row">
               <textarea
                 id="image-refine"
                 rows={2}
                 value={refineText}
                 onChange={(e) => setRefineText(e.target.value)}
-                placeholder="e.g. lighter background, the guy should smile more, more energy"
+                placeholder={t('image.refinePlaceholder')}
                 disabled={loading !== null}
                 className="flex-1 resize-none rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 disabled:bg-neutral-50"
               />
@@ -576,7 +575,7 @@ export function ImageStep() {
                 disabled={loading !== null || refineText.trim().length === 0 || keysMissing}
                 className="self-start rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
               >
-                {loading === 'refine' ? 'Refining…' : 'Refine'}
+                {loading === 'refine' ? t('common.refining') : t('common.refine')}
               </button>
             </div>
           </div>

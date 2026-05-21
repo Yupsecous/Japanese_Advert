@@ -4,6 +4,7 @@ import { llmService } from '../services/llmService';
 import { computeStepHash } from '../services/stepHash';
 import { CacheRestorePill } from './CacheRestorePill';
 import { InlineError } from './InlineError';
+import { useT } from '../i18n/hooks';
 import {
   copyVariantsOf,
   type CopyVariant,
@@ -68,6 +69,7 @@ function VariantCard({
   isSelected: boolean;
   onPick: () => void;
 }) {
+  const t = useT();
   return (
     <article
       className={`flex flex-col rounded-lg border bg-white p-5 transition-colors ${
@@ -75,10 +77,8 @@ function VariantCard({
       }`}
     >
       <div className="flex items-center justify-between text-xs text-neutral-500">
-        <span>
-          Option {index + 1} of {total}
-        </span>
-        {isSelected && <span className="font-medium text-emerald-700">Selected</span>}
+        <span>{t('common.optionOf', { n: index + 1, total })}</span>
+        {isSelected && <span className="font-medium text-emerald-700">{t('common.selected')}</span>}
       </div>
       <h3 className="mt-3 text-base font-semibold leading-snug text-neutral-900">
         {variant.headline}
@@ -93,7 +93,7 @@ function VariantCard({
           onClick={onPick}
           className="rounded-md bg-brand px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
         >
-          Pick this
+          {t('common.pickThis')}
         </button>
       </div>
     </article>
@@ -104,26 +104,32 @@ function VariantCard({
 // strings via humanize().
 
 function HistoryPanel({ history }: { history: RefineEntry[] }) {
+  const t = useT();
   if (history.length === 0) return null;
   return (
     <details className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm">
       <summary className="cursor-pointer select-none font-medium text-neutral-700">
-        Direction history ({history.length})
+        {t('common.directionHistory', { n: history.length })}
       </summary>
       <ol className="mt-3 space-y-2">
         {history.map((h, i) => (
           <li key={h.id} className="flex gap-3 text-neutral-700">
             <span className="font-mono text-xs text-neutral-400">{i + 1}.</span>
             <span className="flex-1">
-              {h.kind === 'initial' && <em className="not-italic text-neutral-500">Initial generation</em>}
-              {h.kind === 'more' && <em className="not-italic text-neutral-500">Asked for more variants</em>}
+              {h.kind === 'initial' && (
+                <em className="not-italic text-neutral-500">{t('common.history.initial')}</em>
+              )}
+              {h.kind === 'more' && (
+                <em className="not-italic text-neutral-500">{t('common.history.more')}</em>
+              )}
               {h.kind === 'refine' && (
                 <span>
-                  Refined: <span className="font-medium text-neutral-900">&ldquo;{h.direction}&rdquo;</span>
+                  {t('common.history.refined')}{' '}
+                  <span className="font-medium text-neutral-900">&ldquo;{h.direction}&rdquo;</span>
                 </span>
               )}
               {h.kind === 'cache-restore' && (
-                <em className="not-italic text-neutral-500">Restored from earlier session</em>
+                <em className="not-italic text-neutral-500">{t('common.history.cacheRestore')}</em>
               )}
               {(h.kind === 'initial' || h.kind === 'more' || h.kind === 'refine') && (
                 <span className="ml-2 text-xs text-neutral-500">+{h.variantCount}</span>
@@ -140,6 +146,7 @@ export function CopyStep() {
   const brief = useAppStore((s) => s.brief);
   const apiKey = useAppStore((s) => s.keys.openai);
   const anthropicKey = useAppStore((s) => s.keys.anthropic);
+  const locale = useAppStore((s) => s.locale);
   const step = useAppStore((s) => s.steps.copy);
   const setStepStatus = useAppStore((s) => s.setStepStatus);
   const appendVariants = useAppStore((s) => s.appendVariants);
@@ -148,6 +155,7 @@ export function CopyStep() {
   const pickVariant = useAppStore((s) => s.pickVariant);
   const restoreFromCache = useAppStore((s) => s.restoreFromCache);
   const openDrawer = useAppStore((s) => s.openDrawer);
+  const t = useT();
 
   const variants = copyVariantsOf(step.variants);
 
@@ -164,6 +172,7 @@ export function CopyStep() {
         apiKeys: { openai: apiKey, anthropic: anthropicKey },
         brief,
         count: 2,
+        locale,
       });
       appendVariants('copy', next);
       addHistoryEntry('copy', makeHistoryEntry('initial', null, next.length));
@@ -184,6 +193,7 @@ export function CopyStep() {
         brief,
         previousVariants: variants,
         count: 2,
+        locale,
       });
       appendVariants('copy', next);
       addHistoryEntry('copy', makeHistoryEntry('more', null, next.length));
@@ -207,6 +217,7 @@ export function CopyStep() {
         previousVariants: variants,
         refineDirection: direction,
         count: 2,
+        locale,
       });
       addHistoryEntry('copy', makeHistoryEntry('refine', direction, next.length));
       replaceVariants('copy', next);
@@ -249,32 +260,29 @@ export function CopyStep() {
     <section className="space-y-5">
       <header className="flex items-baseline justify-between">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Copy</h2>
-          <p className="mt-1 text-sm text-neutral-500">
-            Pick a variant, ask for more, or describe how to refine.
-          </p>
+          <h2 className="text-lg font-semibold tracking-tight">{t('copy.heading')}</h2>
+          <p className="mt-1 text-sm text-neutral-500">{t('copy.subtitle')}</p>
         </div>
         <span className="text-xs uppercase tracking-wide text-neutral-500">{step.status}</span>
       </header>
 
       {apiKeyMissing && (
         <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <p className="font-medium">OpenAI key required</p>
-          <p className="mt-1">Add your key in Settings to generate copy variants.</p>
+          <p className="font-medium">{t('copy.keyMissingTitle')}</p>
+          <p className="mt-1">{t('copy.keyMissingBody')}</p>
           <button
             type="button"
             onClick={openDrawer}
             className="mt-3 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100"
           >
-            Open Settings
+            {t('common.openSettings')}
           </button>
         </div>
       )}
 
       {!apiKeyMissing && anthropicKey.trim().length === 0 && (
         <div className="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-2 text-xs text-neutral-600">
-          Add an Anthropic key in Settings for higher-quality copy generation. The demo still works
-          without it.
+          {t('copy.anthropicHint')}
         </div>
       )}
 
@@ -329,27 +337,25 @@ export function CopyStep() {
               disabled={loading !== null || apiKeyMissing}
               className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading === 'more' ? 'Generating…' : 'Show me 2 more'}
+              {loading === 'more' ? t('common.generating') : t('common.showMore')}
             </button>
             <span className="text-xs text-neutral-500">
-              {variants.length} variant{variants.length === 1 ? '' : 's'} so far
+              {t('common.variantsSoFar', { n: variants.length, s: variants.length === 1 ? '' : 's' })}
             </span>
           </div>
 
           <div className="rounded-lg border border-neutral-200 bg-white p-4">
             <label htmlFor="refine-direction" className="text-sm font-medium text-neutral-800">
-              Refine
+              {t('common.refine')}
             </label>
-            <p className="mt-1 text-xs text-neutral-500">
-              Describe a direction. Fresh variants take its lead instead of editing the old ones.
-            </p>
+            <p className="mt-1 text-xs text-neutral-500">{t('common.refineDirection')}</p>
             <div className="mt-3 flex flex-col gap-3 md:flex-row">
               <textarea
                 id="refine-direction"
                 rows={2}
                 value={refineText}
                 onChange={(e) => setRefineText(e.target.value)}
-                placeholder="e.g. more aggressive, less corporate"
+                placeholder={t('copy.refinePlaceholder')}
                 disabled={loading !== null}
                 className="flex-1 resize-none rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 disabled:bg-neutral-50"
               />
@@ -359,7 +365,7 @@ export function CopyStep() {
                 disabled={loading !== null || refineText.trim().length === 0 || apiKeyMissing}
                 className="self-start rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
               >
-                {loading === 'refine' ? 'Refining…' : 'Refine'}
+                {loading === 'refine' ? t('common.refining') : t('common.refine')}
               </button>
             </div>
           </div>

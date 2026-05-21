@@ -1,4 +1,5 @@
 import { useAppStore, activeStepId, isStepUnlocked } from '../store';
+import { useT } from '../i18n/hooks';
 import { STEP_ORDER, type StepId, type StepStatus } from '../types';
 
 function statusGlyph(status: StepStatus): string {
@@ -19,6 +20,7 @@ function statusGlyph(status: StepStatus): string {
 export function Stepper() {
   const state = useAppStore();
   const active = activeStepId(state);
+  const t = useT();
 
   return (
     <ol className="flex w-full items-center gap-2">
@@ -52,8 +54,10 @@ export function Stepper() {
                 {statusGlyph(step.status) || idx + 1}
               </span>
               <span className="flex flex-col items-start">
-                <span className="text-xs uppercase tracking-wide opacity-60">Step {idx + 1}</span>
-                <span className="text-sm font-medium">{step.label}</span>
+                <span className="text-xs uppercase tracking-wide opacity-60">
+                  {t('stepper.step')} {idx + 1}
+                </span>
+                <span className="text-sm font-medium">{t(`step.${id}`)}</span>
               </span>
             </button>
             {idx < STEP_ORDER.length - 1 && <span className="h-px w-4 bg-neutral-200" />}

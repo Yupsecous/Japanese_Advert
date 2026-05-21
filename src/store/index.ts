@@ -46,6 +46,7 @@ export const useAppStore = create<AppState>()(
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         keys: state.keys,
+        locale: state.locale,
         brief: state.brief,
         briefSubmitted: state.briefSubmitted,
         steps: {

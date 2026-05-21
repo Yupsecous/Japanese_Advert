@@ -1,4 +1,5 @@
 import { AppError } from './errorMessages';
+import { languageDirective, type Locale } from '../i18n';
 import type { Brief, CopyVariant, ImageVariant } from '../types';
 
 export type CritiqueImageArgs = {
@@ -6,6 +7,7 @@ export type CritiqueImageArgs = {
   approvedCopy: CopyVariant;
   brief: Brief;
   apiKey: string;
+  locale?: Locale;
 };
 
 const ANTHROPIC_MODEL = 'claude-sonnet-4-6';
@@ -72,7 +74,7 @@ export async function critiqueImage(args: CritiqueImageArgs): Promise<string> {
       body: JSON.stringify({
         model: ANTHROPIC_MODEL,
         max_tokens: 600,
-        system: CRITIQUE_SYSTEM_PROMPT,
+        system: `${CRITIQUE_SYSTEM_PROMPT}\n\n${languageDirective(args.locale ?? 'en')}`,
         messages: [
           {
             role: 'user',

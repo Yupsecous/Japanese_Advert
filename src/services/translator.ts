@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { chatCompletionsJson } from './openaiClient';
 import { AppError } from './errorMessages';
+import { languageDirective, type Locale } from '../i18n';
 import type {
   AssetType,
   CopyMods,
@@ -14,6 +15,7 @@ export type TranslateDirectionArgs = {
   assetType: AssetType;
   apiKey: string;
   currentAsset?: { kind: string; summary: string };
+  locale?: Locale;
 };
 
 const COPY_SYSTEM_PROMPT = `You translate a creative director's plain-language direction into structured copy modifications. The output drives a second LLM that writes ad copy.
@@ -321,12 +323,22 @@ export async function translateDirection(args: TranslateDirectionArgs): Promise<
     throw new AppError('translator/empty-direction');
   }
   const user = buildUserMessage(direction, args.currentAsset);
+  const locale: Locale = args.locale ?? 'en';
+
+  // Translator-only language note: for copy and voice the *prose* fields
+  // (enrichedDirection, scriptTone, delivery, …) feed into a downstream
+  // generator whose output is shown to the user — so they must be in the
+  // user's locale. For image mods the prose feeds Flux which only handles
+  // English well; callers pass locale: 'en' for that path.
+  function withLocale(system: string): string {
+    return `${system}\n\n${languageDirective(locale)}`;
+  }
 
   switch (args.assetType) {
     case 'copy': {
       const raw = await chatCompletionsJson({
         apiKey: args.apiKey,
-        system: COPY_SYSTEM_PROMPT,
+        system: withLocale(COPY_SYSTEM_PROMPT),
         user,
         schemaName: 'copy_mods',
         schema: COPY_MODS_SCHEMA as unknown as Record<string, unknown>,
@@ -339,7 +351,7 @@ export async function translateDirection(args: TranslateDirectionArgs): Promise<
     case 'image': {
       const raw = await chatCompletionsJson({
         apiKey: args.apiKey,
-        system: IMAGE_SYSTEM_PROMPT,
+        system: withLocale(IMAGE_SYSTEM_PROMPT),
         user,
         schemaName: 'image_mods',
         schema: IMAGE_MODS_SCHEMA as unknown as Record<string, unknown>,
@@ -352,7 +364,7 @@ export async function translateDirection(args: TranslateDirectionArgs): Promise<
     case 'voice': {
       const raw = await chatCompletionsJson({
         apiKey: args.apiKey,
-        system: VOICE_SYSTEM_PROMPT,
+        system: withLocale(VOICE_SYSTEM_PROMPT),
         user,
         schemaName: 'voice_mods',
         schema: VOICE_MODS_SCHEMA as unknown as Record<string, unknown>,
