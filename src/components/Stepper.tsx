@@ -31,7 +31,11 @@ export function Stepper() {
         const unlocked = isStepUnlocked(state, id);
         const isActive = active === id;
         const isApproved = step.status === 'approved';
-        const clickable = isApproved;
+        // Approved steps reopen on click (and are interactive). The active
+        // step stays interactive too — clicking it is a visual no-op (you're
+        // already there) but should not feel dead. Only locked-future steps
+        // are truly disabled.
+        const clickable = isApproved || isActive;
 
         // Mobile: compact pill — glyph circle + step label, no "Step N" eyebrow, no connector.
         // sm+: full layout with eyebrow + connector between steps.
@@ -51,7 +55,12 @@ export function Stepper() {
             <button
               type="button"
               disabled={!clickable}
-              onClick={() => clickable && state.reopenStep(id as StepId)}
+              onClick={() => {
+                // Only approved steps need reopenStep (which demotes their
+                // status so the active-step routing falls back to them).
+                // For the active step, the click is purely a visual ack.
+                if (isApproved) state.reopenStep(id as StepId);
+              }}
               className={`${base} ${tone} ${interactivity}`}
               aria-current={isActive ? 'step' : undefined}
             >
