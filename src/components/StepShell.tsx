@@ -3,6 +3,7 @@ import { CopyStep } from './CopyStep';
 import { ImageStep } from './ImageStep';
 import { ScriptStep } from './ScriptStep';
 import { AudioStep } from './AudioStep';
+import { DesignStep } from './DesignStep';
 import { FinalPackage } from './FinalPackage';
 import { STEP_LABELS, type StepId } from '../types';
 
@@ -39,6 +40,7 @@ export function StepShell() {
   if (activeId === 'image') return <ImageStep />;
   if (activeId === 'script') return <ScriptStep />;
   if (activeId === 'audio') return <AudioStep />;
+  if (activeId === 'design') return <DesignStep />;
 
   return <Placeholder stepId={activeId} />;
 }

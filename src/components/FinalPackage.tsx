@@ -4,11 +4,13 @@ import { downloadPackage } from '../services/exportService';
 import { WaveformPlayer } from './WaveformPlayer';
 import { DirectorsNotes } from './DirectorsNotes';
 import { BackButton } from './BackButton';
+import { ViewportFrame } from './ViewportFrame';
 import { useT } from '../i18n/hooks';
 import { resolveVoice } from '../data/voiceLibrary';
 import {
   audioVariantsOf,
   copyVariantsOf,
+  designVariantsOf,
   imageVariantsOf,
   scriptVariantsOf,
 } from '../types';
@@ -29,6 +31,7 @@ export function FinalPackage() {
   const image = imageVariantsOf(state.steps.image.variants)[state.steps.image.selectedIndex ?? -1];
   const script = scriptVariantsOf(state.steps.script.variants)[state.steps.script.selectedIndex ?? -1];
   const audio = audioVariantsOf(state.steps.audio.variants)[state.steps.audio.selectedIndex ?? -1];
+  const design = designVariantsOf(state.steps.design.variants)[state.steps.design.selectedIndex ?? -1];
   const voice = resolveVoice(state.steps.script.selectedVoiceId, state.steps.script.history);
 
   if (!copy || !image || !script || !audio || !voice) {
@@ -164,6 +167,25 @@ export function FinalPackage() {
           </aside>
         </div>
       </section>
+
+      {design && (
+        <section className="rounded-lg border border-neutral-200 bg-white p-6">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            {t('final.design')}
+          </h3>
+          {design.rationale && (
+            <p className="mt-2 text-sm text-neutral-700">{design.rationale}</p>
+          )}
+          <div className="mt-4">
+            <ViewportFrame
+              srcDoc={`<!doctype html><html><head><meta charset="utf-8" /><script src="https://cdn.tailwindcss.com"></script><script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><style>html,body{margin:0;padding:0;background:#fff}</style></head><body><div id="root"></div><script type="text/babel" data-presets="react,typescript">try{${design.code}\nReactDOM.createRoot(document.getElementById('root')).render(React.createElement(${design.componentName || 'GeneratedComponent'}));}catch(e){document.body.innerHTML='<pre style="padding:16px;color:#991b1b">'+(e.message||e)+'</pre>'}</script></body></html>`}
+              frameKey={design.id}
+              defaultViewport="desktop"
+              title="Landing page preview"
+            />
+          </div>
+        </section>
+      )}
 
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">

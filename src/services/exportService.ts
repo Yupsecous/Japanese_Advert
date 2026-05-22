@@ -3,6 +3,7 @@ import { generateDirectorsNotesMarkdown } from './directorsNotes';
 import {
   audioVariantsOf,
   copyVariantsOf,
+  designVariantsOf,
   imageVariantsOf,
 } from '../types';
 import type { AppState } from '../store';
@@ -45,10 +46,12 @@ export async function downloadPackage(state: AppState): Promise<DownloadResult> 
   const copyStep = state.steps.copy;
   const imageStep = state.steps.image;
   const audioStep = state.steps.audio;
+  const designStep = state.steps.design;
 
   const copy = copyVariantsOf(copyStep.variants)[copyStep.selectedIndex ?? -1];
   const image = imageVariantsOf(imageStep.variants)[imageStep.selectedIndex ?? -1];
   const audio = audioVariantsOf(audioStep.variants)[audioStep.selectedIndex ?? -1];
+  const design = designVariantsOf(designStep.variants)[designStep.selectedIndex ?? -1];
 
   if (!copy || !image || !audio) {
     throw new Error('Final package is incomplete — re-approve missing steps.');
@@ -95,6 +98,18 @@ export async function downloadPackage(state: AppState): Promise<DownloadResult> 
       `${audio.audioUrl}\n\nAudio could not be fetched as bytes. Open the URL above to download the file.\n`,
     );
   }
+  if (design) {
+    const header = [
+      `// Generated landing-page component.`,
+      `// Single-file React + Tailwind v4, no imports required (React is provided by host).`,
+      `//`,
+      `// Component: ${design.componentName}`,
+      `// Rationale: ${design.rationale.replace(/\n/g, ' ')}`,
+      ``,
+    ].join('\n');
+    zip.file('landing-page.tsx', header + design.code + '\n');
+  }
+
   zip.file('director-notes.md', generateDirectorsNotesMarkdown(state));
 
   const zipBlob = await zip.generateAsync({ type: 'blob' });

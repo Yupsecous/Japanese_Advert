@@ -55,6 +55,7 @@ function emptySteps(): Record<StepId, StepState> {
     image: emptyStep('image'),
     script: emptyStep('script'),
     audio: emptyStep('audio'),
+    design: emptyStep('design'),
   };
 }
 

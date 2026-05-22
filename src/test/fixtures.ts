@@ -2,6 +2,7 @@ import type {
   AudioVariant,
   CopyVariant,
   Critique,
+  DesignVariant,
   ImageVariant,
   RefineEntry,
   ScriptVariant,
@@ -58,6 +59,17 @@ export function audioVariant(): AudioVariant {
     audioUrl: 'blob:mock',
     voiceId: 'brian',
     scriptId: 'scr-0001',
+    createdAt: 1,
+  };
+}
+
+export function designVariant(): DesignVariant {
+  return {
+    kind: 'design',
+    id: nextId('dsn'),
+    componentName: 'GeneratedComponent',
+    code: 'function GeneratedComponent(){return <div/>}',
+    rationale: 'test',
     createdAt: 1,
   };
 }
@@ -136,6 +148,7 @@ export type StateOverrides = {
   image?: StepOverrides;
   script?: StepOverrides;
   audio?: StepOverrides;
+  design?: StepOverrides;
 };
 
 export function makeState(o: StateOverrides = {}): AppState {
@@ -161,6 +174,7 @@ export function makeState(o: StateOverrides = {}): AppState {
       image: makeStep('image', o.image),
       script: makeStep('script', o.script),
       audio: makeStep('audio', o.audio),
+      design: makeStep('design', o.design),
     },
     variantCache: {},
   };

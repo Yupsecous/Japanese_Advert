@@ -5,9 +5,12 @@
 //   script : brief + copy.approvedId + image.approvedId + script.refines
 //   audio  : brief + copy.approvedId + image.approvedId + script.approvedId
 //            + script.selectedVoiceId + audio.refines
+//   design : brief + copy.approvedId + image.approvedId + design.refines
 //
 // Voice ID belongs to audio's hash, NOT script's. Changing voice
-// invalidates audio only.
+// invalidates audio only. Design depends on the visual identity (copy +
+// image) but not on the spoken assets, so changing the voice/audio
+// re-render does not invalidate the design.
 
 import type { StepId } from '../types';
 import type { AppState } from '../store';
@@ -47,10 +50,10 @@ export function computeStepHash(state: AppState, stepId: StepId): string {
   parts.push(state.brief.targetAudience);
   parts.push(state.brief.adAngle);
 
-  if (stepId === 'image' || stepId === 'script' || stepId === 'audio') {
+  if (stepId === 'image' || stepId === 'script' || stepId === 'audio' || stepId === 'design') {
     parts.push(approvedVariantId(state, 'copy'));
   }
-  if (stepId === 'script' || stepId === 'audio') {
+  if (stepId === 'script' || stepId === 'audio' || stepId === 'design') {
     parts.push(approvedVariantId(state, 'image'));
   }
   if (stepId === 'audio') {

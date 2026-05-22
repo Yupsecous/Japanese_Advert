@@ -42,7 +42,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'demo-v2-state',
-      version: 6,
+      version: 7,
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         keys: state.keys,
@@ -54,6 +54,7 @@ export const useAppStore = create<AppState>()(
           image: state.steps.image,
           script: state.steps.script,
           audio: partializeAudio(state.steps.audio),
+          design: state.steps.design,
         },
         variantCache: partializeCache(state.variantCache),
       }),

@@ -9,6 +9,7 @@ import {
   imageVariant,
   scriptVariant,
   audioVariant,
+  designVariant,
 } from '../test/fixtures';
 
 // Fresh store per test — no persist middleware, no sessionStorage
@@ -134,7 +135,7 @@ describe('cascade — pending → generating on upstream approval', () => {
     expect(store.getState().steps.audio.status).toBe('generating');
   });
 
-  it('allApproved becomes true after audio approval', () => {
+  it('allApproved becomes true after design approval (last step)', () => {
     store.getState().appendVariants('copy', [copyVariant()]);
     store.getState().pickVariant('copy', 0);
     store.getState().appendVariants('image', [imageVariant()]);
@@ -144,6 +145,10 @@ describe('cascade — pending → generating on upstream approval', () => {
     store.getState().setVoiceId('script', 'brian');
     store.getState().appendVariants('audio', [audioVariant()]);
     store.getState().pickVariant('audio', 0);
+    // Audio approval is no longer the terminal step — design must also be approved.
+    expect(allApproved(store.getState())).toBe(false);
+    store.getState().appendVariants('design', [designVariant()]);
+    store.getState().pickVariant('design', 0);
     expect(allApproved(store.getState())).toBe(true);
   });
 });

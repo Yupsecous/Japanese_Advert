@@ -1,4 +1,4 @@
-export type StepId = 'copy' | 'image' | 'script' | 'audio';
+export type StepId = 'copy' | 'image' | 'script' | 'audio' | 'design';
 
 export type StepStatus =
   | 'pending'
@@ -52,7 +52,16 @@ export type AudioVariant = {
   createdAt: number;
 };
 
-export type Variant = CopyVariant | ImageVariant | ScriptVariant | AudioVariant;
+export type DesignVariant = {
+  kind: 'design';
+  id: string;
+  componentName: string;
+  code: string; // single-file TSX, default export named componentName
+  rationale: string;
+  createdAt: number;
+};
+
+export type Variant = CopyVariant | ImageVariant | ScriptVariant | AudioVariant | DesignVariant;
 
 export type RefineKind = 'initial' | 'more' | 'refine' | 'critique-applied';
 
@@ -115,13 +124,14 @@ export type ValidationStatus = 'unchecked' | 'validating' | 'ok' | 'fail';
 export type ApiKeys = Record<Provider, string>;
 export type Validations = Record<Provider, ValidationStatus>;
 
-export const STEP_ORDER: readonly StepId[] = ['copy', 'image', 'script', 'audio'] as const;
+export const STEP_ORDER: readonly StepId[] = ['copy', 'image', 'script', 'audio', 'design'] as const;
 
 export const STEP_LABELS: Record<StepId, string> = {
   copy: 'Copy',
   image: 'Image',
   script: 'Script',
   audio: 'Audio',
+  design: 'Design',
 };
 
 export const PROVIDER_LABELS: Record<Provider, string> = {
@@ -161,6 +171,14 @@ export function isAudioVariant(v: Variant): v is AudioVariant {
 
 export function audioVariantsOf(variants: Variant[]): AudioVariant[] {
   return variants.filter(isAudioVariant);
+}
+
+export function isDesignVariant(v: Variant): v is DesignVariant {
+  return v.kind === 'design';
+}
+
+export function designVariantsOf(variants: Variant[]): DesignVariant[] {
+  return variants.filter(isDesignVariant);
 }
 
 export type CachedStepState = {

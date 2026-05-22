@@ -39,6 +39,7 @@ const EN: Dict = {
   'step.image': 'Image',
   'step.script': 'Script',
   'step.audio': 'Audio',
+  'step.design': 'Design',
 
   // Onboarding
   'onboarding.eyebrow': 'Welcome',
@@ -201,10 +202,34 @@ const EN: Dict = {
   'voice.play': 'Play {name}',
   'voice.pause': 'Pause {name}',
 
+  // Design step
+  'design.heading': 'Design',
+  'design.subtitle':
+    'Claude generates a one-page landing site that uses your approved copy and hero image. Preview, refine in plain language, or approve to add to the package.',
+  'design.keyMissingTitle': 'Anthropic key required',
+  'design.keyMissingBody':
+    'Design generation runs on Claude. Add your Anthropic key in Settings to continue.',
+  'design.backToAudio': 'Back to audio',
+  'design.approve': 'Approve design',
+  'design.showCode': 'Show code',
+  'design.hideCode': 'Hide code',
+  'design.refineHint':
+    'Describe a direction. The next render starts fresh with that direction in mind.',
+  'design.refinePlaceholder': 'e.g. editorial, more whitespace, darker palette',
+  'design.rationale': 'Rationale',
+  'design.missingTitle': 'Upstream selection missing.',
+  'design.missingBody':
+    'The design step needs an approved copy variant AND an approved image. Reopen the earlier steps and pick one of each.',
+
+  // Viewport toggle
+  'viewport.mobile': 'Mobile',
+  'viewport.tablet': 'Tablet',
+  'viewport.desktop': 'Desktop',
+
   // Final package
   'final.eyebrow': 'Approved',
   'final.heading': 'Final package',
-  'final.body': 'All four assets locked. Download the bundle or backtrack to any step to revise.',
+  'final.body': 'All five assets locked. Download the bundle or backtrack to any step to revise.',
   'final.editAny': 'Edit any step',
   'final.download': 'Download package',
   'final.packaging': 'Packaging…',
@@ -222,6 +247,7 @@ const EN: Dict = {
   'final.script': 'Script',
   'final.voice': 'Voice',
   'final.tone': 'Tone',
+  'final.design': 'Landing page',
   'final.directorsNotes': "Director's notes",
 
   // Directors notes
@@ -296,6 +322,7 @@ const JA: Dict = {
   'step.image': '画像',
   'step.script': 'スクリプト',
   'step.audio': '音声',
+  'step.design': 'デザイン',
 
   // Onboarding
   'onboarding.eyebrow': 'ようこそ',
@@ -460,11 +487,35 @@ const JA: Dict = {
   'voice.play': '{name}を再生',
   'voice.pause': '{name}を一時停止',
 
+  // Design step
+  'design.heading': 'デザイン',
+  'design.subtitle':
+    '承認済みのコピーとヒーロー画像を使って、Claudeがランディングページを生成します。プレビューを確認し、自然な言葉で調整するか、承認してパッケージに追加してください。',
+  'design.keyMissingTitle': 'Anthropicキーが必要です',
+  'design.keyMissingBody':
+    'デザイン生成はClaudeで動作します。設定からAnthropicキーを追加してください。',
+  'design.backToAudio': '音声へ戻る',
+  'design.approve': 'デザインを承認',
+  'design.showCode': 'コードを表示',
+  'design.hideCode': 'コードを隠す',
+  'design.refineHint':
+    '方向性を記述してください。次のレンダリングはその指示を反映してゼロから生成されます。',
+  'design.refinePlaceholder': '例: エディトリアル風に、余白を増やす、より落ち着いた配色に',
+  'design.rationale': 'デザイン意図',
+  'design.missingTitle': '上流の選択が不足しています。',
+  'design.missingBody':
+    'デザインステップには承認済みのコピー案と承認済みの画像の両方が必要です。前のステップに戻り、それぞれを選択してください。',
+
+  // Viewport toggle
+  'viewport.mobile': 'モバイル',
+  'viewport.tablet': 'タブレット',
+  'viewport.desktop': 'デスクトップ',
+
   // Final package
   'final.eyebrow': '承認済み',
   'final.heading': '最終パッケージ',
   'final.body':
-    '4つの素材すべてが確定しました。バンドルをダウンロードするか、任意のステップに戻って修正できます。',
+    '5つの素材すべてが確定しました。バンドルをダウンロードするか、任意のステップに戻って修正できます。',
   'final.editAny': '任意のステップを編集',
   'final.download': 'パッケージをダウンロード',
   'final.packaging': 'パッケージ作成中…',
@@ -482,6 +533,7 @@ const JA: Dict = {
   'final.script': 'スクリプト',
   'final.voice': '音声',
   'final.tone': 'トーン',
+  'final.design': 'ランディングページ',
   'final.directorsNotes': 'ディレクターズノート',
 
   // Directors notes
@@ -560,6 +612,7 @@ const PT: Dict = {
   'step.image': 'Imagem',
   'step.script': 'Roteiro',
   'step.audio': 'Áudio',
+  'step.design': 'Design',
 
   // Onboarding
   'onboarding.eyebrow': 'Bem-vindo',
@@ -724,11 +777,35 @@ const PT: Dict = {
   'voice.play': 'Reproduzir {name}',
   'voice.pause': 'Pausar {name}',
 
+  // Design step
+  'design.heading': 'Design',
+  'design.subtitle':
+    'Claude gera uma landing page de uma só página usando seu texto e imagem aprovados. Visualize, refine em linguagem natural ou aprove para incluir no pacote.',
+  'design.keyMissingTitle': 'Chave Anthropic necessária',
+  'design.keyMissingBody':
+    'A geração de design roda no Claude. Adicione sua chave Anthropic em Configurações para continuar.',
+  'design.backToAudio': 'Voltar para áudio',
+  'design.approve': 'Aprovar design',
+  'design.showCode': 'Mostrar código',
+  'design.hideCode': 'Ocultar código',
+  'design.refineHint':
+    'Descreva uma direção. O próximo render começa do zero com essa direção em mente.',
+  'design.refinePlaceholder': 'ex.: editorial, mais espaço em branco, paleta mais escura',
+  'design.rationale': 'Justificativa',
+  'design.missingTitle': 'Seleção a montante ausente.',
+  'design.missingBody':
+    'A etapa de design precisa de uma variante de texto aprovada E de uma imagem aprovada. Reabra as etapas anteriores e escolha uma de cada.',
+
+  // Viewport toggle
+  'viewport.mobile': 'Mobile',
+  'viewport.tablet': 'Tablet',
+  'viewport.desktop': 'Desktop',
+
   // Final package
   'final.eyebrow': 'Aprovado',
   'final.heading': 'Pacote final',
   'final.body':
-    'Todas as quatro entregas confirmadas. Baixe o pacote ou volte a qualquer etapa para revisar.',
+    'Todas as cinco entregas confirmadas. Baixe o pacote ou volte a qualquer etapa para revisar.',
   'final.editAny': 'Editar qualquer etapa',
   'final.download': 'Baixar pacote',
   'final.packaging': 'Empacotando…',
@@ -746,6 +823,7 @@ const PT: Dict = {
   'final.script': 'Roteiro',
   'final.voice': 'Voz',
   'final.tone': 'Tom',
+  'final.design': 'Landing page',
   'final.directorsNotes': 'Notas do diretor',
 
   // Directors notes
@@ -826,6 +904,7 @@ const ES: Dict = {
   'step.image': 'Imagen',
   'step.script': 'Guion',
   'step.audio': 'Audio',
+  'step.design': 'Diseño',
 
   // Onboarding
   'onboarding.eyebrow': 'Bienvenida',
@@ -990,11 +1069,35 @@ const ES: Dict = {
   'voice.play': 'Reproducir {name}',
   'voice.pause': 'Pausar {name}',
 
+  // Design step
+  'design.heading': 'Diseño',
+  'design.subtitle':
+    'Claude genera una landing page de una sola página usando tu texto e imagen aprobados. Previsualiza, refina en lenguaje natural o aprueba para incluirla en el paquete.',
+  'design.keyMissingTitle': 'Se requiere clave de Anthropic',
+  'design.keyMissingBody':
+    'La generación de diseño funciona con Claude. Añade tu clave Anthropic en Ajustes para continuar.',
+  'design.backToAudio': 'Volver al audio',
+  'design.approve': 'Aprobar diseño',
+  'design.showCode': 'Mostrar código',
+  'design.hideCode': 'Ocultar código',
+  'design.refineHint':
+    'Describe una dirección. El próximo render comienza desde cero con esa dirección en mente.',
+  'design.refinePlaceholder': 'p. ej. editorial, más espacio en blanco, paleta más oscura',
+  'design.rationale': 'Justificación',
+  'design.missingTitle': 'Falta una selección anterior.',
+  'design.missingBody':
+    'El paso de diseño necesita una variante de texto aprobada Y una imagen aprobada. Reabre los pasos anteriores y elige uno de cada.',
+
+  // Viewport toggle
+  'viewport.mobile': 'Móvil',
+  'viewport.tablet': 'Tableta',
+  'viewport.desktop': 'Escritorio',
+
   // Final package
   'final.eyebrow': 'Aprobado',
   'final.heading': 'Paquete final',
   'final.body':
-    'Los cuatro activos confirmados. Descarga el paquete o vuelve a cualquier paso para revisar.',
+    'Los cinco activos confirmados. Descarga el paquete o vuelve a cualquier paso para revisar.',
   'final.editAny': 'Editar cualquier paso',
   'final.download': 'Descargar paquete',
   'final.packaging': 'Empaquetando…',
@@ -1012,6 +1115,7 @@ const ES: Dict = {
   'final.script': 'Guion',
   'final.voice': 'Voz',
   'final.tone': 'Tono',
+  'final.design': 'Landing page',
   'final.directorsNotes': 'Notas del director',
 
   // Directors notes
@@ -1091,6 +1195,7 @@ const FR: Dict = {
   'step.image': 'Image',
   'step.script': 'Script',
   'step.audio': 'Audio',
+  'step.design': 'Design',
 
   // Onboarding
   'onboarding.eyebrow': 'Bienvenue',
@@ -1255,11 +1360,35 @@ const FR: Dict = {
   'voice.play': 'Lire {name}',
   'voice.pause': 'Mettre en pause {name}',
 
+  // Design step
+  'design.heading': 'Design',
+  'design.subtitle':
+    "Claude génère une landing page d'une seule page à partir de votre texte et image approuvés. Prévisualisez, affinez en langage naturel ou approuvez pour ajouter au pack.",
+  'design.keyMissingTitle': 'Clé Anthropic requise',
+  'design.keyMissingBody':
+    "La génération de design fonctionne avec Claude. Ajoutez votre clé Anthropic dans les paramètres pour continuer.",
+  'design.backToAudio': "Retour à l'audio",
+  'design.approve': 'Approuver le design',
+  'design.showCode': 'Afficher le code',
+  'design.hideCode': 'Masquer le code',
+  'design.refineHint':
+    'Décrivez une direction. Le prochain rendu repart de zéro avec cette direction.',
+  'design.refinePlaceholder': 'ex. éditorial, plus de blanc, palette plus sombre',
+  'design.rationale': 'Justification',
+  'design.missingTitle': 'Sélection amont manquante.',
+  'design.missingBody':
+    "L'étape design nécessite une variante de texte approuvée ET une image approuvée. Rouvrez les étapes précédentes et choisissez-en une de chaque.",
+
+  // Viewport toggle
+  'viewport.mobile': 'Mobile',
+  'viewport.tablet': 'Tablette',
+  'viewport.desktop': 'Bureau',
+
   // Final package
   'final.eyebrow': 'Approuvé',
   'final.heading': 'Pack final',
   'final.body':
-    "Les quatre actifs sont verrouillés. Téléchargez le pack ou revenez à n'importe quelle étape pour réviser.",
+    "Les cinq actifs sont verrouillés. Téléchargez le pack ou revenez à n'importe quelle étape pour réviser.",
   'final.editAny': "Éditer n'importe quelle étape",
   'final.download': 'Télécharger le pack',
   'final.packaging': 'Empaquetage…',
@@ -1277,6 +1406,7 @@ const FR: Dict = {
   'final.script': 'Script',
   'final.voice': 'Voix',
   'final.tone': 'Ton',
+  'final.design': 'Landing page',
   'final.directorsNotes': 'Notes du directeur',
 
   // Directors notes
@@ -1356,6 +1486,7 @@ const DE: Dict = {
   'step.image': 'Bild',
   'step.script': 'Skript',
   'step.audio': 'Audio',
+  'step.design': 'Design',
 
   // Onboarding
   'onboarding.eyebrow': 'Willkommen',
@@ -1522,11 +1653,35 @@ const DE: Dict = {
   'voice.play': '{name} abspielen',
   'voice.pause': '{name} pausieren',
 
+  // Design step
+  'design.heading': 'Design',
+  'design.subtitle':
+    'Claude generiert eine einseitige Landingpage aus Ihrem freigegebenen Text und Bild. Vorschau ansehen, in natürlicher Sprache verfeinern oder freigeben, um sie dem Paket hinzuzufügen.',
+  'design.keyMissingTitle': 'Anthropic-Schlüssel erforderlich',
+  'design.keyMissingBody':
+    'Die Design-Generierung läuft auf Claude. Fügen Sie Ihren Anthropic-Schlüssel in den Einstellungen hinzu, um fortzufahren.',
+  'design.backToAudio': 'Zurück zum Audio',
+  'design.approve': 'Design freigeben',
+  'design.showCode': 'Code anzeigen',
+  'design.hideCode': 'Code ausblenden',
+  'design.refineHint':
+    'Beschreiben Sie eine Richtung. Das nächste Rendering startet frisch mit dieser Richtung.',
+  'design.refinePlaceholder': 'z. B. editorial, mehr Weißraum, dunklere Palette',
+  'design.rationale': 'Begründung',
+  'design.missingTitle': 'Vorgelagerte Auswahl fehlt.',
+  'design.missingBody':
+    'Der Design-Schritt benötigt eine freigegebene Textvariante UND ein freigegebenes Bild. Öffnen Sie die vorherigen Schritte erneut und wählen Sie jeweils eines aus.',
+
+  // Viewport toggle
+  'viewport.mobile': 'Mobil',
+  'viewport.tablet': 'Tablet',
+  'viewport.desktop': 'Desktop',
+
   // Final package
   'final.eyebrow': 'Freigegeben',
   'final.heading': 'Finales Paket',
   'final.body':
-    'Alle vier Assets sind festgelegt. Laden Sie das Bundle herunter oder kehren Sie zu einem beliebigen Schritt zurück, um zu überarbeiten.',
+    'Alle fünf Assets sind festgelegt. Laden Sie das Bundle herunter oder kehren Sie zu einem beliebigen Schritt zurück, um zu überarbeiten.',
   'final.editAny': 'Beliebigen Schritt bearbeiten',
   'final.download': 'Paket herunterladen',
   'final.packaging': 'Paketierung…',
@@ -1544,6 +1699,7 @@ const DE: Dict = {
   'final.script': 'Skript',
   'final.voice': 'Stimme',
   'final.tone': 'Ton',
+  'final.design': 'Landingpage',
   'final.directorsNotes': 'Regie-Notizen',
 
   // Directors notes

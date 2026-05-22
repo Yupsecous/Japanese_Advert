@@ -175,22 +175,22 @@ export default function App() {
   return (
     <div className="min-h-full bg-white">
       <header className="border-b border-rule bg-paper/80 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-          <div className="flex items-baseline gap-3">
-            <div className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
-            <p className="font-serif text-lg font-medium tracking-tight text-ink">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex min-w-0 items-baseline gap-2 sm:gap-3">
+            <div className="h-2 w-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+            <p className="truncate font-serif text-base font-medium tracking-tight text-ink sm:text-lg">
               {t('app.title')}
             </p>
             <p className="hidden text-xs uppercase tracking-[0.18em] text-ink-faint sm:block">
               {t('app.version')}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {briefSubmitted && (
               <button
                 type="button"
                 onClick={restart}
-                className="rounded-md border border-rule px-3 py-1.5 text-sm text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink"
+                className="rounded-md border border-rule px-2.5 py-1.5 text-xs text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink sm:px-3 sm:text-sm"
               >
                 {t('app.newBrief')}
               </button>
@@ -198,7 +198,7 @@ export default function App() {
             <button
               type="button"
               onClick={openDrawer}
-              className="rounded-md border border-rule px-3 py-1.5 text-sm text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink"
+              className="rounded-md border border-rule px-2.5 py-1.5 text-xs text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink sm:px-3 sm:text-sm"
             >
               {t('app.settings')}
             </button>
@@ -206,13 +206,13 @@ export default function App() {
           </div>
         </div>
         {!showOnboarding && (
-          <div className="mx-auto max-w-5xl px-6 pb-4">
+          <div className="mx-auto max-w-5xl px-4 pb-4 sm:px-6">
             <Stepper />
           </div>
         )}
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
+      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         {showOnboarding ? (
           <OnboardingState sample={sample} />
         ) : briefSubmitted ? (
