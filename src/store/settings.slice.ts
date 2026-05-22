@@ -28,7 +28,12 @@ const emptyValidations: Validations = {
 function defaultLocale(): Locale {
   if (typeof navigator === 'undefined') return 'en';
   const lang = (navigator.language || '').toLowerCase();
-  return lang.startsWith('ja') ? 'ja' : 'en';
+  if (lang.startsWith('ja')) return 'ja';
+  if (lang.startsWith('pt')) return 'pt';
+  if (lang.startsWith('es')) return 'es';
+  if (lang.startsWith('fr')) return 'fr';
+  if (lang.startsWith('de')) return 'de';
+  return 'en';
 }
 
 export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSlice> = (set, get) => ({
