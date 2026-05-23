@@ -1,4 +1,4 @@
-export type StepId = 'copy' | 'image' | 'script' | 'audio' | 'design';
+export type StepId = 'audience' | 'copy' | 'image' | 'script' | 'audio' | 'design';
 
 export type StepStatus =
   | 'pending'
@@ -187,9 +187,17 @@ export type ValidationStatus = 'unchecked' | 'validating' | 'ok' | 'fail';
 export type ApiKeys = Record<Provider, string>;
 export type Validations = Record<Provider, ValidationStatus>;
 
-export const STEP_ORDER: readonly StepId[] = ['copy', 'image', 'script', 'audio', 'design'] as const;
+export const STEP_ORDER: readonly StepId[] = [
+  'audience',
+  'copy',
+  'image',
+  'script',
+  'audio',
+  'design',
+] as const;
 
 export const STEP_LABELS: Record<StepId, string> = {
+  audience: 'Audience',
   copy: 'Copy',
   image: 'Image',
   script: 'Script',
@@ -400,5 +408,85 @@ export type PlatformAssetsBundle = {
   imagePairs: PlatformImagePair[];
   carousel: CarouselSet | null; // null if not generated
   videos: PlatformVideo[]; // 0..2 entries (9:16 for Reels, 1:1 for X)
+  generatedAt: number;
+};
+
+// ---------------------------------------------------------------------------
+// Audience Console — Phase 1 types (used by AudienceStep, audience.slice,
+// audienceService). Phase 2-5 (batch generation, distribution, effectiveness,
+// feedback) extend these shapes.
+// ---------------------------------------------------------------------------
+
+export type CustomerGender = 'female' | 'male' | 'nonbinary' | 'unspecified';
+
+// One row of the uploaded audience CSV/JSON, or one entry from the bundled
+// sample-audience.json. Field names use snake_case to match what a CRM
+// export typically produces; the importer maps them as-is.
+export type Customer = {
+  id: string;
+  name: string;
+  age: number;
+  gender: CustomerGender;
+  location: string;
+  segment: string; // e.g. "経営者", "若手専門職", "リタイア層"
+  recentInterest: string; // e.g. "現代美術", "投資", "登山"
+  recentPurchase: string; // e.g. "ノイズキャンセリングヘッドホン", "登山ブーツ"
+  socialSignalSummary: string; // free-prose "what this person posted last week"
+};
+
+// The output of audienceService.generateIndividualBrief — a per-customer
+// specialization of the campaign-level brief. The campaign brief stays in
+// the main brief slice; this layer enriches it per recipient.
+export type IndividualBrief = {
+  customerId: string;
+  product: string; // inherited from the campaign brief
+  audience: string; // specialized for this customer
+  tone: string; // specialized for this customer
+  recommendedFormat: 'text' | 'image' | 'video' | 'voice';
+  rationale: string; // 1-2 sentences: why this customer gets this brief
+  generatedAt: number;
+};
+
+// Phase 3 — distribution simulation record.
+export type DeliveryChannel = 'line' | 'instagram_dm' | 'email' | 'web_push';
+
+export type DeliveryRecord = {
+  customerId: string;
+  channel: DeliveryChannel;
+  deliveredAt: string; // ISO timestamp
+  format: 'text' | 'image' | 'video' | 'voice';
+  assetId: string;
+};
+
+// Phase 4 — effectiveness simulation record.
+export type EffectivenessRecord = {
+  customerId: string;
+  opened: boolean;
+  clicked: boolean;
+  converted: boolean;
+  watchTimeSeconds: number | null;
+  dropOffPoint: string | null;
+};
+
+// Phase 5 — learned insights extracted from effectiveness data, threaded
+// into all 8 generation paths alongside the brand dictionary.
+export type LearnedInsight = {
+  id: string;
+  insight: string; // natural-language summary, e.g. "40代経営者層は『投資』に反応"
+  evidenceCount: number; // number of effectiveness records that support this
+  createdAt: number;
+  appliedToRunVersion: number; // bumps each time learnings are folded in
+};
+
+// Phase 2 — placeholder; the per-customer asset bundle. Defined here so
+// audience.slice can already declare the field. The full population logic
+// ships in Phase 2.
+export type GeneratedAssetSet = {
+  customerId: string;
+  headline: string;
+  caption: string;
+  cta: string;
+  imageUrl: string | null;
+  script: string | null;
   generatedAt: number;
 };

@@ -37,6 +37,7 @@ const EN: Dict = {
 
   // Stepper
   'stepper.step': 'Step',
+  'step.audience': 'Audience',
   'step.copy': 'Copy',
   'step.image': 'Image',
   'step.script': 'Script',
@@ -100,6 +101,33 @@ const EN: Dict = {
     "Sign-in needs a secure context — this URL must use HTTPS (or localhost). The current page is not secure, so credentials can't be verified.",
   'auth.footnote':
     'Access is shared by your point of contact. Credentials are checked client-side — this is a soft gate, not a security barrier.',
+
+  // Audience Console (Phase 1)
+  'audience.heading': 'Audience',
+  'audience.subtitle':
+    "Upload your customer list, or load the sample 100. Each record is converted into a personalized brief so downstream generation can be tuned to that specific recipient. Skip this step to run the campaign-level pipeline only.",
+  'audience.uploadCta': 'Upload customer list (CSV or JSON)',
+  'audience.loadSample': 'Load sample 100',
+  'audience.clear': 'Clear list',
+  'audience.skip': 'Skip — campaign brief only',
+  'audience.approve': 'Approve & continue',
+  'audience.convert': 'Convert to individual briefs',
+  'audience.convertingProgress': '{completed} / {total} converted',
+  'audience.convertingInFlight': '{inFlight} in flight',
+  'audience.uploadHint':
+    'CSV must have these columns: id, name, age, gender, location, segment, recentInterest, recentPurchase, socialSignalSummary. JSON is an array of objects with the same fields.',
+  'audience.uploadError': "Couldn't read that file. Check column names and try again.",
+  'audience.empty': 'No audience loaded.',
+  'audience.summary': '{count} customer{s} loaded',
+  'audience.convertedCount': '{converted} of {total} briefs ready',
+  'audience.failed': '{n} brief{s} failed — check console for details',
+  'audience.briefPreview': 'Brief preview',
+  'audience.cardTone': 'Tone',
+  'audience.cardFormat': 'Format',
+  'audience.cardRationale': 'Why',
+  'audience.keyMissingTitle': 'Anthropic key required',
+  'audience.keyMissingBody':
+    'Per-customer brief specialization uses Claude. Add your Anthropic key in Settings to continue, or click Skip to proceed with the campaign-level brief only.',
 
   // Brand dictionary
   'brandSettings.heading': 'Brand voice & rules',
@@ -407,6 +435,7 @@ const JA: Dict = {
 
   // Stepper
   'stepper.step': 'ステップ',
+  'step.audience': '顧客',
   'step.copy': 'コピー',
   'step.image': '画像',
   'step.script': 'スクリプト',
@@ -470,6 +499,34 @@ const JA: Dict = {
     'ユーザー名またはパスワードが一致しません。余計な空白が混ざっていないかご確認ください。',
   'auth.insecureContext':
     'サインインにはセキュアな接続が必要です。このURLはHTTPS(またはlocalhost)で配信する必要があります。現在のページはセキュアではないため、認証情報を検証できません。',
+
+  // Audience Console (Phase 1)
+  'audience.heading': '顧客',
+  'audience.subtitle':
+    '顧客リストをアップロードするか、サンプル100名分をロードしてください。各レコードは個別ブリーフに変換され、後続の生成をその受信者に最適化できます。スキップするとキャンペーンブリーフのみで進めます。',
+  'audience.uploadCta': '顧客リストをアップロード(CSV または JSON)',
+  'audience.loadSample': 'サンプル100名分をロード',
+  'audience.clear': 'リストをクリア',
+  'audience.skip': 'スキップ — キャンペーンブリーフのみで進める',
+  'audience.approve': '承認して次へ',
+  'audience.convert': '個別ブリーフに変換',
+  'audience.convertingProgress': '{completed} / {total} 件 変換完了',
+  'audience.convertingInFlight': '{inFlight} 件 処理中',
+  'audience.uploadHint':
+    'CSV には以下の列が必要です: id, name, age, gender, location, segment, recentInterest, recentPurchase, socialSignalSummary。JSON は同じフィールドを持つオブジェクトの配列です。',
+  'audience.uploadError': 'ファイルを読み込めませんでした。列名をご確認の上、もう一度お試しください。',
+  'audience.empty': '顧客リストが読み込まれていません。',
+  'audience.summary': '{count} 名の顧客を読み込みました',
+  'audience.convertedCount': '{converted} / {total} 件のブリーフが準備済み',
+  'audience.failed': '{n} 件のブリーフ変換に失敗しました — コンソールで詳細を確認してください',
+  'audience.briefPreview': 'ブリーフ プレビュー',
+  'audience.cardTone': 'トーン',
+  'audience.cardFormat': 'フォーマット',
+  'audience.cardRationale': '理由',
+  'audience.keyMissingTitle': 'Anthropic キーが必要です',
+  'audience.keyMissingBody':
+    '顧客ごとのブリーフ特化には Claude を使用します。設定から Anthropic キーを追加していただくか、「スキップ」でキャンペーンブリーフのみで進めることもできます。',
+
   'auth.footnote':
     'アクセス情報は担当者から共有されます。認証はクライアント側で行われるため、ソフトゲートであってセキュリティバリアではありません。',
 
@@ -787,6 +844,7 @@ const PT: Dict = {
 
   // Stepper
   'stepper.step': 'Etapa',
+  'step.audience': 'Público',
   'step.copy': 'Texto',
   'step.image': 'Imagem',
   'step.script': 'Roteiro',
@@ -849,6 +907,34 @@ const PT: Dict = {
   'auth.invalid': 'Usuário e senha não conferem. Verifique se há espaços extras.',
   'auth.insecureContext':
     'O login exige um contexto seguro — esta URL precisa usar HTTPS (ou localhost). A página atual não é segura, então as credenciais não podem ser verificadas.',
+
+  // Audience Console (Phase 1)
+  'audience.heading': 'Público',
+  'audience.subtitle':
+    'Envie sua lista de clientes ou carregue os 100 de amostra. Cada registro é convertido em um briefing personalizado para que a geração subsequente seja ajustada a esse destinatário. Pule esta etapa para usar apenas o briefing de campanha.',
+  'audience.uploadCta': 'Enviar lista de clientes (CSV ou JSON)',
+  'audience.loadSample': 'Carregar 100 de amostra',
+  'audience.clear': 'Limpar lista',
+  'audience.skip': 'Pular — apenas briefing de campanha',
+  'audience.approve': 'Aprovar e continuar',
+  'audience.convert': 'Converter em briefings individuais',
+  'audience.convertingProgress': '{completed} / {total} convertidos',
+  'audience.convertingInFlight': '{inFlight} em andamento',
+  'audience.uploadHint':
+    'O CSV precisa destas colunas: id, name, age, gender, location, segment, recentInterest, recentPurchase, socialSignalSummary. O JSON é um array de objetos com os mesmos campos.',
+  'audience.uploadError': 'Não consegui ler esse arquivo. Verifique os nomes das colunas e tente novamente.',
+  'audience.empty': 'Nenhuma lista de público carregada.',
+  'audience.summary': '{count} cliente(s) carregado(s)',
+  'audience.convertedCount': '{converted} de {total} briefings prontos',
+  'audience.failed': '{n} briefing(s) falharam — verifique o console',
+  'audience.briefPreview': 'Pré-visualização do briefing',
+  'audience.cardTone': 'Tom',
+  'audience.cardFormat': 'Formato',
+  'audience.cardRationale': 'Por quê',
+  'audience.keyMissingTitle': 'Chave Anthropic necessária',
+  'audience.keyMissingBody':
+    'A especialização de briefing por cliente usa Claude. Adicione sua chave Anthropic em Configurações ou clique em Pular para continuar apenas com o briefing de campanha.',
+
   'auth.footnote':
     'O acesso é compartilhado pelo seu contato. As credenciais são verificadas no navegador — esta é uma barreira leve, não uma proteção de segurança.',
 
@@ -1169,6 +1255,7 @@ const ES: Dict = {
 
   // Stepper
   'stepper.step': 'Paso',
+  'step.audience': 'Audiencia',
   'step.copy': 'Texto',
   'step.image': 'Imagen',
   'step.script': 'Guion',
@@ -1231,6 +1318,34 @@ const ES: Dict = {
   'auth.invalid': 'El usuario y la contraseña no coinciden. Verifica que no haya espacios extra.',
   'auth.insecureContext':
     'El inicio de sesión requiere un contexto seguro — esta URL debe usar HTTPS (o localhost). La página actual no es segura, por lo que las credenciales no pueden verificarse.',
+
+  // Audience Console (Phase 1)
+  'audience.heading': 'Audiencia',
+  'audience.subtitle':
+    'Sube tu lista de clientes o carga los 100 de muestra. Cada registro se convierte en un brief personalizado para que la generación posterior se ajuste a ese destinatario. Omite este paso para usar solo el brief de campaña.',
+  'audience.uploadCta': 'Subir lista de clientes (CSV o JSON)',
+  'audience.loadSample': 'Cargar 100 de muestra',
+  'audience.clear': 'Limpiar lista',
+  'audience.skip': 'Omitir — solo brief de campaña',
+  'audience.approve': 'Aprobar y continuar',
+  'audience.convert': 'Convertir en briefs individuales',
+  'audience.convertingProgress': '{completed} / {total} convertidos',
+  'audience.convertingInFlight': '{inFlight} en curso',
+  'audience.uploadHint':
+    'El CSV debe tener estas columnas: id, name, age, gender, location, segment, recentInterest, recentPurchase, socialSignalSummary. JSON es un array de objetos con los mismos campos.',
+  'audience.uploadError': 'No pude leer ese archivo. Verifica los nombres de columnas e inténtalo de nuevo.',
+  'audience.empty': 'No hay audiencia cargada.',
+  'audience.summary': '{count} cliente(s) cargado(s)',
+  'audience.convertedCount': '{converted} de {total} briefs listos',
+  'audience.failed': '{n} brief(s) fallaron — revisa la consola',
+  'audience.briefPreview': 'Vista previa del brief',
+  'audience.cardTone': 'Tono',
+  'audience.cardFormat': 'Formato',
+  'audience.cardRationale': 'Por qué',
+  'audience.keyMissingTitle': 'Se requiere clave Anthropic',
+  'audience.keyMissingBody':
+    'La especialización por cliente usa Claude. Añade tu clave Anthropic en Ajustes, o pulsa Omitir para continuar solo con el brief de campaña.',
+
   'auth.footnote':
     'El acceso lo comparte tu contacto. Las credenciales se verifican en el navegador — esta es una barrera blanda, no una protección de seguridad.',
 
@@ -1550,6 +1665,7 @@ const FR: Dict = {
 
   // Stepper
   'stepper.step': 'Étape',
+  'step.audience': 'Audience',
   'step.copy': 'Texte',
   'step.image': 'Image',
   'step.script': 'Script',
@@ -1613,6 +1729,34 @@ const FR: Dict = {
     "L'identifiant et le mot de passe ne correspondent pas. Vérifiez les espaces parasites.",
   'auth.insecureContext':
     "La connexion nécessite un contexte sécurisé — cette URL doit utiliser HTTPS (ou localhost). La page actuelle n'est pas sécurisée, donc les identifiants ne peuvent pas être vérifiés.",
+
+  // Audience Console (Phase 1)
+  'audience.heading': 'Audience',
+  'audience.subtitle':
+    "Importez votre liste de clients ou chargez les 100 exemples. Chaque enregistrement est converti en brief personnalisé pour que la génération suivante puisse être ajustée à ce destinataire. Sautez cette étape pour n'utiliser que le brief de campagne.",
+  'audience.uploadCta': 'Importer la liste de clients (CSV ou JSON)',
+  'audience.loadSample': 'Charger 100 exemples',
+  'audience.clear': 'Effacer la liste',
+  'audience.skip': 'Sauter — brief de campagne uniquement',
+  'audience.approve': 'Approuver et continuer',
+  'audience.convert': 'Convertir en briefs individuels',
+  'audience.convertingProgress': '{completed} / {total} convertis',
+  'audience.convertingInFlight': '{inFlight} en cours',
+  'audience.uploadHint':
+    "Le CSV doit contenir ces colonnes : id, name, age, gender, location, segment, recentInterest, recentPurchase, socialSignalSummary. Le JSON est un tableau d'objets avec les mêmes champs.",
+  'audience.uploadError': "Impossible de lire ce fichier. Vérifiez les noms de colonnes et réessayez.",
+  'audience.empty': 'Aucune audience chargée.',
+  'audience.summary': '{count} client(s) chargé(s)',
+  'audience.convertedCount': '{converted} sur {total} briefs prêts',
+  'audience.failed': '{n} brief(s) ont échoué — vérifiez la console',
+  'audience.briefPreview': 'Aperçu du brief',
+  'audience.cardTone': 'Ton',
+  'audience.cardFormat': 'Format',
+  'audience.cardRationale': 'Pourquoi',
+  'audience.keyMissingTitle': 'Clé Anthropic requise',
+  'audience.keyMissingBody':
+    "La spécialisation par client utilise Claude. Ajoutez votre clé Anthropic dans les paramètres ou cliquez sur Sauter pour continuer avec le brief de campagne uniquement.",
+
   'auth.footnote':
     "L'accès est partagé par votre contact. Les identifiants sont vérifiés côté navigateur — il s'agit d'une barrière souple, pas d'une protection de sécurité.",
 
@@ -1932,6 +2076,7 @@ const DE: Dict = {
 
   // Stepper
   'stepper.step': 'Schritt',
+  'step.audience': 'Zielgruppe',
   'step.copy': 'Text',
   'step.image': 'Bild',
   'step.script': 'Skript',
@@ -1995,6 +2140,34 @@ const DE: Dict = {
     'Benutzername und Passwort stimmen nicht überein. Prüfen Sie auf zusätzliche Leerzeichen.',
   'auth.insecureContext':
     'Die Anmeldung erfordert einen sicheren Kontext — diese URL muss HTTPS verwenden (oder localhost). Die aktuelle Seite ist nicht sicher, daher können die Zugangsdaten nicht überprüft werden.',
+
+  // Audience Console (Phase 1)
+  'audience.heading': 'Zielgruppe',
+  'audience.subtitle':
+    'Laden Sie Ihre Kundenliste hoch oder verwenden Sie die 100 Beispieldaten. Jeder Datensatz wird in ein personalisiertes Briefing umgewandelt, damit die nachgelagerte Generierung auf diesen Empfänger zugeschnitten werden kann. Überspringen Sie diesen Schritt, um nur das Kampagnen-Briefing zu verwenden.',
+  'audience.uploadCta': 'Kundenliste hochladen (CSV oder JSON)',
+  'audience.loadSample': '100 Beispieldaten laden',
+  'audience.clear': 'Liste leeren',
+  'audience.skip': 'Überspringen — nur Kampagnen-Briefing',
+  'audience.approve': 'Freigeben & fortfahren',
+  'audience.convert': 'In individuelle Briefings umwandeln',
+  'audience.convertingProgress': '{completed} / {total} umgewandelt',
+  'audience.convertingInFlight': '{inFlight} laufend',
+  'audience.uploadHint':
+    'Die CSV muss diese Spalten haben: id, name, age, gender, location, segment, recentInterest, recentPurchase, socialSignalSummary. JSON ist ein Array von Objekten mit denselben Feldern.',
+  'audience.uploadError': 'Diese Datei konnte nicht gelesen werden. Prüfen Sie die Spaltennamen und versuchen Sie es erneut.',
+  'audience.empty': 'Keine Zielgruppe geladen.',
+  'audience.summary': '{count} Kunde(n) geladen',
+  'audience.convertedCount': '{converted} von {total} Briefings bereit',
+  'audience.failed': '{n} Briefing(s) fehlgeschlagen — siehe Konsole',
+  'audience.briefPreview': 'Briefing-Vorschau',
+  'audience.cardTone': 'Ton',
+  'audience.cardFormat': 'Format',
+  'audience.cardRationale': 'Warum',
+  'audience.keyMissingTitle': 'Anthropic-Schlüssel erforderlich',
+  'audience.keyMissingBody':
+    'Die kundenspezifische Briefing-Anpassung nutzt Claude. Fügen Sie Ihren Anthropic-Schlüssel in den Einstellungen hinzu, oder klicken Sie auf Überspringen, um nur mit dem Kampagnen-Briefing fortzufahren.',
+
   'auth.footnote':
     'Der Zugriff wird von Ihrem Ansprechpartner geteilt. Die Zugangsdaten werden im Browser geprüft — dies ist eine sanfte Sperre, kein Sicherheitsschutz.',
 

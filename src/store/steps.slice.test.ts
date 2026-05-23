@@ -3,6 +3,7 @@ import { create, type StoreApi } from 'zustand';
 import { createStepsSlice } from './steps.slice';
 import { createBriefSlice } from './brief.slice';
 import { createSettingsSlice } from './settings.slice';
+import { createAudienceSlice } from './audience.slice';
 import { isStepUnlocked, activeStepId, allApproved, type AppState } from './index';
 import {
   copyVariant,
@@ -19,6 +20,7 @@ function makeTestStore(): StoreApi<AppState> {
     ...createSettingsSlice(...a),
     ...createBriefSlice(...a),
     ...createStepsSlice(...a),
+    ...createAudienceSlice(...a),
   }));
 }
 
@@ -27,32 +29,50 @@ beforeEach(() => {
   store = makeTestStore();
 });
 
+// Helper: submit a brief and skip past the Audience step (which is now
+// STEP_ORDER[0]). Existing tests target the creative pipeline starting at
+// Copy, so they pre-approve Audience to keep their semantics. The order
+// matters — beginFirstStep flips STEP_ORDER[0] to 'generating', then
+// approveStep cascades to copy.
+function submitAndSkipAudience(store: StoreApi<AppState>) {
+  store.getState().setBriefField('productName', 'P');
+  store.getState().setBriefField('targetAudience', 'A');
+  store.getState().setBriefField('adAngle', 'X');
+  store.getState().submitBrief();
+  store.getState().beginFirstStep();
+  store.getState().approveStep('audience');
+}
+
 describe('isStepUnlocked (gating invariants)', () => {
   it('all steps locked when brief not submitted', () => {
     const s = store.getState();
+    expect(isStepUnlocked(s, 'audience')).toBe(false);
     expect(isStepUnlocked(s, 'copy')).toBe(false);
     expect(isStepUnlocked(s, 'image')).toBe(false);
     expect(isStepUnlocked(s, 'script')).toBe(false);
     expect(isStepUnlocked(s, 'audio')).toBe(false);
   });
 
-  it('only copy unlocked after brief submitted', () => {
+  it('only audience unlocked after brief submitted', () => {
     store.getState().setBriefField('productName', 'P');
     store.getState().setBriefField('targetAudience', 'A');
     store.getState().setBriefField('adAngle', 'X');
     store.getState().submitBrief();
     const s = store.getState();
+    expect(isStepUnlocked(s, 'audience')).toBe(true);
+    expect(isStepUnlocked(s, 'copy')).toBe(false);
+    expect(isStepUnlocked(s, 'image')).toBe(false);
+  });
+
+  it('copy unlocks once audience is approved', () => {
+    submitAndSkipAudience(store);
+    const s = store.getState();
     expect(isStepUnlocked(s, 'copy')).toBe(true);
     expect(isStepUnlocked(s, 'image')).toBe(false);
-    expect(isStepUnlocked(s, 'script')).toBe(false);
-    expect(isStepUnlocked(s, 'audio')).toBe(false);
   });
 
   it('copy + image unlocked after copy approved', () => {
-    store.getState().setBriefField('productName', 'P');
-    store.getState().setBriefField('targetAudience', 'A');
-    store.getState().setBriefField('adAngle', 'X');
-    store.getState().submitBrief();
+    submitAndSkipAudience(store);
     store.getState().appendVariants('copy', [copyVariant()]);
     store.getState().pickVariant('copy', 0);
     const s = store.getState();
@@ -63,11 +83,7 @@ describe('isStepUnlocked (gating invariants)', () => {
   });
 
   it('jumping to script before image approved is impossible', () => {
-    store.getState().submitBrief(); // empty brief, but submit anyway for test
-    store.getState().setBriefField('productName', 'P');
-    store.getState().setBriefField('targetAudience', 'A');
-    store.getState().setBriefField('adAngle', 'X');
-    store.getState().submitBrief();
+    submitAndSkipAudience(store);
     store.getState().appendVariants('copy', [copyVariant()]);
     store.getState().pickVariant('copy', 0);
     // copy approved, image is generating with no variants yet
@@ -88,6 +104,9 @@ describe('activeStepId', () => {
     store.getState().setBriefField('targetAudience', 'A');
     store.getState().setBriefField('adAngle', 'X');
     store.getState().submitBrief();
+    // Audience is the new first step
+    expect(activeStepId(store.getState())).toBe('audience');
+    store.getState().approveStep('audience');
     expect(activeStepId(store.getState())).toBe('copy');
     store.getState().appendVariants('copy', [copyVariant()]);
     store.getState().pickVariant('copy', 0);
@@ -97,11 +116,9 @@ describe('activeStepId', () => {
 
 describe('cascade — pending → generating on upstream approval', () => {
   beforeEach(() => {
-    store.getState().setBriefField('productName', 'P');
-    store.getState().setBriefField('targetAudience', 'A');
-    store.getState().setBriefField('adAngle', 'X');
-    store.getState().submitBrief();
-    store.getState().beginFirstStep();
+    // submitAndSkipAudience already cascades copy → 'generating' via the
+    // approveStep cascade, so no separate beginFirstStep call is needed.
+    submitAndSkipAudience(store);
   });
 
   it('image step auto-cascades from pending → generating on copy approval', () => {
@@ -155,10 +172,7 @@ describe('cascade — pending → generating on upstream approval', () => {
 
 describe('downstream invalidation (clearDownstream)', () => {
   function setup() {
-    store.getState().setBriefField('productName', 'P');
-    store.getState().setBriefField('targetAudience', 'A');
-    store.getState().setBriefField('adAngle', 'X');
-    store.getState().submitBrief();
+    submitAndSkipAudience(store);
     store.getState().appendVariants('copy', [copyVariant('A'), copyVariant('B')]);
     store.getState().pickVariant('copy', 0);
     store.getState().appendVariants('image', [imageVariant()]);
@@ -188,6 +202,7 @@ describe('downstream invalidation (clearDownstream)', () => {
     // Fresh: copy never picked
     store.getState().setBriefField('productName', 'P');
     store.getState().submitBrief();
+    store.getState().approveStep('audience');
     store.getState().appendVariants('copy', [copyVariant()]);
     store.getState().appendVariants('image', [imageVariant()]); // pretend image existed somehow
     store.getState().pickVariant('copy', 0);
@@ -214,6 +229,7 @@ describe('downstream invalidation (clearDownstream)', () => {
   it('first-time voice pick does NOT clear audio (voice was null)', () => {
     store.getState().setBriefField('productName', 'P');
     store.getState().submitBrief();
+    store.getState().approveStep('audience');
     store.getState().appendVariants('copy', [copyVariant()]);
     store.getState().pickVariant('copy', 0);
     store.getState().appendVariants('image', [imageVariant()]);
@@ -231,6 +247,7 @@ describe('appendVariants vs replaceVariants', () => {
   function setup() {
     store.getState().setBriefField('productName', 'P');
     store.getState().submitBrief();
+    store.getState().approveStep('audience');
     store.getState().appendVariants('copy', [copyVariant()]);
     store.getState().pickVariant('copy', 0);
     store.getState().appendVariants('image', [imageVariant()]);
@@ -301,6 +318,7 @@ describe('reopenStep', () => {
   it('script reopen clears selectedIndex AND selectedVoiceId, preserves variants', () => {
     store.getState().setBriefField('productName', 'P');
     store.getState().submitBrief();
+    store.getState().approveStep('audience');
     store.getState().appendVariants('script', [scriptVariant(), scriptVariant()]);
     store.getState().pickVariant('script', 1);
     store.getState().setVoiceId('script', 'brian');
@@ -319,6 +337,7 @@ describe('reopenStep', () => {
   it('non-script reopen preserves selectedIndex', () => {
     store.getState().setBriefField('productName', 'P');
     store.getState().submitBrief();
+    store.getState().approveStep('audience');
     store.getState().appendVariants('copy', [copyVariant(), copyVariant()]);
     store.getState().pickVariant('copy', 1);
     store.getState().reopenStep('copy');

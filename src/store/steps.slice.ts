@@ -13,9 +13,10 @@ import { STEP_LABELS, STEP_ORDER, cacheKey } from '../types';
 import { computeStepHash } from '../services/stepHash';
 import type { SettingsSlice } from './settings.slice';
 import type { BriefSlice } from './brief.slice';
+import type { AudienceSlice } from './audience.slice';
 
 // Local alias to avoid the circular type import from `store/index.ts`.
-type FullState = StepsSlice & BriefSlice & SettingsSlice;
+type FullState = StepsSlice & BriefSlice & SettingsSlice & AudienceSlice;
 
 export type StepsSlice = {
   steps: Record<StepId, StepState>;
@@ -51,6 +52,7 @@ export function emptyStep(id: StepId): StepState {
 
 function emptySteps(): Record<StepId, StepState> {
   return {
+    audience: emptyStep('audience'),
     copy: emptyStep('copy'),
     image: emptyStep('image'),
     script: emptyStep('script'),
@@ -163,7 +165,17 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
     }),
 
   approveStep: (id) =>
-    set((s) => ({ steps: { ...s.steps, [id]: { ...s.steps[id], status: 'approved' } } })),
+    set((s) => {
+      // Approving a step also cascades the next pending step to 'generating'.
+      // This matches pickVariant's semantics — both actions mean "this step is
+      // done, advance the pipeline." Used primarily by AudienceStep, which has
+      // no variant pick to drive the cascade through pickVariant.
+      const approved: Record<StepId, StepState> = {
+        ...s.steps,
+        [id]: { ...s.steps[id], status: 'approved' },
+      };
+      return { steps: cascadeNext(approved, id) };
+    }),
 
   reopenStep: (id) =>
     set((s) => {

@@ -144,6 +144,7 @@ export function makeStep(id: StepId, overrides: StepOverrides = {}): StepState {
 export type StateOverrides = {
   brief?: Partial<AppState['brief']>;
   briefSubmitted?: boolean;
+  audience?: StepOverrides;
   copy?: StepOverrides;
   image?: StepOverrides;
   script?: StepOverrides;
@@ -170,6 +171,11 @@ export function makeState(o: StateOverrides = {}): AppState {
     drawerOpen: false,
     validating: false,
     steps: {
+      // Audience is the new STEP_ORDER[0]. The fixture defaults it to
+      // already-approved so existing tests (which assert on copy / image /
+      // etc.) keep their pre-audience semantics. Tests targeting the audience
+      // step explicitly override.
+      audience: makeStep('audience', o.audience ?? { status: 'approved' }),
       copy: makeStep('copy', o.copy),
       image: makeStep('image', o.image),
       script: makeStep('script', o.script),

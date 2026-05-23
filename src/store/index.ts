@@ -3,9 +3,10 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { createSettingsSlice, type SettingsSlice } from './settings.slice';
 import { createBriefSlice, type BriefSlice } from './brief.slice';
 import { createStepsSlice, type StepsSlice } from './steps.slice';
+import { createAudienceSlice, type AudienceSlice } from './audience.slice';
 import { STEP_ORDER, type StepId, type StepState, type VariantCache } from '../types';
 
-export type AppState = SettingsSlice & BriefSlice & StepsSlice;
+export type AppState = SettingsSlice & BriefSlice & StepsSlice & AudienceSlice;
 
 // Audio variants carry a Blob and an object URL — neither survives JSON
 // serialization, so on rehydrate we strip the audio variants and demote
@@ -39,10 +40,12 @@ export const useAppStore = create<AppState>()(
       ...createSettingsSlice(...a),
       ...createBriefSlice(...a),
       ...createStepsSlice(...a),
+      ...createAudienceSlice(...a),
     }),
     {
       name: 'demo-v2-state',
-      version: 7,
+      // v7 → v8: audience slice added, 'audience' inserted as STEP_ORDER[0]
+      version: 8,
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         keys: state.keys,
@@ -51,6 +54,7 @@ export const useAppStore = create<AppState>()(
         brief: state.brief,
         briefSubmitted: state.briefSubmitted,
         steps: {
+          audience: state.steps.audience,
           copy: state.steps.copy,
           image: state.steps.image,
           script: state.steps.script,
@@ -58,6 +62,14 @@ export const useAppStore = create<AppState>()(
           design: state.steps.design,
         },
         variantCache: partializeCache(state.variantCache),
+        // Persist the lighter audience fields. Skip generatedAssets — they
+        // can contain blob URLs (Phase 2) that don't survive serialization.
+        customers: state.customers,
+        briefCache: state.briefCache,
+        deliveryLog: state.deliveryLog,
+        effectivenessData: state.effectivenessData,
+        learnedInsights: state.learnedInsights,
+        runVersion: state.runVersion,
       }),
     },
   ),

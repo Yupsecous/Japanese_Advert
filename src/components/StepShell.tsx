@@ -1,4 +1,5 @@
 import { useAppStore, activeStepId, allApproved } from '../store';
+import { AudienceStep } from './AudienceStep';
 import { CopyStep } from './CopyStep';
 import { ImageStep } from './ImageStep';
 import { ScriptStep } from './ScriptStep';
@@ -36,6 +37,7 @@ export function StepShell() {
     );
   }
 
+  if (activeId === 'audience') return <AudienceStep />;
   if (activeId === 'copy') return <CopyStep />;
   if (activeId === 'image') return <ImageStep />;
   if (activeId === 'script') return <ScriptStep />;

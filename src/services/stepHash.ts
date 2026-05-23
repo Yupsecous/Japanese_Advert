@@ -1,5 +1,8 @@
 // Hash inputs per the dependency chain:
 //
+//   audience: brief — not cached via the variant cache (audience uses its
+//             own briefCache in the audience slice). Included here only so
+//             computeStepHash(state, 'audience') has a defined return.
 //   copy   : brief + copy.refines
 //   image  : brief + copy.approvedId + image.refines
 //   script : brief + copy.approvedId + image.approvedId + script.refines
