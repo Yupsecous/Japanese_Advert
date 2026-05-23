@@ -4,10 +4,12 @@ import { messagesJson } from './anthropicClient';
 import { AppError } from './errorMessages';
 import { translateDirection } from './translator';
 import { buildImagePrompt } from './imagePromptBuilder';
+import { brandPromptBlock } from './brandPrompt';
 import { languageDirective, type Locale } from '../i18n';
 import type {
   ApiKeys,
   Brief,
+  BrandDictionary,
   CopyVariant,
   ImagePromptMods,
   ImageVariant,
@@ -35,6 +37,7 @@ export type GenerateScriptArgs = {
   count?: number;
   apiKey: string;
   locale?: Locale;
+  brand?: BrandDictionary;
 };
 
 export type GenerateCopyArgs = {
@@ -47,6 +50,7 @@ export type GenerateCopyArgs = {
   refineDirection?: string;
   count?: number;
   locale?: Locale;
+  brand?: BrandDictionary;
 };
 
 export type GenerateImagesArgs = {
@@ -57,6 +61,7 @@ export type GenerateImagesArgs = {
   count?: number;
   apiKeys: { openai: string; fal: string };
   locale?: Locale;
+  brand?: BrandDictionary;
 };
 
 type ValidationConfig = {
@@ -269,6 +274,7 @@ async function generateCopy(args: GenerateCopyArgs): Promise<CopyVariant[]> {
       assetType: 'copy',
       apiKey,
       locale,
+      brand: args.brand,
     });
     if (result.kind !== 'copy') {
       throw new AppError('translator/wrong-shape', 'expected copy mods');
@@ -282,7 +288,7 @@ async function generateCopy(args: GenerateCopyArgs): Promise<CopyVariant[]> {
     avoid && avoid.length > 0
       ? `${COPY_SYSTEM_PROMPT}\n\nAdditional banned terms for this generation: ${avoid.join(', ')}.`
       : COPY_SYSTEM_PROMPT;
-  const systemPrompt = `${basePrompt}\n\n${languageDirective(locale)}`;
+  const systemPrompt = `${basePrompt}\n\n${languageDirective(locale)}${brandPromptBlock(args.brand)}`;
 
   const userMessage = buildCopyUserMessage({
     brief: args.brief,
@@ -412,6 +418,7 @@ async function generateImages(args: GenerateImagesArgs): Promise<ImageVariant[]>
       assetType: 'image',
       apiKey: openai,
       locale: 'en',
+      brand: args.brand,
     });
     if (result.kind !== 'image') {
       throw new AppError('translator/wrong-shape', 'expected image mods');
@@ -425,6 +432,7 @@ async function generateImages(args: GenerateImagesArgs): Promise<ImageVariant[]>
       approvedCopy: args.approvedCopy,
       mods,
       apiKey: openai,
+      brand: args.brand,
     });
     const imageUrl = await generateFluxImage({ prompt, falKey: fal });
     const variant: ImageVariant = {
@@ -653,6 +661,7 @@ async function generateScript(args: GenerateScriptArgs): Promise<ScriptVariant[]
       assetType: 'voice',
       apiKey,
       locale,
+      brand: args.brand,
     });
     if (result.kind !== 'voice') {
       throw new AppError('translator/wrong-shape', 'expected voice mods');
@@ -672,7 +681,7 @@ async function generateScript(args: GenerateScriptArgs): Promise<ScriptVariant[]
 
   const raw = await chatCompletionsJson({
     apiKey,
-    system: `${SCRIPT_SYSTEM_PROMPT}\n\n${languageDirective(locale)}`,
+    system: `${SCRIPT_SYSTEM_PROMPT}\n\n${languageDirective(locale)}${brandPromptBlock(args.brand)}`,
     user: userMessage,
     schemaName: 'script_variants',
     schema: SCRIPT_RESPONSE_SCHEMA as unknown as Record<string, unknown>,

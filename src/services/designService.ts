@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { messagesJson } from './anthropicClient';
 import { AppError } from './errorMessages';
+import { brandPromptBlock, brandVisualBlock } from './brandPrompt';
 import { languageDirective, type Locale } from '../i18n';
-import type { Brief, CopyVariant, DesignVariant, ImageVariant } from '../types';
+import type { BrandDictionary, Brief, CopyVariant, DesignVariant, ImageVariant } from '../types';
 
 export type GenerateDesignArgs = {
   apiKey: string;
@@ -12,6 +13,7 @@ export type GenerateDesignArgs = {
   refineDirection?: string;
   count?: number;
   locale?: Locale;
+  brand?: BrandDictionary;
 };
 
 const DESIGN_SYSTEM_PROMPT = `You generate single-file React landing-page components for short-form marketing campaigns. The user provides a brief, the approved ad copy, the approved hero-image URL, and an optional refine direction. You return a self-contained React component.
@@ -93,7 +95,9 @@ export async function generateDesign(args: GenerateDesignArgs): Promise<DesignVa
 
   const system = `${DESIGN_SYSTEM_PROMPT}\n\nLanguage note for any visible copy you invent (testimonials, feature blurbs, micro-headers): ${languageDirective(
     locale,
-  )} The headline, caption, and CTA passed in the user message must be used verbatim regardless of language.`;
+  )} The headline, caption, and CTA passed in the user message must be used verbatim regardless of language.${brandPromptBlock(
+    args.brand,
+  )}${brandVisualBlock(args.brand)}`;
 
   const tasks = Array.from({ length: count }).map(async (): Promise<DesignVariant> => {
     const raw = await messagesJson({

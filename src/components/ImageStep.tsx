@@ -301,6 +301,7 @@ export function ImageStep() {
   const brief = useAppStore((s) => s.brief);
   const apiKeys = useAppStore((s) => s.keys);
   const locale = useAppStore((s) => s.locale);
+  const brand = useAppStore((s) => s.brand);
   const step = useAppStore((s) => s.steps.image);
   const copyStep = useAppStore((s) => s.steps.copy);
   const setStepStatus = useAppStore((s) => s.setStepStatus);
@@ -337,6 +338,7 @@ export function ImageStep() {
         count: 2,
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
         locale,
+        brand,
       });
       appendVariants('image', next);
       addHistoryEntry('image', makeHistoryEntry('initial', null, next.length));
@@ -360,6 +362,7 @@ export function ImageStep() {
         count: 2,
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
         locale,
+        brand,
       });
       appendVariants('image', next);
       addHistoryEntry('image', makeHistoryEntry('more', null, next.length));
@@ -389,6 +392,7 @@ export function ImageStep() {
         count: 2,
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
         locale,
+        brand,
       });
       addHistoryEntry('image', makeHistoryEntry(kind, direction, next.length));
       replaceVariants('image', next);
@@ -412,6 +416,7 @@ export function ImageStep() {
       brief,
       apiKey: apiKeys.anthropic,
       locale,
+      brand,
     });
     const c: Critique = {
       variantId: variant.id,

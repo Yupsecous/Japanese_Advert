@@ -1,6 +1,7 @@
 import { AppError } from './errorMessages';
+import { brandPromptBlock, brandVisualBlock } from './brandPrompt';
 import { languageDirective, type Locale } from '../i18n';
-import type { Brief, CopyVariant, ImageVariant } from '../types';
+import type { BrandDictionary, Brief, CopyVariant, ImageVariant } from '../types';
 
 export type CritiqueImageArgs = {
   variant: ImageVariant;
@@ -8,6 +9,7 @@ export type CritiqueImageArgs = {
   brief: Brief;
   apiKey: string;
   locale?: Locale;
+  brand?: BrandDictionary;
 };
 
 const ANTHROPIC_MODEL = 'claude-sonnet-4-6';
@@ -74,7 +76,7 @@ export async function critiqueImage(args: CritiqueImageArgs): Promise<string> {
       body: JSON.stringify({
         model: ANTHROPIC_MODEL,
         max_tokens: 600,
-        system: `${CRITIQUE_SYSTEM_PROMPT}\n\n${languageDirective(args.locale ?? 'en')}`,
+        system: `${CRITIQUE_SYSTEM_PROMPT}\n\n${languageDirective(args.locale ?? 'en')}${brandPromptBlock(args.brand)}${brandVisualBlock(args.brand)}`,
         messages: [
           {
             role: 'user',

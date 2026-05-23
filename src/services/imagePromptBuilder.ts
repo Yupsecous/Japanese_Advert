@@ -1,13 +1,15 @@
 import { z } from 'zod';
 import { chatCompletionsJson } from './openaiClient';
+import { brandVisualBlock } from './brandPrompt';
 import { IMAGE_PROMPT_LANGUAGE_NOTE } from '../i18n';
-import type { Brief, CopyVariant, ImagePromptMods } from '../types';
+import type { BrandDictionary, Brief, CopyVariant, ImagePromptMods } from '../types';
 
 export type BuildImagePromptArgs = {
   brief: Brief;
   approvedCopy: CopyVariant;
   mods?: ImagePromptMods;
   apiKey: string;
+  brand?: BrandDictionary;
 };
 
 const BUILDER_SYSTEM_PROMPT = `You construct prompts for Flux Schnell marketing image generation. You write in prose, single paragraph, vivid and specific. You never use tag-lists or comma-soup. You describe one image — what the camera sees, what the light does, what the subject is doing.
@@ -115,7 +117,7 @@ export async function buildImagePrompt(args: BuildImagePromptArgs): Promise<stri
   const user = buildUserMessage(args);
   const raw = await chatCompletionsJson({
     apiKey: args.apiKey,
-    system: `${BUILDER_SYSTEM_PROMPT}\n\n${IMAGE_PROMPT_LANGUAGE_NOTE}`,
+    system: `${BUILDER_SYSTEM_PROMPT}\n\n${IMAGE_PROMPT_LANGUAGE_NOTE}${brandVisualBlock(args.brand)}`,
     user,
     schemaName: 'flux_prompt',
     schema: BUILDER_RESPONSE_SCHEMA as unknown as Record<string, unknown>,

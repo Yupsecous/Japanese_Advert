@@ -47,6 +47,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         keys: state.keys,
         locale: state.locale,
+        authed: state.authed,
         brief: state.brief,
         briefSubmitted: state.briefSubmitted,
         steps: {

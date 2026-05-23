@@ -32,6 +32,8 @@ const EN: Dict = {
   'app.newBrief': 'New brief',
   'app.settings': 'Settings',
   'app.language': 'Language',
+  'app.brandActive': 'Brand on',
+  'app.brandActiveTooltip': 'Brand dictionary is active. Click to edit.',
 
   // Stepper
   'stepper.step': 'Step',
@@ -82,6 +84,49 @@ const EN: Dict = {
   'settings.validating': 'Validating…',
   'settings.validate': 'Validate keys',
   'settings.placeholder': '{provider} API key',
+  'settings.keysSection': 'API keys',
+  'settings.brandSection': 'Brand dictionary',
+  'settings.signOut': 'Sign out',
+
+  // Auth gate
+  'auth.heading': 'Sign in',
+  'auth.subtitle': 'This demo URL is access-controlled. Enter the credentials your contact shared with you.',
+  'auth.username': 'Username',
+  'auth.password': 'Password',
+  'auth.signIn': 'Sign in',
+  'auth.signingIn': 'Signing in…',
+  'auth.invalid': "That username and password didn't match. Check for stray spaces.",
+  'auth.insecureContext':
+    "Sign-in needs a secure context — this URL must use HTTPS (or localhost). The current page is not secure, so credentials can't be verified.",
+  'auth.footnote':
+    'Access is shared by your point of contact. Credentials are checked client-side — this is a soft gate, not a security barrier.',
+
+  // Brand dictionary
+  'brandSettings.heading': 'Brand voice & rules',
+  'brandSettings.active': '{n} rule(s) active',
+  'brandSettings.intro':
+    'Optional. When set, these rules thread into every generation — copy, image, script, design, platform exports — to keep outputs consistent with your brand voice. Stored in this browser only.',
+  'brandSettings.name': 'Brand name',
+  'brandSettings.namePlaceholder': 'e.g. Lumen',
+  'brandSettings.voice': 'Brand voice',
+  'brandSettings.voicePlaceholder':
+    'e.g. Plainspoken, confident, never preachy. Short clauses. No emoji. Specifics over abstractions.',
+  'brandSettings.banned': 'Banned terms (one per line)',
+  'brandSettings.bannedPlaceholder': 'unlock\nelevate\nleverage\nsynergy',
+  'brandSettings.bannedHint': 'Terms the LLM must never use. Case-insensitive. Includes stems.',
+  'brandSettings.preferred': 'Preferred terms (one per line)',
+  'brandSettings.preferredPlaceholder': 'clarity\nfoundation\nanchor',
+  'brandSettings.preferredHint': 'Terms to lean into when natural. The LLM will not force them.',
+  'brandSettings.visualRules': 'Visual rules',
+  'brandSettings.visualRulesPlaceholder':
+    'e.g. No human faces. Earth-tone palette only. Natural daylight, no studio strobes.',
+  'brandSettings.audience': 'Audience refinement',
+  'brandSettings.audiencePlaceholder': 'e.g. Always assume B2B enterprise IT decision-makers.',
+  'brandSettings.save': 'Save brand',
+  'brandSettings.saved': 'Saved',
+  'brandSettings.reset': 'Clear brand',
+  'brandSettings.persistenceNote':
+    'Saved to this browser only — never sent to a server, never shared across devices.',
 
   // Common step UI
   'common.pickThis': 'Pick this',
@@ -306,6 +351,48 @@ const EN: Dict = {
     'All image attempts failed. Try once more — fal.ai is sometimes flaky on bursts.',
   'err.unknown':
     'Something went wrong. Try again — and if it keeps happening, open Settings and re-check your keys.',
+
+  // Platform exports (Meta + X)
+  'platform.eyebrow': 'Ad platforms',
+  'platform.heading': 'Platform-ready assets',
+  'platform.subtitle':
+    "Two-variant A/B copy plus paired images at every Meta and X aspect ratio. Optional Meta carousel cards and a slideshow video (Reels 9:16, X 1:1) for video placements. Each platform downloads as a single ZIP, character-budgeted and CTA-enum mapped.",
+  'platform.generate': 'Generate Meta + X assets',
+  'platform.regenerate': 'Regenerate everything',
+  'platform.regenerateNote': 'Reruns image, copy, carousel, and video — counts as fresh API spend.',
+  'platform.costNote':
+    'Image pairs via fal.ai (~8s) · copy adaptation via Claude (~3s) · video encoded in-browser from the voiceover.',
+  'platform.progressCopy': 'Adapting A/B copy for Meta and X…',
+  'platform.progressImages': 'Generating A/B image pairs at 1:1, 4:5, 9:16, 1.91:1…',
+  'platform.progressCarousel': 'Generating Meta carousel cards…',
+  'platform.progressVideo': 'Encoding slideshow video from your hero image + voiceover…',
+  'platform.option.carousel': 'Include Meta carousel set (+3 image cards)',
+  'platform.option.carouselNote':
+    "Three 1:1 framings of the hero scene for Meta's multi-card ad format. Adds ~5s and 3 fal.ai calls.",
+  'platform.option.video': 'Include slideshow videos (Reels 9:16, X 1:1)',
+  'platform.option.videoNote':
+    'Ken Burns animation over your hero image with the approved voiceover, encoded in your browser. No extra API cost.',
+  'platform.option.videoNoAudio':
+    'Video generation needs an approved voiceover from the audio step.',
+  'platform.metaPlacements': 'Feed · Stories · Reels · Carousel',
+  'platform.xPlacements': 'Timeline · Website card · Promoted video',
+  'platform.videoForReels': 'Video — Meta Reels & Stories',
+  'platform.videoForX': 'Video — X promoted tweet',
+  'platform.videoNote':
+    'Ken Burns slideshow over the approved hero image, synced to the approved voiceover. Drop directly into the Reels / Promoted-tweet uploader.',
+  'platform.carousel': 'Carousel cards',
+  'platform.downloadMeta': 'Download Meta ZIP',
+  'platform.downloadX': 'Download X ZIP',
+  'platform.downloading': 'Packaging…',
+  'platform.generatedAt': 'Generated',
+  'platform.embeddedCount': '{n} image(s) embedded · {failed} missing',
+  'platform.videoEmbedded': 'video included',
+  'platform.carouselEmbedded': 'carousel: {n} cards',
+  'platform.copyOverages': 'Character overages',
+  'platform.restrictedTitle': 'Restricted-category notice',
+  'platform.keysMissingTitle': 'Additional keys required',
+  'platform.keyMissing.fal': 'fal.ai key (needed for additional aspect ratios and carousel cards)',
+  'platform.keyMissing.ai': 'OpenAI or Anthropic key (needed for copy adaptation)',
 };
 
 const JA: Dict = {
@@ -315,6 +402,8 @@ const JA: Dict = {
   'app.newBrief': '新しいブリーフ',
   'app.settings': '設定',
   'app.language': '言語',
+  'app.brandActive': 'ブランド設定中',
+  'app.brandActiveTooltip': 'ブランド辞書が適用中です。クリックして編集できます。',
 
   // Stepper
   'stepper.step': 'ステップ',
@@ -365,6 +454,52 @@ const JA: Dict = {
   'settings.validating': '検証中…',
   'settings.validate': 'キーを検証',
   'settings.placeholder': '{provider} APIキー',
+  'settings.keysSection': 'APIキー',
+  'settings.brandSection': 'ブランド辞書',
+  'settings.signOut': 'サインアウト',
+
+  // Auth gate
+  'auth.heading': 'サインイン',
+  'auth.subtitle':
+    'このデモURLはアクセス制限されています。担当者から共有された認証情報を入力してください。',
+  'auth.username': 'ユーザー名',
+  'auth.password': 'パスワード',
+  'auth.signIn': 'サインイン',
+  'auth.signingIn': 'サインイン中…',
+  'auth.invalid':
+    'ユーザー名またはパスワードが一致しません。余計な空白が混ざっていないかご確認ください。',
+  'auth.insecureContext':
+    'サインインにはセキュアな接続が必要です。このURLはHTTPS(またはlocalhost)で配信する必要があります。現在のページはセキュアではないため、認証情報を検証できません。',
+  'auth.footnote':
+    'アクセス情報は担当者から共有されます。認証はクライアント側で行われるため、ソフトゲートであってセキュリティバリアではありません。',
+
+  // Brand dictionary
+  'brandSettings.heading': 'ブランドボイスとルール',
+  'brandSettings.active': '{n} 件のルールが有効',
+  'brandSettings.intro':
+    'オプション。設定すると、コピー・画像・スクリプト・デザイン・プラットフォーム書き出しのすべての生成に反映され、ブランドボイスを統一できます。このブラウザ内のみに保存されます。',
+  'brandSettings.name': 'ブランド名',
+  'brandSettings.namePlaceholder': '例: Lumen',
+  'brandSettings.voice': 'ブランドボイス',
+  'brandSettings.voicePlaceholder':
+    '例: 率直・自信・説教調にならない。短い節。絵文字なし。抽象より具体。',
+  'brandSettings.banned': '使用禁止ワード(1行に1つ)',
+  'brandSettings.bannedPlaceholder': '革新的\n圧倒的\n究極の\nシナジー',
+  'brandSettings.bannedHint':
+    'LLMが絶対に使ってはいけない語。大文字小文字を区別せず、語幹も対象。',
+  'brandSettings.preferred': '推奨ワード(1行に1つ)',
+  'brandSettings.preferredPlaceholder': '明快\n基盤\n軸',
+  'brandSettings.preferredHint': '自然に使える場面で活かす語。無理に押し込めません。',
+  'brandSettings.visualRules': 'ビジュアルルール',
+  'brandSettings.visualRulesPlaceholder':
+    '例: 人物の顔は出さない。アースカラーのみ。自然光のみで、スタジオストロボなし。',
+  'brandSettings.audience': 'ターゲットの追加条件',
+  'brandSettings.audiencePlaceholder': '例: 常にBtoB企業のIT意思決定者を想定する。',
+  'brandSettings.save': 'ブランドを保存',
+  'brandSettings.saved': '保存済み',
+  'brandSettings.reset': 'ブランドをクリア',
+  'brandSettings.persistenceNote':
+    'このブラウザ内のみに保存されます。サーバーへ送信されず、端末間では共有されません。',
 
   // Common step UI
   'common.pickThis': 'これを選ぶ',
@@ -596,6 +731,48 @@ const JA: Dict = {
     'すべての画像生成が失敗しました。もう一度お試しください — fal.aiは連続リクエストで不安定になることがあります。',
   'err.unknown':
     'エラーが発生しました。再度お試しください。問題が続く場合は設定からキーを再確認してください。',
+
+  // Platform exports (Meta + X)
+  'platform.eyebrow': '広告プラットフォーム',
+  'platform.heading': '広告プラットフォーム向け素材',
+  'platform.subtitle':
+    'A/B用の2バリアントコピーと、Meta・Xの各アスペクト比のペア画像を生成します。任意でMetaカルーセル用カードとスライドショー動画(Reels 9:16・X 1:1)も生成。各プラットフォームを1つのZIPとしてダウンロードでき、文字数制限とCTA列挙値に対応済みです。',
+  'platform.generate': 'Meta + X 素材を生成',
+  'platform.regenerate': 'すべて再生成',
+  'platform.regenerateNote': '画像・コピー・カルーセル・動画をすべて再生成します。API料金が再度発生します。',
+  'platform.costNote':
+    'fal.aiでペア画像を生成(約8秒) · Claudeでコピー調整(約3秒) · 動画はブラウザ内でボイスオーバーから生成。',
+  'platform.progressCopy': 'Meta と X 向けに A/B コピーを調整中…',
+  'platform.progressImages': '1:1, 4:5, 9:16, 1.91:1 の A/B 画像ペアを生成中…',
+  'platform.progressCarousel': 'Metaカルーセル用カードを生成中…',
+  'platform.progressVideo': 'ヒーロー画像とボイスオーバーからスライドショー動画をエンコード中…',
+  'platform.option.carousel': 'Metaカルーセルセットを含める(+3枚)',
+  'platform.option.carouselNote':
+    'Metaのカルーセル形式向けに、ヒーローシーンを異なる3つのフレーミングで生成します。約5秒と fal.ai 3回の呼び出しが追加されます。',
+  'platform.option.video': 'スライドショー動画を含める(Reels 9:16・X 1:1)',
+  'platform.option.videoNote':
+    '承認済み画像にKen Burns風のアニメーションを適用し、承認済みボイスオーバーと合わせてブラウザ内でエンコードします。追加のAPIコストはかかりません。',
+  'platform.option.videoNoAudio':
+    '動画生成には音声ステップで承認済みのボイスオーバーが必要です。',
+  'platform.metaPlacements': 'フィード · ストーリーズ · リール · カルーセル',
+  'platform.xPlacements': 'タイムライン · ウェブサイトカード · プロモ動画',
+  'platform.videoForReels': '動画 — Meta Reels と Stories',
+  'platform.videoForX': '動画 — X プロモーションツイート',
+  'platform.videoNote':
+    '承認済みヒーロー画像のKen Burnsスライドショーに、承認済みボイスオーバーを同期しています。Reels・プロモツイートのアップローダーにそのまま投入できます。',
+  'platform.carousel': 'カルーセルカード',
+  'platform.downloadMeta': 'Meta ZIP をダウンロード',
+  'platform.downloadX': 'X ZIP をダウンロード',
+  'platform.downloading': 'パッケージング中…',
+  'platform.generatedAt': '生成時刻',
+  'platform.embeddedCount': '{n} 枚を埋め込み · {failed} 枚不足',
+  'platform.videoEmbedded': '動画を同梱',
+  'platform.carouselEmbedded': 'カルーセル: {n} 枚',
+  'platform.copyOverages': '文字数超過',
+  'platform.restrictedTitle': '規制対象カテゴリの注意',
+  'platform.keysMissingTitle': '追加のキーが必要です',
+  'platform.keyMissing.fal': 'fal.ai キー(追加のアスペクト比とカルーセル生成に必要)',
+  'platform.keyMissing.ai': 'OpenAI または Anthropic キー(コピー調整に必要)',
 };
 
 const PT: Dict = {
@@ -605,6 +782,8 @@ const PT: Dict = {
   'app.newBrief': 'Novo briefing',
   'app.settings': 'Configurações',
   'app.language': 'Idioma',
+  'app.brandActive': 'Marca ativa',
+  'app.brandActiveTooltip': 'Dicionário de marca ativo. Clique para editar.',
 
   // Stepper
   'stepper.step': 'Etapa',
@@ -655,6 +834,52 @@ const PT: Dict = {
   'settings.validating': 'Validando…',
   'settings.validate': 'Validar chaves',
   'settings.placeholder': 'Chave de API {provider}',
+  'settings.keysSection': 'Chaves de API',
+  'settings.brandSection': 'Dicionário de marca',
+  'settings.signOut': 'Sair',
+
+  // Auth gate
+  'auth.heading': 'Entrar',
+  'auth.subtitle':
+    'Esta URL de demo é controlada por acesso. Digite as credenciais que seu contato compartilhou com você.',
+  'auth.username': 'Usuário',
+  'auth.password': 'Senha',
+  'auth.signIn': 'Entrar',
+  'auth.signingIn': 'Entrando…',
+  'auth.invalid': 'Usuário e senha não conferem. Verifique se há espaços extras.',
+  'auth.insecureContext':
+    'O login exige um contexto seguro — esta URL precisa usar HTTPS (ou localhost). A página atual não é segura, então as credenciais não podem ser verificadas.',
+  'auth.footnote':
+    'O acesso é compartilhado pelo seu contato. As credenciais são verificadas no navegador — esta é uma barreira leve, não uma proteção de segurança.',
+
+  // Brand dictionary
+  'brandSettings.heading': 'Voz e regras da marca',
+  'brandSettings.active': '{n} regra(s) ativa(s)',
+  'brandSettings.intro':
+    'Opcional. Quando definido, essas regras são aplicadas em todas as gerações — texto, imagem, roteiro, design, exports de plataforma — para manter as saídas alinhadas à voz da marca. Armazenado apenas neste navegador.',
+  'brandSettings.name': 'Nome da marca',
+  'brandSettings.namePlaceholder': 'ex.: Lumen',
+  'brandSettings.voice': 'Voz da marca',
+  'brandSettings.voicePlaceholder':
+    'ex.: Direta, confiante, nunca moralista. Frases curtas. Sem emoji. Específico antes do abstrato.',
+  'brandSettings.banned': 'Termos banidos (um por linha)',
+  'brandSettings.bannedPlaceholder': 'desbloqueie\nelevar\nsinergia\nrevolucionário',
+  'brandSettings.bannedHint':
+    'Termos que o LLM nunca deve usar. Sem distinção de maiúsculas/minúsculas. Inclui radicais.',
+  'brandSettings.preferred': 'Termos preferidos (um por linha)',
+  'brandSettings.preferredPlaceholder': 'clareza\nbase\nâncora',
+  'brandSettings.preferredHint': 'Termos para usar quando natural. O LLM não os forçará.',
+  'brandSettings.visualRules': 'Regras visuais',
+  'brandSettings.visualRulesPlaceholder':
+    'ex.: Sem rostos humanos. Apenas tons terrosos. Luz natural, sem estúdio.',
+  'brandSettings.audience': 'Refinamento de público',
+  'brandSettings.audiencePlaceholder':
+    'ex.: Sempre assumir contexto B2B enterprise.',
+  'brandSettings.save': 'Salvar marca',
+  'brandSettings.saved': 'Salvo',
+  'brandSettings.reset': 'Limpar marca',
+  'brandSettings.persistenceNote':
+    'Salvo apenas neste navegador — nunca enviado a um servidor, nunca compartilhado entre dispositivos.',
 
   // Common step UI
   'common.pickThis': 'Escolher esta',
@@ -888,6 +1113,48 @@ const PT: Dict = {
     'Todas as tentativas de imagem falharam. Tente mais uma vez — a fal.ai às vezes falha em rajadas.',
   'err.unknown':
     'Algo deu errado. Tente de novo — se persistir, abra Configurações e reveja suas chaves.',
+
+  // Platform exports (Meta + X)
+  'platform.eyebrow': 'Plataformas de anúncios',
+  'platform.heading': 'Ativos prontos para plataforma',
+  'platform.subtitle':
+    'Texto A/B em duas variantes mais pares de imagens em todos os aspectos do Meta e X. Cartões de carrossel Meta opcionais e vídeo slideshow (Reels 9:16, X 1:1) para colocações em vídeo. Cada plataforma é baixada como um ZIP único, com limites de caracteres verificados e CTA mapeado para enum.',
+  'platform.generate': 'Gerar ativos Meta + X',
+  'platform.regenerate': 'Regerar tudo',
+  'platform.regenerateNote': 'Regenera imagens, texto, carrossel e vídeo — conta como novo uso de API.',
+  'platform.costNote':
+    'Pares de imagem via fal.ai (~8s) · adaptação de texto via Claude (~3s) · vídeo codificado no navegador a partir da locução.',
+  'platform.progressCopy': 'Adaptando texto A/B para Meta e X…',
+  'platform.progressImages': 'Gerando pares A/B em 1:1, 4:5, 9:16, 1.91:1…',
+  'platform.progressCarousel': 'Gerando cartões de carrossel Meta…',
+  'platform.progressVideo': 'Codificando vídeo slideshow a partir da imagem hero + locução…',
+  'platform.option.carousel': 'Incluir conjunto de carrossel Meta (+3 cartões)',
+  'platform.option.carouselNote':
+    'Três enquadramentos 1:1 da cena hero para o formato carrossel do Meta. Adiciona ~5s e 3 chamadas fal.ai.',
+  'platform.option.video': 'Incluir vídeos slideshow (Reels 9:16, X 1:1)',
+  'platform.option.videoNote':
+    'Animação Ken Burns sobre a imagem hero com a locução aprovada, codificada no navegador. Sem custo extra de API.',
+  'platform.option.videoNoAudio':
+    'A geração de vídeo precisa de uma locução aprovada na etapa de áudio.',
+  'platform.metaPlacements': 'Feed · Stories · Reels · Carrossel',
+  'platform.xPlacements': 'Timeline · Website card · Vídeo promovido',
+  'platform.videoForReels': 'Vídeo — Meta Reels e Stories',
+  'platform.videoForX': 'Vídeo — Tweet promovido X',
+  'platform.videoNote':
+    'Slideshow Ken Burns sobre a imagem hero, sincronizado com a locução aprovada. Carregue direto no uploader de Reels ou tweet promovido.',
+  'platform.carousel': 'Cartões do carrossel',
+  'platform.downloadMeta': 'Baixar ZIP do Meta',
+  'platform.downloadX': 'Baixar ZIP do X',
+  'platform.downloading': 'Empacotando…',
+  'platform.generatedAt': 'Gerado',
+  'platform.embeddedCount': '{n} imagem(ns) embutida(s) · {failed} ausente(s)',
+  'platform.videoEmbedded': 'vídeo incluído',
+  'platform.carouselEmbedded': 'carrossel: {n} cartões',
+  'platform.copyOverages': 'Excessos de caracteres',
+  'platform.restrictedTitle': 'Aviso de categoria restrita',
+  'platform.keysMissingTitle': 'Chaves adicionais necessárias',
+  'platform.keyMissing.fal': 'Chave fal.ai (necessária para aspectos adicionais e cartões de carrossel)',
+  'platform.keyMissing.ai': 'Chave OpenAI ou Anthropic (necessária para adaptação de texto)',
 };
 
 const ES: Dict = {
@@ -897,6 +1164,8 @@ const ES: Dict = {
   'app.newBrief': 'Nuevo brief',
   'app.settings': 'Ajustes',
   'app.language': 'Idioma',
+  'app.brandActive': 'Marca activa',
+  'app.brandActiveTooltip': 'Diccionario de marca activo. Haz clic para editar.',
 
   // Stepper
   'stepper.step': 'Paso',
@@ -947,6 +1216,52 @@ const ES: Dict = {
   'settings.validating': 'Validando…',
   'settings.validate': 'Validar claves',
   'settings.placeholder': 'Clave de API {provider}',
+  'settings.keysSection': 'Claves de API',
+  'settings.brandSection': 'Diccionario de marca',
+  'settings.signOut': 'Cerrar sesión',
+
+  // Auth gate
+  'auth.heading': 'Iniciar sesión',
+  'auth.subtitle':
+    'Esta URL de demo está controlada por acceso. Ingresa las credenciales que tu contacto compartió contigo.',
+  'auth.username': 'Usuario',
+  'auth.password': 'Contraseña',
+  'auth.signIn': 'Iniciar sesión',
+  'auth.signingIn': 'Iniciando sesión…',
+  'auth.invalid': 'El usuario y la contraseña no coinciden. Verifica que no haya espacios extra.',
+  'auth.insecureContext':
+    'El inicio de sesión requiere un contexto seguro — esta URL debe usar HTTPS (o localhost). La página actual no es segura, por lo que las credenciales no pueden verificarse.',
+  'auth.footnote':
+    'El acceso lo comparte tu contacto. Las credenciales se verifican en el navegador — esta es una barrera blanda, no una protección de seguridad.',
+
+  // Brand dictionary
+  'brandSettings.heading': 'Voz y reglas de marca',
+  'brandSettings.active': '{n} regla(s) activa(s)',
+  'brandSettings.intro':
+    'Opcional. Cuando se configura, estas reglas se aplican en cada generación — texto, imagen, guion, diseño, exports de plataforma — para mantener las salidas alineadas a la voz de marca. Guardado solo en este navegador.',
+  'brandSettings.name': 'Nombre de marca',
+  'brandSettings.namePlaceholder': 'p. ej. Lumen',
+  'brandSettings.voice': 'Voz de marca',
+  'brandSettings.voicePlaceholder':
+    'p. ej. Directa, segura, nunca moralista. Frases cortas. Sin emojis. Específico antes que abstracto.',
+  'brandSettings.banned': 'Términos prohibidos (uno por línea)',
+  'brandSettings.bannedPlaceholder': 'desbloquea\nelevar\nsinergia\nrevolucionario',
+  'brandSettings.bannedHint':
+    'Términos que el LLM nunca debe usar. Sin distinción de mayúsculas. Incluye raíces.',
+  'brandSettings.preferred': 'Términos preferidos (uno por línea)',
+  'brandSettings.preferredPlaceholder': 'claridad\nbase\nancla',
+  'brandSettings.preferredHint': 'Términos a usar cuando sea natural. El LLM no los forzará.',
+  'brandSettings.visualRules': 'Reglas visuales',
+  'brandSettings.visualRulesPlaceholder':
+    'p. ej. Sin rostros. Paleta de tonos tierra. Luz natural, sin estudio.',
+  'brandSettings.audience': 'Refinamiento de audiencia',
+  'brandSettings.audiencePlaceholder':
+    'p. ej. Asumir siempre contexto B2B enterprise.',
+  'brandSettings.save': 'Guardar marca',
+  'brandSettings.saved': 'Guardado',
+  'brandSettings.reset': 'Limpiar marca',
+  'brandSettings.persistenceNote':
+    'Guardado solo en este navegador — nunca enviado a un servidor, nunca compartido entre dispositivos.',
 
   // Common step UI
   'common.pickThis': 'Elegir esta',
@@ -1179,6 +1494,48 @@ const ES: Dict = {
     'Todos los intentos de imagen fallaron. Reintenta — fal.ai a veces falla en ráfagas.',
   'err.unknown':
     'Algo salió mal. Reintenta — y si persiste, abre Ajustes y revisa tus claves.',
+
+  // Platform exports (Meta + X)
+  'platform.eyebrow': 'Plataformas publicitarias',
+  'platform.heading': 'Activos listos para plataforma',
+  'platform.subtitle':
+    'Texto A/B en dos variantes más pares de imágenes en cada aspecto de Meta y X. Tarjetas de carrusel Meta opcionales y video slideshow (Reels 9:16, X 1:1) para colocaciones de video. Cada plataforma se descarga como un único ZIP, con límites de caracteres verificados y CTA mapeado a un enum.',
+  'platform.generate': 'Generar activos Meta + X',
+  'platform.regenerate': 'Regenerar todo',
+  'platform.regenerateNote': 'Vuelve a generar imágenes, texto, carrusel y video — cuenta como nuevo uso de API.',
+  'platform.costNote':
+    'Pares de imagen vía fal.ai (~8s) · adaptación de texto vía Claude (~3s) · video codificado en el navegador desde la locución.',
+  'platform.progressCopy': 'Adaptando texto A/B para Meta y X…',
+  'platform.progressImages': 'Generando pares A/B en 1:1, 4:5, 9:16, 1.91:1…',
+  'platform.progressCarousel': 'Generando tarjetas de carrusel Meta…',
+  'platform.progressVideo': 'Codificando video slideshow desde imagen hero + locución…',
+  'platform.option.carousel': 'Incluir conjunto de carrusel Meta (+3 tarjetas)',
+  'platform.option.carouselNote':
+    'Tres encuadres 1:1 de la escena hero para el formato carrusel de Meta. Añade ~5s y 3 llamadas fal.ai.',
+  'platform.option.video': 'Incluir videos slideshow (Reels 9:16, X 1:1)',
+  'platform.option.videoNote':
+    'Animación Ken Burns sobre la imagen hero con la locución aprobada, codificada en el navegador. Sin coste adicional de API.',
+  'platform.option.videoNoAudio':
+    'La generación de video necesita una locución aprobada en el paso de audio.',
+  'platform.metaPlacements': 'Feed · Stories · Reels · Carrusel',
+  'platform.xPlacements': 'Timeline · Website card · Video promocionado',
+  'platform.videoForReels': 'Video — Meta Reels y Stories',
+  'platform.videoForX': 'Video — Tweet promocionado X',
+  'platform.videoNote':
+    'Slideshow Ken Burns sobre la imagen hero, sincronizado con la locución aprobada. Súbelo directamente al uploader de Reels o tweet promocionado.',
+  'platform.carousel': 'Tarjetas del carrusel',
+  'platform.downloadMeta': 'Descargar ZIP de Meta',
+  'platform.downloadX': 'Descargar ZIP de X',
+  'platform.downloading': 'Empaquetando…',
+  'platform.generatedAt': 'Generado',
+  'platform.embeddedCount': '{n} imagen(es) incluida(s) · {failed} faltante(s)',
+  'platform.videoEmbedded': 'video incluido',
+  'platform.carouselEmbedded': 'carrusel: {n} tarjetas',
+  'platform.copyOverages': 'Excesos de caracteres',
+  'platform.restrictedTitle': 'Aviso de categoría restringida',
+  'platform.keysMissingTitle': 'Se requieren claves adicionales',
+  'platform.keyMissing.fal': 'Clave fal.ai (necesaria para aspectos adicionales y tarjetas de carrusel)',
+  'platform.keyMissing.ai': 'Clave OpenAI o Anthropic (necesaria para adaptación de texto)',
 };
 
 const FR: Dict = {
@@ -1188,6 +1545,8 @@ const FR: Dict = {
   'app.newBrief': 'Nouveau brief',
   'app.settings': 'Paramètres',
   'app.language': 'Langue',
+  'app.brandActive': 'Marque active',
+  'app.brandActiveTooltip': "Dictionnaire de marque actif. Cliquez pour modifier.",
 
   // Stepper
   'stepper.step': 'Étape',
@@ -1238,6 +1597,53 @@ const FR: Dict = {
   'settings.validating': 'Validation…',
   'settings.validate': 'Valider les clés',
   'settings.placeholder': "Clé d'API {provider}",
+  'settings.keysSection': "Clés d'API",
+  'settings.brandSection': 'Dictionnaire de marque',
+  'settings.signOut': 'Se déconnecter',
+
+  // Auth gate
+  'auth.heading': 'Connexion',
+  'auth.subtitle':
+    "L'accès à cette démo est restreint. Saisissez les identifiants que votre contact vous a transmis.",
+  'auth.username': 'Identifiant',
+  'auth.password': 'Mot de passe',
+  'auth.signIn': 'Se connecter',
+  'auth.signingIn': 'Connexion…',
+  'auth.invalid':
+    "L'identifiant et le mot de passe ne correspondent pas. Vérifiez les espaces parasites.",
+  'auth.insecureContext':
+    "La connexion nécessite un contexte sécurisé — cette URL doit utiliser HTTPS (ou localhost). La page actuelle n'est pas sécurisée, donc les identifiants ne peuvent pas être vérifiés.",
+  'auth.footnote':
+    "L'accès est partagé par votre contact. Les identifiants sont vérifiés côté navigateur — il s'agit d'une barrière souple, pas d'une protection de sécurité.",
+
+  // Brand dictionary
+  'brandSettings.heading': 'Voix et règles de marque',
+  'brandSettings.active': '{n} règle(s) active(s)',
+  'brandSettings.intro':
+    "Optionnel. Quand défini, ces règles s'appliquent à chaque génération — texte, image, script, design, exports plateforme — pour garder les sorties cohérentes avec la voix de la marque. Stocké uniquement dans ce navigateur.",
+  'brandSettings.name': 'Nom de marque',
+  'brandSettings.namePlaceholder': 'ex. Lumen',
+  'brandSettings.voice': 'Voix de marque',
+  'brandSettings.voicePlaceholder':
+    'ex. Directe, confiante, jamais moralisatrice. Phrases courtes. Pas d’emoji. Spécifique plutôt qu’abstrait.',
+  'brandSettings.banned': 'Termes bannis (un par ligne)',
+  'brandSettings.bannedPlaceholder': 'débloquer\népanouir\nsynergie\nrévolutionnaire',
+  'brandSettings.bannedHint':
+    'Termes que le LLM ne doit jamais utiliser. Insensible à la casse. Inclut les racines.',
+  'brandSettings.preferred': 'Termes préférés (un par ligne)',
+  'brandSettings.preferredPlaceholder': 'clarté\nfondation\nancrage',
+  'brandSettings.preferredHint': "Termes à privilégier quand c'est naturel. Le LLM ne les forcera pas.",
+  'brandSettings.visualRules': 'Règles visuelles',
+  'brandSettings.visualRulesPlaceholder':
+    "ex. Pas de visages humains. Palette terre uniquement. Lumière naturelle, pas de studio.",
+  'brandSettings.audience': "Affinement d'audience",
+  'brandSettings.audiencePlaceholder':
+    "ex. Toujours supposer un contexte B2B entreprise.",
+  'brandSettings.save': 'Enregistrer la marque',
+  'brandSettings.saved': 'Enregistré',
+  'brandSettings.reset': 'Effacer la marque',
+  'brandSettings.persistenceNote':
+    "Enregistré dans ce navigateur uniquement — jamais envoyé à un serveur, jamais partagé entre appareils.",
 
   // Common step UI
   'common.pickThis': 'Choisir celle-ci',
@@ -1470,6 +1876,48 @@ const FR: Dict = {
     "Toutes les tentatives d'image ont échoué. Réessayez une fois — fal.ai est parfois instable lors des rafales.",
   'err.unknown':
     "Quelque chose a mal tourné. Réessayez — et si cela persiste, ouvrez les paramètres et revérifiez vos clés.",
+
+  // Platform exports (Meta + X)
+  'platform.eyebrow': 'Plateformes publicitaires',
+  'platform.heading': 'Actifs prêts pour les plateformes',
+  'platform.subtitle':
+    "Texte A/B en deux variantes et paires d'images à tous les ratios Meta et X. Cartes de carrousel Meta optionnelles et vidéo slideshow (Reels 9:16, X 1:1) pour les emplacements vidéo. Chaque plateforme se télécharge en un seul ZIP, limites de caractères contrôlées et CTA mappé sur un enum.",
+  'platform.generate': 'Générer les actifs Meta + X',
+  'platform.regenerate': 'Tout régénérer',
+  'platform.regenerateNote': 'Régénère images, texte, carrousel et vidéo — compte comme nouvelle utilisation API.',
+  'platform.costNote':
+    "Paires d'images via fal.ai (~8s) · adaptation du texte via Claude (~3s) · vidéo encodée dans le navigateur depuis la voix off.",
+  'platform.progressCopy': 'Adaptation du texte A/B pour Meta et X…',
+  'platform.progressImages': "Génération des paires A/B en 1:1, 4:5, 9:16, 1.91:1…",
+  'platform.progressCarousel': 'Génération des cartes carrousel Meta…',
+  'platform.progressVideo': "Encodage du slideshow depuis l'image hero + voix off…",
+  'platform.option.carousel': 'Inclure le carrousel Meta (+3 cartes)',
+  'platform.option.carouselNote':
+    "Trois cadrages 1:1 de la scène hero pour le format carrousel de Meta. Ajoute ~5s et 3 appels fal.ai.",
+  'platform.option.video': 'Inclure les vidéos slideshow (Reels 9:16, X 1:1)',
+  'platform.option.videoNote':
+    "Animation Ken Burns sur l'image hero avec la voix off approuvée, encodée dans le navigateur. Aucun coût API supplémentaire.",
+  'platform.option.videoNoAudio':
+    "La génération vidéo requiert une voix off approuvée à l'étape audio.",
+  'platform.metaPlacements': 'Feed · Stories · Reels · Carrousel',
+  'platform.xPlacements': 'Timeline · Website card · Vidéo promue',
+  'platform.videoForReels': 'Vidéo — Meta Reels et Stories',
+  'platform.videoForX': 'Vidéo — Tweet promu X',
+  'platform.videoNote':
+    "Slideshow Ken Burns sur l'image hero approuvée, synchronisé avec la voix off approuvée. À glisser directement dans l'uploader Reels ou tweet promu.",
+  'platform.carousel': 'Cartes du carrousel',
+  'platform.downloadMeta': 'Télécharger ZIP Meta',
+  'platform.downloadX': 'Télécharger ZIP X',
+  'platform.downloading': 'Empaquetage…',
+  'platform.generatedAt': 'Généré',
+  'platform.embeddedCount': '{n} image(s) intégrée(s) · {failed} manquante(s)',
+  'platform.videoEmbedded': 'vidéo incluse',
+  'platform.carouselEmbedded': 'carrousel : {n} cartes',
+  'platform.copyOverages': 'Dépassements de caractères',
+  'platform.restrictedTitle': 'Avis de catégorie restreinte',
+  'platform.keysMissingTitle': 'Clés supplémentaires requises',
+  'platform.keyMissing.fal': 'Clé fal.ai (nécessaire pour les ratios additionnels et le carrousel)',
+  'platform.keyMissing.ai': "Clé OpenAI ou Anthropic (nécessaire pour l'adaptation du texte)",
 };
 
 const DE: Dict = {
@@ -1479,6 +1927,8 @@ const DE: Dict = {
   'app.newBrief': 'Neues Briefing',
   'app.settings': 'Einstellungen',
   'app.language': 'Sprache',
+  'app.brandActive': 'Marke aktiv',
+  'app.brandActiveTooltip': 'Markenwörterbuch ist aktiv. Klicken zum Bearbeiten.',
 
   // Stepper
   'stepper.step': 'Schritt',
@@ -1529,6 +1979,53 @@ const DE: Dict = {
   'settings.validating': 'Validierung…',
   'settings.validate': 'Schlüssel validieren',
   'settings.placeholder': '{provider} API-Schlüssel',
+  'settings.keysSection': 'API-Schlüssel',
+  'settings.brandSection': 'Markenwörterbuch',
+  'settings.signOut': 'Abmelden',
+
+  // Auth gate
+  'auth.heading': 'Anmelden',
+  'auth.subtitle':
+    'Diese Demo-URL ist zugriffsgeschützt. Geben Sie die Zugangsdaten ein, die Ihr Ansprechpartner geteilt hat.',
+  'auth.username': 'Benutzername',
+  'auth.password': 'Passwort',
+  'auth.signIn': 'Anmelden',
+  'auth.signingIn': 'Anmeldung läuft…',
+  'auth.invalid':
+    'Benutzername und Passwort stimmen nicht überein. Prüfen Sie auf zusätzliche Leerzeichen.',
+  'auth.insecureContext':
+    'Die Anmeldung erfordert einen sicheren Kontext — diese URL muss HTTPS verwenden (oder localhost). Die aktuelle Seite ist nicht sicher, daher können die Zugangsdaten nicht überprüft werden.',
+  'auth.footnote':
+    'Der Zugriff wird von Ihrem Ansprechpartner geteilt. Die Zugangsdaten werden im Browser geprüft — dies ist eine sanfte Sperre, kein Sicherheitsschutz.',
+
+  // Brand dictionary
+  'brandSettings.heading': 'Markenstimme und -regeln',
+  'brandSettings.active': '{n} Regel(n) aktiv',
+  'brandSettings.intro':
+    'Optional. Sobald gesetzt, werden diese Regeln in jeder Generierung angewendet — Text, Bild, Skript, Design, Plattform-Exports — um Ausgaben mit der Markenstimme konsistent zu halten. Nur in diesem Browser gespeichert.',
+  'brandSettings.name': 'Markenname',
+  'brandSettings.namePlaceholder': 'z. B. Lumen',
+  'brandSettings.voice': 'Markenstimme',
+  'brandSettings.voicePlaceholder':
+    'z. B. Direkt, selbstbewusst, nie belehrend. Kurze Sätze. Keine Emoji. Konkretes vor Abstraktem.',
+  'brandSettings.banned': 'Verbotene Begriffe (einer pro Zeile)',
+  'brandSettings.bannedPlaceholder': 'entfesseln\nrevolutionär\nsynergie\ngamechanger',
+  'brandSettings.bannedHint':
+    'Begriffe, die das LLM niemals verwenden darf. Case-insensitive. Inklusive Wortstämme.',
+  'brandSettings.preferred': 'Bevorzugte Begriffe (einer pro Zeile)',
+  'brandSettings.preferredPlaceholder': 'Klarheit\nGrundlage\nAnker',
+  'brandSettings.preferredHint': 'Begriffe, die natürlich verwendet werden sollen. Das LLM erzwingt sie nicht.',
+  'brandSettings.visualRules': 'Visuelle Regeln',
+  'brandSettings.visualRulesPlaceholder':
+    'z. B. Keine menschlichen Gesichter. Nur Erdtöne. Natürliches Licht, keine Studio-Blitze.',
+  'brandSettings.audience': 'Zielgruppen-Verfeinerung',
+  'brandSettings.audiencePlaceholder':
+    'z. B. Immer einen B2B-Enterprise-Kontext annehmen.',
+  'brandSettings.save': 'Marke speichern',
+  'brandSettings.saved': 'Gespeichert',
+  'brandSettings.reset': 'Marke löschen',
+  'brandSettings.persistenceNote':
+    'Nur in diesem Browser gespeichert — niemals an einen Server gesendet, nie zwischen Geräten geteilt.',
 
   // Common step UI
   'common.pickThis': 'Diese wählen',
@@ -1764,6 +2261,48 @@ const DE: Dict = {
     'Alle Bildversuche sind fehlgeschlagen. Versuchen Sie es noch einmal — fal.ai ist bei Bursts manchmal instabil.',
   'err.unknown':
     'Etwas ist schiefgelaufen. Versuchen Sie es erneut — und falls es weiterhin auftritt, öffnen Sie die Einstellungen und prüfen Sie Ihre Schlüssel.',
+
+  // Platform exports (Meta + X)
+  'platform.eyebrow': 'Werbeplattformen',
+  'platform.heading': 'Plattform-fertige Assets',
+  'platform.subtitle':
+    'A/B-Text in zwei Varianten plus Bildpaare für jedes Meta- und X-Seitenverhältnis. Optional Meta-Carousel-Karten und Slideshow-Video (Reels 9:16, X 1:1) für Video-Placements. Jede Plattform wird als einzelnes ZIP heruntergeladen, mit geprüften Zeichenlimits und CTA-Enum.',
+  'platform.generate': 'Meta + X Assets generieren',
+  'platform.regenerate': 'Alles neu generieren',
+  'platform.regenerateNote': 'Generiert Bilder, Text, Carousel und Video komplett neu — verursacht neue API-Kosten.',
+  'platform.costNote':
+    'Bildpaare via fal.ai (~8s) · Textanpassung via Claude (~3s) · Video im Browser aus dem Voiceover kodiert.',
+  'platform.progressCopy': 'A/B-Text für Meta und X wird angepasst…',
+  'platform.progressImages': 'A/B-Bildpaare in 1:1, 4:5, 9:16, 1.91:1 werden generiert…',
+  'platform.progressCarousel': 'Meta-Carousel-Karten werden generiert…',
+  'platform.progressVideo': 'Slideshow-Video wird aus Hero-Bild + Voiceover kodiert…',
+  'platform.option.carousel': 'Meta-Carousel-Set einschließen (+3 Karten)',
+  'platform.option.carouselNote':
+    'Drei 1:1-Bildausschnitte der Hero-Szene für Metas Carousel-Format. Fügt ~5s und 3 fal.ai-Aufrufe hinzu.',
+  'platform.option.video': 'Slideshow-Videos einschließen (Reels 9:16, X 1:1)',
+  'platform.option.videoNote':
+    'Ken-Burns-Animation über dem Hero-Bild mit dem freigegebenen Voiceover, im Browser kodiert. Keine zusätzlichen API-Kosten.',
+  'platform.option.videoNoAudio':
+    'Die Video-Generierung benötigt ein freigegebenes Voiceover aus dem Audio-Schritt.',
+  'platform.metaPlacements': 'Feed · Stories · Reels · Carousel',
+  'platform.xPlacements': 'Timeline · Website-Card · Promoted Video',
+  'platform.videoForReels': 'Video — Meta Reels und Stories',
+  'platform.videoForX': 'Video — Promoted Tweet X',
+  'platform.videoNote':
+    'Ken-Burns-Slideshow über dem freigegebenen Hero-Bild, synchronisiert mit dem freigegebenen Voiceover. Direkt in den Reels-/Promoted-Tweet-Uploader laden.',
+  'platform.carousel': 'Carousel-Karten',
+  'platform.downloadMeta': 'Meta-ZIP herunterladen',
+  'platform.downloadX': 'X-ZIP herunterladen',
+  'platform.downloading': 'Paketierung…',
+  'platform.generatedAt': 'Generiert',
+  'platform.embeddedCount': '{n} Bild(er) eingebettet · {failed} fehlen',
+  'platform.videoEmbedded': 'Video enthalten',
+  'platform.carouselEmbedded': 'Carousel: {n} Karten',
+  'platform.copyOverages': 'Zeichenüberschreitungen',
+  'platform.restrictedTitle': 'Hinweis zur eingeschränkten Kategorie',
+  'platform.keysMissingTitle': 'Zusätzliche Schlüssel erforderlich',
+  'platform.keyMissing.fal': 'fal.ai-Schlüssel (für zusätzliche Seitenverhältnisse und Carousel)',
+  'platform.keyMissing.ai': 'OpenAI- oder Anthropic-Schlüssel (für Textanpassung)',
 };
 
 const DICTS: Record<Locale, Dict> = { en: EN, ja: JA, pt: PT, es: ES, fr: FR, de: DE };

@@ -7,10 +7,11 @@ import { StepShell } from './components/StepShell';
 import { OnboardingState } from './components/OnboardingState';
 import { TranslatorHarness } from './components/TranslatorHarness';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { AuthGate } from './components/AuthGate';
 import { useT } from './i18n/hooks';
 import { computeStepHash } from './services/stepHash';
 import { loadSamplePreset, type SamplePreset } from './services/sampleLoader';
-import { STEP_ORDER, type RefineEntry, type StepId } from './types';
+import { isBrandDictionaryEmpty, STEP_ORDER, type RefineEntry, type StepId } from './types';
 
 function isTestMode(): boolean {
   if (typeof window === 'undefined') return false;
@@ -123,6 +124,8 @@ export default function App() {
   const openDrawer = useAppStore((s) => s.openDrawer);
   const resetBrief = useAppStore((s) => s.resetBrief);
   const resetSteps = useAppStore((s) => s.resetSteps);
+  const brand = useAppStore((s) => s.brand);
+  const brandActive = !isBrandDictionaryEmpty(brand);
   const t = useT();
   const [sample, setSample] = useState<SamplePreset | null>(null);
   const autoOpenedRef = useRef(false);
@@ -162,10 +165,10 @@ export default function App() {
 
   if (isTestMode()) {
     return (
-      <>
+      <AuthGate>
         <TranslatorHarness />
         <SettingsDrawer />
-      </>
+      </AuthGate>
     );
   }
 
@@ -173,6 +176,7 @@ export default function App() {
   const showOnboarding = !briefSubmitted && !hasOpenaiKey;
 
   return (
+    <AuthGate>
     <div className="min-h-full bg-white">
       <header className="border-b border-rule bg-paper/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
@@ -184,6 +188,21 @@ export default function App() {
             <p className="hidden text-xs uppercase tracking-[0.18em] text-ink-faint sm:block">
               {t('app.version')}
             </p>
+            {brandActive && (
+              <button
+                type="button"
+                onClick={openDrawer}
+                title={t('app.brandActiveTooltip')}
+                className="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 transition-colors hover:bg-emerald-100 md:inline-flex"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                {brand.name.trim().length > 0
+                  ? brand.name.trim().length > 18
+                    ? brand.name.trim().slice(0, 18) + '…'
+                    : brand.name.trim()
+                  : t('app.brandActive')}
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
             {briefSubmitted && (
@@ -225,5 +244,6 @@ export default function App() {
 
       <SettingsDrawer />
     </div>
+    </AuthGate>
   );
 }

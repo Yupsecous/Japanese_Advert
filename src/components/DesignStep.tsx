@@ -149,6 +149,7 @@ export function DesignStep() {
   const brief = useAppStore((s) => s.brief);
   const apiKey = useAppStore((s) => s.keys.anthropic);
   const locale = useAppStore((s) => s.locale);
+  const brand = useAppStore((s) => s.brand);
   const step = useAppStore((s) => s.steps.design);
   const copyStep = useAppStore((s) => s.steps.copy);
   const imageStep = useAppStore((s) => s.steps.image);
@@ -192,6 +193,7 @@ export function DesignStep() {
         approvedImage,
         count: 1,
         locale,
+        brand,
       });
       appendVariants('design', next);
       addHistoryEntry('design', makeHistoryEntry('initial', null));
@@ -219,6 +221,7 @@ export function DesignStep() {
         refineDirection: direction,
         count: 1,
         locale,
+        brand,
       });
       addHistoryEntry('design', makeHistoryEntry('refine', direction));
       replaceVariants('design', next);

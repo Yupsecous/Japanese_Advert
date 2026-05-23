@@ -173,6 +173,7 @@ export function ScriptStep() {
   const brief = useAppStore((s) => s.brief);
   const apiKey = useAppStore((s) => s.keys.openai);
   const locale = useAppStore((s) => s.locale);
+  const brand = useAppStore((s) => s.brand);
   const step = useAppStore((s) => s.steps.script);
   const copyStep = useAppStore((s) => s.steps.copy);
   const imageStep = useAppStore((s) => s.steps.image);
@@ -215,6 +216,7 @@ export function ScriptStep() {
         count: 2,
         apiKey,
         locale,
+        brand,
       });
       appendVariants('script', next);
       addHistoryEntry('script', makeGenerationEntry('initial', null, next.length));
@@ -239,6 +241,7 @@ export function ScriptStep() {
         count: 2,
         apiKey,
         locale,
+        brand,
       });
       appendVariants('script', next);
       addHistoryEntry('script', makeGenerationEntry('more', null, next.length));
@@ -266,6 +269,7 @@ export function ScriptStep() {
         count: 2,
         apiKey,
         locale,
+        brand,
       });
       addHistoryEntry('script', makeGenerationEntry('refine', direction, next.length));
       replaceVariants('script', next);

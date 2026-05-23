@@ -147,6 +147,7 @@ export function CopyStep() {
   const apiKey = useAppStore((s) => s.keys.openai);
   const anthropicKey = useAppStore((s) => s.keys.anthropic);
   const locale = useAppStore((s) => s.locale);
+  const brand = useAppStore((s) => s.brand);
   const step = useAppStore((s) => s.steps.copy);
   const setStepStatus = useAppStore((s) => s.setStepStatus);
   const appendVariants = useAppStore((s) => s.appendVariants);
@@ -173,6 +174,7 @@ export function CopyStep() {
         brief,
         count: 2,
         locale,
+        brand,
       });
       appendVariants('copy', next);
       addHistoryEntry('copy', makeHistoryEntry('initial', null, next.length));
@@ -194,6 +196,7 @@ export function CopyStep() {
         previousVariants: variants,
         count: 2,
         locale,
+        brand,
       });
       appendVariants('copy', next);
       addHistoryEntry('copy', makeHistoryEntry('more', null, next.length));
@@ -218,6 +221,7 @@ export function CopyStep() {
         refineDirection: direction,
         count: 2,
         locale,
+        brand,
       });
       addHistoryEntry('copy', makeHistoryEntry('refine', direction, next.length));
       replaceVariants('copy', next);

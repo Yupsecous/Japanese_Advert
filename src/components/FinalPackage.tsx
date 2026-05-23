@@ -5,6 +5,7 @@ import { WaveformPlayer } from './WaveformPlayer';
 import { DirectorsNotes } from './DirectorsNotes';
 import { BackButton } from './BackButton';
 import { ViewportFrame } from './ViewportFrame';
+import { PlatformAssets } from './PlatformAssets';
 import { useT } from '../i18n/hooks';
 import { resolveVoice } from '../data/voiceLibrary';
 import {
@@ -64,32 +65,50 @@ export function FinalPackage() {
       <div>
         <BackButton label={t('final.backToAudio')} onClick={() => reopenStep('audio')} />
       </div>
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-success-700">{t('final.eyebrow')}</p>
-          <h2 className="font-serif mt-2 text-4xl font-medium leading-tight tracking-tight text-ink">
-            {t('final.heading')}
-          </h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
-            {t('final.body')}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={scrollToStepper}
-            className="rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-700 hover:bg-neutral-50"
-          >
-            {t('final.editAny')}
-          </button>
-          <button
-            type="button"
-            onClick={handleDownload}
-            disabled={downloading}
-            className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:bg-ink-faint"
-          >
-            {downloading ? t('final.packaging') : t('final.download')}
-          </button>
+      <header className="overflow-hidden rounded-xl border border-success-200 bg-gradient-to-br from-success-50 via-paper to-paper p-6 sm:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-success-200 text-success-700">
+                <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+                  <path
+                    d="M2.5 6.5 5 9l4.5-5.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-success-700">
+                {t('final.eyebrow')}
+              </p>
+            </div>
+            <h2 className="font-serif mt-3 text-4xl font-medium leading-tight tracking-tight text-ink sm:text-5xl">
+              {t('final.heading')}
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft sm:text-base">
+              {t('final.body')}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={scrollToStepper}
+              className="rounded-md border border-rule bg-white px-3 py-1.5 text-sm text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink"
+            >
+              {t('final.editAny')}
+            </button>
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark disabled:bg-ink-faint"
+            >
+              {downloading ? t('final.packaging') : t('final.download')}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -186,6 +205,8 @@ export function FinalPackage() {
           </div>
         </section>
       )}
+
+      <PlatformAssets approvedCopy={copy} approvedImage={image} />
 
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">

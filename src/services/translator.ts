@@ -1,9 +1,11 @@
 import { z } from 'zod';
 import { chatCompletionsJson } from './openaiClient';
 import { AppError } from './errorMessages';
+import { brandPromptBlock, brandVisualBlock } from './brandPrompt';
 import { languageDirective, type Locale } from '../i18n';
 import type {
   AssetType,
+  BrandDictionary,
   CopyMods,
   ImagePromptMods,
   TranslatorOutput,
@@ -16,6 +18,7 @@ export type TranslateDirectionArgs = {
   apiKey: string;
   currentAsset?: { kind: string; summary: string };
   locale?: Locale;
+  brand?: BrandDictionary;
 };
 
 const COPY_SYSTEM_PROMPT = `You translate a creative director's plain-language direction into structured copy modifications. The output drives a second LLM that writes ad copy.
@@ -331,7 +334,9 @@ export async function translateDirection(args: TranslateDirectionArgs): Promise<
   // user's locale. For image mods the prose feeds Flux which only handles
   // English well; callers pass locale: 'en' for that path.
   function withLocale(system: string): string {
-    return `${system}\n\n${languageDirective(locale)}`;
+    const brandBlock =
+      args.assetType === 'image' ? brandVisualBlock(args.brand) : brandPromptBlock(args.brand);
+    return `${system}\n\n${languageDirective(locale)}${brandBlock}`;
   }
 
   switch (args.assetType) {
