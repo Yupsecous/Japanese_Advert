@@ -23,6 +23,9 @@ function loadStoredBrand(): BrandDictionary {
       voiceCharacter: typeof parsed.voiceCharacter === 'string' ? parsed.voiceCharacter : '',
       visualRules: typeof parsed.visualRules === 'string' ? parsed.visualRules : '',
       audienceRefinement: typeof parsed.audienceRefinement === 'string' ? parsed.audienceRefinement : '',
+      learnedInsights: Array.isArray(parsed.learnedInsights)
+        ? parsed.learnedInsights.filter((t) => typeof t === 'string')
+        : [],
     };
   } catch {
     return EMPTY_BRAND_DICTIONARY;

@@ -79,6 +79,10 @@ export function BrandSettings() {
       voiceCharacter: draft.voiceCharacter.trim(),
       visualRules: draft.visualRules.trim(),
       audienceRefinement: draft.audienceRefinement.trim(),
+      // learnedInsights are populated by the feedback loop, not the user.
+      // Preserve any existing entries so editing the form doesn't wipe
+      // accumulated learnings.
+      learnedInsights: [...brand.learnedInsights],
     };
     setBrand(next);
     setDirty(false);

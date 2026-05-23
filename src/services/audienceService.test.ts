@@ -113,6 +113,7 @@ describe('audienceService.generateIndividualBrief', () => {
         voiceCharacter: 'Plainspoken, confident',
         visualRules: '',
         audienceRefinement: '',
+        learnedInsights: [],
       },
     });
     const callArgs = mockedMessagesJson.mock.calls[0]![0];

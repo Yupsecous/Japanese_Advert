@@ -129,6 +129,66 @@ const EN: Dict = {
   'audience.keyMissingBody':
     'Per-customer brief specialization uses Claude. Add your Anthropic key in Settings to continue, or click Skip to proceed with the campaign-level brief only.',
 
+  // Phase 2 — Batch Generator
+  'batch.heading': 'Batch generation',
+  'batch.subtitle':
+    'Generate a fully personalized copy + image + script for each customer in your audience slice. Each customer gets a different ad based on their individual brief.',
+  'batch.size': 'Batch size',
+  'batch.run': 'Generate {n} personalized ads',
+  'batch.cancel': 'Cancel',
+  'batch.clear': 'Clear assets',
+  'batch.progress': '{completed} / {total} generated',
+  'batch.inFlight': '{inFlight} in flight',
+  'batch.eligible': '{n} eligible',
+  'batch.previewLabel': '{n} personalized ads ready — click any card to expand',
+
+  // Phase 3 — Distribution Simulator
+  'dist.heading': 'Distribution',
+  'dist.subtitle':
+    "Channel is recommended per customer by Claude using their profile + signal. Delivery is simulated — no real network calls, just animated status overlays.",
+  'dist.start': 'Start delivery ({n} customers)',
+  'dist.redeliver': 'Re-deliver ({n})',
+  'dist.running': 'Delivering…',
+  'dist.delivered': '{delivered} of {total} delivered',
+  'dist.clear': 'Clear delivery log',
+
+  // Phase 4 — Effectiveness Dashboard
+  'dash.heading': 'Effectiveness',
+  'dash.subtitle':
+    'Simulated KPIs with a built-in segment bias. The point is to surface "this segment + this format combination worked" — a finding the feedback loop can fold back into the brand voice.',
+  'dash.regenerate': 'Regenerate data',
+  'dash.view.kpi': 'KPI',
+  'dash.view.heatmap': 'Heatmap',
+  'dash.view.drilldown': 'Drill-down',
+  'dash.kpi.delivered': 'Delivered',
+  'dash.kpi.openRate': 'Open rate',
+  'dash.kpi.clickRate': 'Click rate',
+  'dash.kpi.convertRate': 'Conversion',
+  'dash.upliftEyebrow': 'Personalization uplift',
+  'dash.uplift': '{pct}% CVR lift vs. single-creative baseline',
+  'dash.upliftBody':
+    'Personalized: {personalized} conversion rate · single-creative baseline: {baseline} (simulated)',
+  'dash.segment': 'Segment',
+  'dash.heatmapNote':
+    'Each cell shows CVR for that segment × format combination. Deeper teal = higher conversion.',
+  'dash.drill.customer': 'Customer',
+  'dash.drill.segment': 'Segment',
+  'dash.drill.format': 'Format',
+  'dash.drill.opened': 'Opened',
+  'dash.drill.clicked': 'Clicked',
+  'dash.drill.converted': 'Converted',
+  'dash.drill.dropoff': 'Watch / drop-off',
+
+  // Phase 5 — Feedback Loop
+  'feedback.heading': 'Feedback loop',
+  'feedback.subtitle':
+    'Extract one actionable insight from this campaign\'s effectiveness data and fold it into the brand dictionary. The next generation run carries the lesson — all 8 generation paths read brand insights.',
+  'feedback.run': 'Apply learnings to brand',
+  'feedback.running': 'Extracting…',
+  'feedback.runNote': 'Approx. 5 seconds. The result is appended to your brand dictionary.',
+  'feedback.appliedLabel': 'Applied insights',
+  'feedback.keyMissing': 'Anthropic key required — feedback uses Claude.',
+
   // Brand dictionary
   'brandSettings.heading': 'Brand voice & rules',
   'brandSettings.active': '{n} rule(s) active',
@@ -526,6 +586,66 @@ const JA: Dict = {
   'audience.keyMissingTitle': 'Anthropic キーが必要です',
   'audience.keyMissingBody':
     '顧客ごとのブリーフ特化には Claude を使用します。設定から Anthropic キーを追加していただくか、「スキップ」でキャンペーンブリーフのみで進めることもできます。',
+
+  // Phase 2 — Batch Generator
+  'batch.heading': '個別広告生成',
+  'batch.subtitle':
+    '対象顧客ごとに、個別ブリーフを元にしたコピー・画像・スクリプトを生成します。一人ひとり異なる広告ができあがります。',
+  'batch.size': '生成数',
+  'batch.run': '{n} 名分の個別広告を生成',
+  'batch.cancel': 'キャンセル',
+  'batch.clear': 'アセットをクリア',
+  'batch.progress': '{completed} / {total} 件 生成完了',
+  'batch.inFlight': '{inFlight} 件 処理中',
+  'batch.eligible': '対象 {n} 名',
+  'batch.previewLabel': '{n} 件の個別広告が準備済み — カードをクリックで詳細表示',
+
+  // Phase 3 — Distribution Simulator
+  'dist.heading': '配信シミュレーション',
+  'dist.subtitle':
+    '顧客プロフィールとシグナルから Claude が配信チャネルを推奨します。配信は実際のネットワーク呼び出しではなく、アニメーションで状態を可視化します。',
+  'dist.start': '配信を開始({n} 名)',
+  'dist.redeliver': '再配信({n} 名)',
+  'dist.running': '配信中…',
+  'dist.delivered': '{delivered} / {total} 名 配信完了',
+  'dist.clear': '配信ログをクリア',
+
+  // Phase 4 — Effectiveness Dashboard
+  'dash.heading': '効果測定ダッシュボード',
+  'dash.subtitle':
+    'シミュレートされた KPI を、セグメントバイアスを織り込んで生成します。狙いは「このセグメント × このフォーマットが刺さった」を可視化すること。後段のフィードバックループでブランド辞書に反映できます。',
+  'dash.regenerate': 'データを再生成',
+  'dash.view.kpi': 'KPI',
+  'dash.view.heatmap': 'ヒートマップ',
+  'dash.view.drilldown': '個別ドリルダウン',
+  'dash.kpi.delivered': '配信数',
+  'dash.kpi.openRate': '開封率',
+  'dash.kpi.clickRate': 'クリック率',
+  'dash.kpi.convertRate': 'CVR',
+  'dash.upliftEyebrow': '個別最適化リフト',
+  'dash.uplift': '単一広告ベースライン比 CVR {pct}%',
+  'dash.upliftBody':
+    '個別配信: {personalized} のコンバージョン率 · 単一広告ベースライン: {baseline}(シミュレート値)',
+  'dash.segment': 'セグメント',
+  'dash.heatmapNote':
+    '各セルは セグメント × フォーマット ごとの CVR を示します。色が濃いほど高コンバージョン。',
+  'dash.drill.customer': '顧客',
+  'dash.drill.segment': 'セグメント',
+  'dash.drill.format': 'フォーマット',
+  'dash.drill.opened': '開封',
+  'dash.drill.clicked': 'クリック',
+  'dash.drill.converted': 'CV',
+  'dash.drill.dropoff': '視聴 / 離脱',
+
+  // Phase 5 — Feedback Loop
+  'feedback.heading': 'フィードバックループ',
+  'feedback.subtitle':
+    '今回のキャンペーンの効果データから、実行可能なインサイトを 1 つ抽出し、ブランド辞書に反映します。次回以降の生成では全 8 つのパスがこの学習を反映します。',
+  'feedback.run': '学習をブランドに反映',
+  'feedback.running': '抽出中…',
+  'feedback.runNote': '約 5 秒で完了。結果はブランド辞書に追記されます。',
+  'feedback.appliedLabel': '反映済みインサイト',
+  'feedback.keyMissing': 'Anthropic キーが必要です — フィードバックは Claude を使用します。',
 
   'auth.footnote':
     'アクセス情報は担当者から共有されます。認証はクライアント側で行われるため、ソフトゲートであってセキュリティバリアではありません。',
@@ -934,6 +1054,66 @@ const PT: Dict = {
   'audience.keyMissingTitle': 'Chave Anthropic necessária',
   'audience.keyMissingBody':
     'A especialização de briefing por cliente usa Claude. Adicione sua chave Anthropic em Configurações ou clique em Pular para continuar apenas com o briefing de campanha.',
+
+  // Phase 2 — Batch Generator
+  'batch.heading': 'Geração em lote',
+  'batch.subtitle':
+    'Gera texto + imagem + roteiro totalmente personalizados para cada cliente. Cada cliente recebe um anúncio diferente, baseado em seu briefing individual.',
+  'batch.size': 'Tamanho do lote',
+  'batch.run': 'Gerar {n} anúncios personalizados',
+  'batch.cancel': 'Cancelar',
+  'batch.clear': 'Limpar ativos',
+  'batch.progress': '{completed} / {total} gerados',
+  'batch.inFlight': '{inFlight} em andamento',
+  'batch.eligible': '{n} elegíveis',
+  'batch.previewLabel': '{n} anúncios personalizados prontos — clique para expandir',
+
+  // Phase 3 — Distribution
+  'dist.heading': 'Distribuição',
+  'dist.subtitle':
+    'O canal é recomendado por cliente pelo Claude usando o perfil + sinal. A entrega é simulada — sem chamadas de rede reais, só animação de status.',
+  'dist.start': 'Iniciar entrega ({n} clientes)',
+  'dist.redeliver': 'Reentregar ({n})',
+  'dist.running': 'Entregando…',
+  'dist.delivered': '{delivered} de {total} entregues',
+  'dist.clear': 'Limpar log',
+
+  // Phase 4 — Effectiveness
+  'dash.heading': 'Efetividade',
+  'dash.subtitle':
+    'KPIs simulados com viés de segmento embutido. O objetivo é mostrar "este segmento + este formato funcionou" — uma descoberta que o feedback loop reincorpora à voz da marca.',
+  'dash.regenerate': 'Regenerar dados',
+  'dash.view.kpi': 'KPI',
+  'dash.view.heatmap': 'Heatmap',
+  'dash.view.drilldown': 'Detalhamento',
+  'dash.kpi.delivered': 'Entregues',
+  'dash.kpi.openRate': 'Taxa de abertura',
+  'dash.kpi.clickRate': 'Taxa de cliques',
+  'dash.kpi.convertRate': 'Conversão',
+  'dash.upliftEyebrow': 'Ganho da personalização',
+  'dash.uplift': '+{pct}% de CVR vs. criativo único',
+  'dash.upliftBody':
+    'Personalizado: {personalized} de conversão · base criativo único: {baseline} (simulado)',
+  'dash.segment': 'Segmento',
+  'dash.heatmapNote':
+    'Cada célula mostra CVR para o cruzamento segmento × formato. Verde-azulado mais profundo = maior conversão.',
+  'dash.drill.customer': 'Cliente',
+  'dash.drill.segment': 'Segmento',
+  'dash.drill.format': 'Formato',
+  'dash.drill.opened': 'Abriu',
+  'dash.drill.clicked': 'Clicou',
+  'dash.drill.converted': 'Converteu',
+  'dash.drill.dropoff': 'Visualização / saída',
+
+  // Phase 5 — Feedback
+  'feedback.heading': 'Loop de feedback',
+  'feedback.subtitle':
+    'Extrai um insight acionável dos dados de efetividade e o anexa ao dicionário de marca. A próxima geração carrega o aprendizado em todas as 8 rotas.',
+  'feedback.run': 'Aplicar aprendizados à marca',
+  'feedback.running': 'Extraindo…',
+  'feedback.runNote': '~5 segundos. O resultado é anexado ao dicionário de marca.',
+  'feedback.appliedLabel': 'Insights aplicados',
+  'feedback.keyMissing': 'Chave Anthropic necessária — o feedback usa Claude.',
 
   'auth.footnote':
     'O acesso é compartilhado pelo seu contato. As credenciais são verificadas no navegador — esta é uma barreira leve, não uma proteção de segurança.',
@@ -1346,6 +1526,66 @@ const ES: Dict = {
   'audience.keyMissingBody':
     'La especialización por cliente usa Claude. Añade tu clave Anthropic en Ajustes, o pulsa Omitir para continuar solo con el brief de campaña.',
 
+  // Phase 2 — Batch Generator
+  'batch.heading': 'Generación por lotes',
+  'batch.subtitle':
+    'Genera texto + imagen + guion totalmente personalizados para cada cliente. Cada uno recibe un anuncio distinto basado en su brief individual.',
+  'batch.size': 'Tamaño del lote',
+  'batch.run': 'Generar {n} anuncios personalizados',
+  'batch.cancel': 'Cancelar',
+  'batch.clear': 'Limpiar activos',
+  'batch.progress': '{completed} / {total} generados',
+  'batch.inFlight': '{inFlight} en curso',
+  'batch.eligible': '{n} elegibles',
+  'batch.previewLabel': '{n} anuncios personalizados listos — clic para expandir',
+
+  // Phase 3 — Distribution
+  'dist.heading': 'Distribución',
+  'dist.subtitle':
+    'Claude recomienda el canal por cliente usando perfil + señal. La entrega se simula — sin llamadas reales, solo animación de estado.',
+  'dist.start': 'Iniciar entrega ({n} clientes)',
+  'dist.redeliver': 'Reenviar ({n})',
+  'dist.running': 'Entregando…',
+  'dist.delivered': '{delivered} de {total} entregados',
+  'dist.clear': 'Limpiar registro',
+
+  // Phase 4 — Effectiveness
+  'dash.heading': 'Efectividad',
+  'dash.subtitle':
+    'KPIs simulados con un sesgo por segmento incorporado. El objetivo es mostrar "este segmento + este formato funcionó" — un hallazgo que el feedback loop reincorpora a la voz de marca.',
+  'dash.regenerate': 'Regenerar datos',
+  'dash.view.kpi': 'KPI',
+  'dash.view.heatmap': 'Heatmap',
+  'dash.view.drilldown': 'Detalle',
+  'dash.kpi.delivered': 'Entregados',
+  'dash.kpi.openRate': 'Tasa de apertura',
+  'dash.kpi.clickRate': 'Tasa de clics',
+  'dash.kpi.convertRate': 'Conversión',
+  'dash.upliftEyebrow': 'Ganancia de personalización',
+  'dash.uplift': '+{pct}% de CVR vs. creativo único',
+  'dash.upliftBody':
+    'Personalizado: {personalized} de conversión · base creativo único: {baseline} (simulado)',
+  'dash.segment': 'Segmento',
+  'dash.heatmapNote':
+    'Cada celda muestra la CVR del cruce segmento × formato. Verde azulado más oscuro = mayor conversión.',
+  'dash.drill.customer': 'Cliente',
+  'dash.drill.segment': 'Segmento',
+  'dash.drill.format': 'Formato',
+  'dash.drill.opened': 'Abierto',
+  'dash.drill.clicked': 'Clicado',
+  'dash.drill.converted': 'Convertido',
+  'dash.drill.dropoff': 'Visualización / salida',
+
+  // Phase 5 — Feedback
+  'feedback.heading': 'Loop de feedback',
+  'feedback.subtitle':
+    'Extrae un insight accionable de los datos de efectividad y lo anexa al diccionario de marca. La próxima generación lleva el aprendizaje en las 8 rutas.',
+  'feedback.run': 'Aplicar aprendizajes a la marca',
+  'feedback.running': 'Extrayendo…',
+  'feedback.runNote': '~5 segundos. El resultado se anexa al diccionario de marca.',
+  'feedback.appliedLabel': 'Insights aplicados',
+  'feedback.keyMissing': 'Se requiere clave Anthropic — el feedback usa Claude.',
+
   'auth.footnote':
     'El acceso lo comparte tu contacto. Las credenciales se verifican en el navegador — esta es una barrera blanda, no una protección de seguridad.',
 
@@ -1757,6 +1997,66 @@ const FR: Dict = {
   'audience.keyMissingBody':
     "La spécialisation par client utilise Claude. Ajoutez votre clé Anthropic dans les paramètres ou cliquez sur Sauter pour continuer avec le brief de campagne uniquement.",
 
+  // Phase 2 — Batch Generator
+  'batch.heading': 'Génération par lot',
+  'batch.subtitle':
+    "Génère un texte + image + script entièrement personnalisé pour chaque client. Chacun reçoit une publicité différente basée sur son brief individuel.",
+  'batch.size': 'Taille du lot',
+  'batch.run': 'Générer {n} publicités personnalisées',
+  'batch.cancel': 'Annuler',
+  'batch.clear': 'Effacer les actifs',
+  'batch.progress': '{completed} / {total} générés',
+  'batch.inFlight': '{inFlight} en cours',
+  'batch.eligible': '{n} éligibles',
+  'batch.previewLabel': '{n} publicités personnalisées prêtes — cliquez pour développer',
+
+  // Phase 3 — Distribution
+  'dist.heading': 'Distribution',
+  'dist.subtitle':
+    "Le canal est recommandé par Claude pour chaque client à partir du profil + signal. La livraison est simulée — pas d'appels réseau réels, juste une animation d'état.",
+  'dist.start': 'Démarrer la livraison ({n} clients)',
+  'dist.redeliver': 'Renvoyer ({n})',
+  'dist.running': 'Livraison…',
+  'dist.delivered': '{delivered} sur {total} livrés',
+  'dist.clear': 'Effacer le journal',
+
+  // Phase 4 — Effectiveness
+  'dash.heading': 'Efficacité',
+  'dash.subtitle':
+    'KPI simulés avec un biais par segment intégré. Le but : montrer "ce segment + ce format a fonctionné" — une découverte que la boucle de feedback réinjecte dans la voix de marque.',
+  'dash.regenerate': 'Régénérer les données',
+  'dash.view.kpi': 'KPI',
+  'dash.view.heatmap': 'Heatmap',
+  'dash.view.drilldown': 'Détail',
+  'dash.kpi.delivered': 'Livrés',
+  'dash.kpi.openRate': "Taux d'ouverture",
+  'dash.kpi.clickRate': 'Taux de clic',
+  'dash.kpi.convertRate': 'Conversion',
+  'dash.upliftEyebrow': 'Gain de personnalisation',
+  'dash.uplift': '+{pct}% de CVR vs. créatif unique',
+  'dash.upliftBody':
+    'Personnalisé : {personalized} de conversion · base créatif unique : {baseline} (simulé)',
+  'dash.segment': 'Segment',
+  'dash.heatmapNote':
+    'Chaque cellule montre le CVR pour le croisement segment × format. Plus le bleu-vert est foncé, plus la conversion est forte.',
+  'dash.drill.customer': 'Client',
+  'dash.drill.segment': 'Segment',
+  'dash.drill.format': 'Format',
+  'dash.drill.opened': 'Ouvert',
+  'dash.drill.clicked': 'Cliqué',
+  'dash.drill.converted': 'Converti',
+  'dash.drill.dropoff': 'Visionnage / abandon',
+
+  // Phase 5 — Feedback
+  'feedback.heading': 'Boucle de feedback',
+  'feedback.subtitle':
+    "Extrait un insight exploitable des données d'efficacité et l'ajoute au dictionnaire de marque. La prochaine génération applique l'apprentissage sur les 8 chemins.",
+  'feedback.run': 'Appliquer les apprentissages à la marque',
+  'feedback.running': 'Extraction…',
+  'feedback.runNote': '~5 secondes. Le résultat est ajouté au dictionnaire de marque.',
+  'feedback.appliedLabel': 'Insights appliqués',
+  'feedback.keyMissing': 'Clé Anthropic requise — le feedback utilise Claude.',
+
   'auth.footnote':
     "L'accès est partagé par votre contact. Les identifiants sont vérifiés côté navigateur — il s'agit d'une barrière souple, pas d'une protection de sécurité.",
 
@@ -2167,6 +2467,66 @@ const DE: Dict = {
   'audience.keyMissingTitle': 'Anthropic-Schlüssel erforderlich',
   'audience.keyMissingBody':
     'Die kundenspezifische Briefing-Anpassung nutzt Claude. Fügen Sie Ihren Anthropic-Schlüssel in den Einstellungen hinzu, oder klicken Sie auf Überspringen, um nur mit dem Kampagnen-Briefing fortzufahren.',
+
+  // Phase 2 — Batch Generator
+  'batch.heading': 'Batch-Generierung',
+  'batch.subtitle':
+    'Erzeugt vollständig personalisierten Text + Bild + Skript für jeden Kunden. Jeder bekommt eine andere Anzeige basierend auf seinem individuellen Briefing.',
+  'batch.size': 'Batchgröße',
+  'batch.run': '{n} personalisierte Anzeigen generieren',
+  'batch.cancel': 'Abbrechen',
+  'batch.clear': 'Assets leeren',
+  'batch.progress': '{completed} / {total} generiert',
+  'batch.inFlight': '{inFlight} laufend',
+  'batch.eligible': '{n} berechtigt',
+  'batch.previewLabel': '{n} personalisierte Anzeigen bereit — Karte anklicken für Details',
+
+  // Phase 3 — Distribution
+  'dist.heading': 'Verteilung',
+  'dist.subtitle':
+    'Claude empfiehlt pro Kunde den Kanal aus Profil + Signal. Die Auslieferung ist simuliert — keine echten Netzwerkaufrufe, nur animierte Status-Overlays.',
+  'dist.start': 'Auslieferung starten ({n} Kunden)',
+  'dist.redeliver': 'Erneut senden ({n})',
+  'dist.running': 'Wird ausgeliefert…',
+  'dist.delivered': '{delivered} von {total} ausgeliefert',
+  'dist.clear': 'Log leeren',
+
+  // Phase 4 — Effectiveness
+  'dash.heading': 'Wirksamkeit',
+  'dash.subtitle':
+    'Simulierte KPIs mit eingebautem Segment-Bias. Ziel: zeigen, dass "Segment X + Format Y funktioniert hat" — eine Erkenntnis, die der Feedback-Loop in die Markenstimme zurückfließen lässt.',
+  'dash.regenerate': 'Daten neu generieren',
+  'dash.view.kpi': 'KPI',
+  'dash.view.heatmap': 'Heatmap',
+  'dash.view.drilldown': 'Detailansicht',
+  'dash.kpi.delivered': 'Ausgeliefert',
+  'dash.kpi.openRate': 'Öffnungsrate',
+  'dash.kpi.clickRate': 'Klickrate',
+  'dash.kpi.convertRate': 'Conversion',
+  'dash.upliftEyebrow': 'Personalisierungs-Uplift',
+  'dash.uplift': '+{pct}% CVR-Steigerung vs. Single-Creative',
+  'dash.upliftBody':
+    'Personalisiert: {personalized} Conversion · Single-Creative-Baseline: {baseline} (simuliert)',
+  'dash.segment': 'Segment',
+  'dash.heatmapNote':
+    'Jede Zelle zeigt die CVR für die Kombination Segment × Format. Dunkleres Türkis = höhere Conversion.',
+  'dash.drill.customer': 'Kunde',
+  'dash.drill.segment': 'Segment',
+  'dash.drill.format': 'Format',
+  'dash.drill.opened': 'Geöffnet',
+  'dash.drill.clicked': 'Geklickt',
+  'dash.drill.converted': 'Konvertiert',
+  'dash.drill.dropoff': 'Wiedergabe / Abbruch',
+
+  // Phase 5 — Feedback
+  'feedback.heading': 'Feedback-Loop',
+  'feedback.subtitle':
+    'Extrahiert eine handlungsleitende Erkenntnis aus den Wirksamkeitsdaten und ergänzt sie im Markenwörterbuch. Der nächste Generierungslauf trägt die Lehre über alle 8 Pfade.',
+  'feedback.run': 'Lernen auf Marke anwenden',
+  'feedback.running': 'Extrahiert…',
+  'feedback.runNote': '~5 Sekunden. Das Ergebnis wird dem Markenwörterbuch hinzugefügt.',
+  'feedback.appliedLabel': 'Angewandte Insights',
+  'feedback.keyMissing': 'Anthropic-Schlüssel erforderlich — Feedback nutzt Claude.',
 
   'auth.footnote':
     'Der Zugriff wird von Ihrem Ansprechpartner geteilt. Die Zugangsdaten werden im Browser geprüft — dies ist eine sanfte Sperre, kein Sicherheitsschutz.',

@@ -35,6 +35,14 @@ export function brandPromptBlock(brand: BrandDictionary | undefined | null): str
   if (brand.audienceRefinement.trim()) {
     lines.push(`Audience refinement applied on top of per-brief audience: ${brand.audienceRefinement.trim()}`);
   }
+  if (brand.learnedInsights.length > 0) {
+    lines.push(
+      'LEARNED INSIGHTS from prior-campaign effectiveness data — apply these patterns as defaults:',
+    );
+    for (const insight of brand.learnedInsights) {
+      lines.push(`  • ${insight}`);
+    }
+  }
   lines.push(
     'These brand constraints take priority over your default tone. If a banned term appears anywhere in your output, regenerate the line.',
     '</brand_dictionary>',

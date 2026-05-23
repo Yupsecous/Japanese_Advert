@@ -6,6 +6,7 @@ import {
   type BatchProgress,
 } from '../services/audienceService';
 import { InlineError } from './InlineError';
+import { AudienceConsole } from './AudienceConsole';
 import { useT } from '../i18n/hooks';
 import type { Customer } from '../types';
 
@@ -446,6 +447,9 @@ export function AudienceStep() {
           })}
         </div>
       )}
+
+      {/* Phase 2-5: full Audience Console — gates on briefCache being populated */}
+      <AudienceConsole />
     </section>
   );
 }

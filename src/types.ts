@@ -158,6 +158,10 @@ export type BrandDictionary = {
   // Optional audience refinements that apply on top of the per-brief
   // audience field. Example: "Always assume B2B enterprise context."
   audienceRefinement: string;
+  // Phase 5 — durable insights extracted by the feedback loop, applied
+  // to all future generations. Each entry is a one-sentence summary like
+  // "40代経営者層は『投資』『熟成』という語彙、落ち着いた断定のトーンに反応した。"
+  learnedInsights: string[];
 };
 
 export const EMPTY_BRAND_DICTIONARY: BrandDictionary = {
@@ -167,6 +171,7 @@ export const EMPTY_BRAND_DICTIONARY: BrandDictionary = {
   voiceCharacter: '',
   visualRules: '',
   audienceRefinement: '',
+  learnedInsights: [],
 };
 
 export function isBrandDictionaryEmpty(b: BrandDictionary): boolean {
@@ -176,7 +181,8 @@ export function isBrandDictionaryEmpty(b: BrandDictionary): boolean {
     b.preferredTerms.length === 0 &&
     b.voiceCharacter.trim().length === 0 &&
     b.visualRules.trim().length === 0 &&
-    b.audienceRefinement.trim().length === 0
+    b.audienceRefinement.trim().length === 0 &&
+    b.learnedInsights.length === 0
   );
 }
 
@@ -468,15 +474,13 @@ export type EffectivenessRecord = {
   dropOffPoint: string | null;
 };
 
-// Phase 5 — learned insights extracted from effectiveness data, threaded
-// into all 8 generation paths alongside the brand dictionary.
-export type LearnedInsight = {
-  id: string;
-  insight: string; // natural-language summary, e.g. "40代経営者層は『投資』に反応"
-  evidenceCount: number; // number of effectiveness records that support this
-  createdAt: number;
-  appliedToRunVersion: number; // bumps each time learnings are folded in
-};
+// Phase 5 — learned insights are plain strings (one summary sentence per
+// feedback-loop run). They appear in two places:
+//   - audience.learnedInsights: per-campaign log of feedback summaries
+//   - brand.learnedInsights:    durable, cross-campaign — threaded into
+//                               all 8 generation paths via brandPromptBlock
+// We persist them as raw strings because the LLM consumes them as prose
+// anyway; the structured metadata would just be ceremony.
 
 // Phase 2 — placeholder; the per-customer asset bundle. Defined here so
 // audience.slice can already declare the field. The full population logic

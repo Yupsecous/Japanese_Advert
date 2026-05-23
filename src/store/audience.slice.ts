@@ -5,7 +5,6 @@ import type {
   EffectivenessRecord,
   GeneratedAssetSet,
   IndividualBrief,
-  LearnedInsight,
 } from '../types';
 
 // Audience Console state. Phase 1 wires customers + briefCache. Phases 2-5
@@ -19,7 +18,9 @@ export type AudienceState = {
   generatedAssets: Record<string, GeneratedAssetSet>;
   deliveryLog: DeliveryRecord[];
   effectivenessData: Record<string, EffectivenessRecord>;
-  learnedInsights: LearnedInsight[];
+  // Per-campaign log of feedback summaries. Brand-level durable insights
+  // live on the BrandDictionary so they apply across campaigns.
+  learnedInsights: string[];
   // Increments each time a feedback-loop run folds insights into future
   // generations. UI surfaces "Learning vN applied" when > 0.
   runVersion: number;
@@ -44,7 +45,7 @@ export type AudienceSlice = AudienceState & {
   setEffectivenessForCustomer: (customerId: string, record: EffectivenessRecord) => void;
   clearEffectiveness: () => void;
 
-  appendLearnedInsight: (insight: LearnedInsight) => void;
+  appendLearnedInsight: (insight: string) => void;
   clearLearnedInsights: () => void;
   bumpRunVersion: () => void;
 
