@@ -230,19 +230,32 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
         }
       }
 
-      // 4. Video (slideshow, optional, needs audio)
+      // 4. Video (multi-shot slideshow, optional, needs audio)
       const videos: PlatformVideo[] = [];
       if (includeVideo && approvedAudio) {
         setPhase('generating-video');
-        const heroForReels = imagePairs.find((p) => p.aspect === '9x16')?.variants[0];
-        const heroForX = imagePairs.find((p) => p.aspect === '1x1')?.variants[0];
+
+        // Pass every available same-aspect image as a shot for variety, plus
+        // carousel cards for the 1:1 video (carousel is square-only).
+        const reelsImages = (imagePairs.find((p) => p.aspect === '9x16')?.variants ?? []).map(
+          (v) => v.imageUrl,
+        );
+        const xImagesBase = (imagePairs.find((p) => p.aspect === '1x1')?.variants ?? []).map(
+          (v) => v.imageUrl,
+        );
+        const carouselImageUrls = carousel?.images.map((c) => c.imageUrl) ?? [];
+        const xImages = [...xImagesBase, ...carouselImageUrls];
+
         const tasks: Promise<PlatformVideo | null>[] = [];
-        if (heroForReels) {
+        if (reelsImages.length > 0) {
           tasks.push(
             generateSlideshowVideo({
               aspect: '9x16' as VideoAspect,
-              heroImageUrl: heroForReels.imageUrl,
+              imageUrls: reelsImages,
               audioUrl: approvedAudio.audioUrl,
+              headline: approvedCopy.headline,
+              cta: approvedCopy.cta,
+              brandName: brand.name,
             }).catch((e) => {
               // eslint-disable-next-line no-console
               console.warn('[platform] 9x16 video failed:', e);
@@ -250,12 +263,15 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
             }),
           );
         }
-        if (heroForX) {
+        if (xImages.length > 0) {
           tasks.push(
             generateSlideshowVideo({
               aspect: '1x1' as VideoAspect,
-              heroImageUrl: heroForX.imageUrl,
+              imageUrls: xImages,
               audioUrl: approvedAudio.audioUrl,
+              headline: approvedCopy.headline,
+              cta: approvedCopy.cta,
+              brandName: brand.name,
             }).catch((e) => {
               // eslint-disable-next-line no-console
               console.warn('[platform] 1x1 video failed:', e);

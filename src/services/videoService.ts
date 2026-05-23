@@ -1,16 +1,23 @@
-// Browser-side video generation. Composes a slideshow MP4/WebM from a still
-// hero image plus the approved voiceover audio. Output sized for Reels (9:16)
-// and X Feed (1:1). No external provider — pure Canvas + MediaRecorder.
+// Browser-side video generation. Composes a slideshow MP4/WebM from one or
+// more hero images plus the approved voiceover audio.
 //
-// The animation is a Ken Burns effect: slow zoom from 1.00x to 1.12x with a
-// gentle pan, framed to keep the subject in view. Subtle vignette near the
-// edges, no text overlay (keep the user's headline visible in the post copy,
-// not burned into the video — better for translation, accessibility, and ad
-// approval).
+// What this generates (per call):
+//   - up to 5 shots cycled through over the duration of the voiceover
+//   - per-shot Ken Burns motion drawn from a 5-curve rotation so adjacent
+//     shots feel distinct (zoom-in, zoom-out, lateral pan, vertical pan,
+//     diagonal pan-zoom)
+//   - 0.6s crossfades between adjacent shots
+//   - headline text overlay fading in/out across the first half
+//   - CTA overlay in a brand-colored bar across the bottom for the last
+//     ~4 seconds
+//   - optional brand-name watermark in the top-left, persistent
+//   - radial vignette held throughout
+//   - audio-reactive amplitude dot at the bottom-left, scaled by RMS
+//   - voiceover audio routed through AudioContext, captured into the
+//     output stream while also playing locally for UX feedback
 //
-// Audio is the approved voiceover, mixed in via AudioContext. Recording runs
-// in real-time (so a 20-second voiceover takes 20 seconds to encode). For a
-// demo this is acceptable; production would offload to a worker.
+// Output: WebM (universally accepted by Meta/X) or MP4 in Chrome 110+.
+// Encoding runs in real-time — a 20-second voiceover takes ~20s.
 
 import { AppError } from './errorMessages';
 import type { PlatformVideo } from '../types';
@@ -24,16 +31,27 @@ export type VideoAspect = keyof typeof VIDEO_DIMENSIONS;
 
 export type GenerateVideoArgs = {
   aspect: VideoAspect;
-  heroImageUrl: string;
+  imageUrls: string[]; // 1+ images; up to 5 used as shots
   audioUrl: string;
-  // Optional cap on duration — we record as long as the audio plays, capped
-  // here. ElevenLabs reads are usually 18-30s; 30 is a safe ceiling.
+  headline: string;
+  cta: string;
+  brandName?: string;
+  // Brand-accent color for the CTA bar. Defaults to navy if not provided.
+  ctaBarColor?: string;
   maxDurationSeconds?: number;
 };
 
-// Picks the best supported mimeType for MediaRecorder. Chrome supports MP4
-// (H.264) in recent versions; Firefox is WebM-only. WebM is universally
-// accepted by Meta and X for upload, so it's a safe default.
+const MAX_SHOTS = 5;
+const CROSSFADE_SECONDS = 0.6;
+const HEADLINE_FADE_IN = 0.4;
+const HEADLINE_FADE_OUT = 0.5;
+const CTA_FADE_IN = 0.5;
+const CTA_TAIL_SECONDS = 4.5;
+
+// ---------------------------------------------------------------------------
+// MIME-type detection
+// ---------------------------------------------------------------------------
+
 function pickMimeType(): string {
   const candidates = [
     'video/mp4; codecs=avc1.42E01E,mp4a.40.2', // Chrome 110+
@@ -47,12 +65,17 @@ function pickMimeType(): string {
   return 'video/webm';
 }
 
+// ---------------------------------------------------------------------------
+// Media loading
+// ---------------------------------------------------------------------------
+
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new AppError('image/all-failed', `Failed to load hero image: ${url}`));
+    img.onerror = () =>
+      reject(new AppError('image/all-failed', `Failed to load image: ${url.slice(0, 120)}`));
     img.src = url;
   });
 }
@@ -63,53 +86,375 @@ function loadAudio(url: string): Promise<HTMLAudioElement> {
     audio.crossOrigin = 'anonymous';
     audio.preload = 'auto';
     audio.src = url;
-    const onReady = () => {
-      audio.removeEventListener('canplaythrough', onReady);
-      audio.removeEventListener('loadedmetadata', onMeta);
-      resolve(audio);
-    };
-    const onMeta = () => {
-      // `loadedmetadata` fires earlier than `canplaythrough`. Either is fine.
-      audio.removeEventListener('canplaythrough', onReady);
-      audio.removeEventListener('loadedmetadata', onMeta);
-      resolve(audio);
-    };
+    const onReady = () => resolve(audio);
     audio.addEventListener('canplaythrough', onReady, { once: true });
-    audio.addEventListener('loadedmetadata', onMeta, { once: true });
+    audio.addEventListener('loadedmetadata', onReady, { once: true });
     audio.addEventListener(
       'error',
-      () => reject(new AppError('eleven/bad-response', `Failed to load voiceover: ${url}`)),
+      () => reject(new AppError('eleven/bad-response', 'Failed to load voiceover')),
       { once: true },
     );
   });
 }
 
-// Computes a centered source-rect from the hero image at the target aspect,
-// so we always crop-fit without stretching. Returns the rectangle in image
-// pixels to draw from.
-function computeSourceCrop(
-  imgW: number,
-  imgH: number,
-  targetW: number,
-  targetH: number,
-): { sx: number; sy: number; sw: number; sh: number } {
+// ---------------------------------------------------------------------------
+// Geometry helpers
+// ---------------------------------------------------------------------------
+
+function computeSourceCrop(imgW: number, imgH: number, targetW: number, targetH: number) {
   const imgAspect = imgW / imgH;
   const tgtAspect = targetW / targetH;
   if (imgAspect > tgtAspect) {
-    // image is wider — crop horizontally
     const sh = imgH;
     const sw = Math.round(imgH * tgtAspect);
     const sx = Math.round((imgW - sw) / 2);
     return { sx, sy: 0, sw, sh };
   }
-  // image is taller — crop vertically
   const sw = imgW;
   const sh = Math.round(imgW / tgtAspect);
   const sy = Math.round((imgH - sh) / 2);
   return { sx: 0, sy, sw, sh };
 }
 
-export async function generateSlideshowVideo(args: GenerateVideoArgs): Promise<PlatformVideo> {
+// ---------------------------------------------------------------------------
+// Per-shot Ken Burns motion curves
+// ---------------------------------------------------------------------------
+
+type ShotCurve = {
+  zoomStart: number;
+  zoomEnd: number;
+  panStartX: number;
+  panStartY: number;
+  panEndX: number;
+  panEndY: number;
+};
+
+const SHOT_CURVES: ShotCurve[] = [
+  // Zoom in, slight diagonal pan
+  { zoomStart: 1.00, zoomEnd: 1.16, panStartX: -0.02, panStartY: -0.015, panEndX: 0.02, panEndY: 0.025 },
+  // Zoom out from a corner — feels like a reveal
+  { zoomStart: 1.22, zoomEnd: 1.02, panStartX: 0.03, panStartY: 0.025, panEndX: -0.02, panEndY: -0.02 },
+  // Pure lateral pan with slight zoom
+  { zoomStart: 1.06, zoomEnd: 1.18, panStartX: -0.04, panStartY: 0.0, panEndX: 0.04, panEndY: 0.0 },
+  // Vertical pan with steady zoom
+  { zoomStart: 1.10, zoomEnd: 1.10, panStartX: 0.0, panStartY: -0.04, panEndX: 0.0, panEndY: 0.04 },
+  // Counter-diagonal — the inverse of curve 0 for variety after the cycle
+  { zoomStart: 1.08, zoomEnd: 1.22, panStartX: 0.025, panStartY: -0.025, panEndX: -0.025, panEndY: 0.025 },
+];
+
+function shotCurve(index: number): ShotCurve {
+  return SHOT_CURVES[index % SHOT_CURVES.length]!;
+}
+
+// ---------------------------------------------------------------------------
+// Shot timing
+// ---------------------------------------------------------------------------
+
+type ShotPlan = {
+  index: number;
+  imageUrl: string;
+  startSec: number;
+  endSec: number;
+  curve: ShotCurve;
+};
+
+function planShots(imageUrls: string[], duration: number): ShotPlan[] {
+  const n = Math.max(1, Math.min(MAX_SHOTS, imageUrls.length));
+  const chosen = imageUrls.slice(0, n);
+  if (n === 1) {
+    return [
+      {
+        index: 0,
+        imageUrl: chosen[0]!,
+        startSec: 0,
+        endSec: duration,
+        curve: shotCurve(0),
+      },
+    ];
+  }
+  // Each shot gets duration/n airtime, with crossfade overlap into the next.
+  const slice = duration / n;
+  const halfFade = CROSSFADE_SECONDS / 2;
+  return chosen.map((url, i) => ({
+    index: i,
+    imageUrl: url,
+    // First shot starts at 0; subsequent shots start half a crossfade early
+    // so they overlap with the outgoing shot for a smooth dissolve.
+    startSec: i === 0 ? 0 : i * slice - halfFade,
+    endSec: i === n - 1 ? duration : (i + 1) * slice + halfFade,
+    curve: shotCurve(i),
+  }));
+}
+
+function shotAlpha(plan: ShotPlan, t: number): number {
+  if (t < plan.startSec || t > plan.endSec) return 0;
+  // Fade in window: the first crossfade region of this shot. For the first
+  // shot, start fully visible; otherwise fade in over CROSSFADE_SECONDS.
+  if (plan.index > 0 && t < plan.startSec + CROSSFADE_SECONDS) {
+    return (t - plan.startSec) / CROSSFADE_SECONDS;
+  }
+  // Fade out window: the last crossfade region. Last shot stays at full
+  // until its endSec — no fade out at the absolute end of the video.
+  if (t > plan.endSec - CROSSFADE_SECONDS) {
+    const isLast = plan.endSec >= shotsEndApprox(plan);
+    if (!isLast) {
+      return Math.max(0, (plan.endSec - t) / CROSSFADE_SECONDS);
+    }
+  }
+  return 1;
+}
+
+// Sentinel to mark the "end of last shot" position. Set externally.
+let shotsEndApprox = (_: ShotPlan): number => Infinity;
+
+// ---------------------------------------------------------------------------
+// Text rendering
+// ---------------------------------------------------------------------------
+
+function wrapText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+): string[] {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+  const words = trimmed.split(/\s+/);
+  // Char-wrap path for languages without spaces (Japanese, Chinese) when a
+  // single token wouldn't fit on a line.
+  if (words.length === 1 && ctx.measureText(trimmed).width > maxWidth) {
+    const lines: string[] = [];
+    let current = '';
+    for (const c of trimmed) {
+      if (ctx.measureText(current + c).width > maxWidth) {
+        if (current) lines.push(current);
+        current = c;
+      } else {
+        current += c;
+      }
+    }
+    if (current) lines.push(current);
+    return lines;
+  }
+  const lines: string[] = [];
+  let current = '';
+  for (const w of words) {
+    const test = current ? current + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth) {
+      if (current) lines.push(current);
+      current = w;
+    } else {
+      current = test;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function drawHeadlineOverlay(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  alpha: number,
+  width: number,
+  height: number,
+  is916: boolean,
+): void {
+  if (alpha <= 0.001 || !text.trim()) return;
+
+  const padding = is916 ? 80 : 60;
+  const maxWidth = width - padding * 2;
+  const fontSize = is916 ? 76 : 64;
+  const lineHeight = fontSize * 1.15;
+
+  ctx.font = `700 ${fontSize}px "Helvetica Neue", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  const lines = wrapText(ctx, text, maxWidth).slice(0, 4); // cap at 4 lines
+  if (lines.length === 0) return;
+
+  const blockHeight = lines.length * lineHeight;
+  // Vertically positioned in the upper-middle (around 35% of the frame) so
+  // the headline doesn't fight the CTA bar at the bottom.
+  const blockTop = is916 ? Math.round(height * 0.32) : Math.round(height * 0.36);
+  const gradientTop = blockTop - 60;
+  const gradientBottom = blockTop + blockHeight + 60;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // Translucent gradient backing so text stays legible over any image.
+  const grad = ctx.createLinearGradient(0, gradientTop, 0, gradientBottom);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(0.25, 'rgba(0,0,0,0.45)');
+  grad.addColorStop(0.75, 'rgba(0,0,0,0.45)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, gradientTop, width, gradientBottom - gradientTop);
+
+  // Text itself with subtle drop shadow.
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetY = 2;
+  ctx.fillStyle = '#ffffff';
+
+  let y = blockTop + fontSize;
+  for (const line of lines) {
+    ctx.fillText(line, padding, y);
+    y += lineHeight;
+  }
+
+  ctx.restore();
+}
+
+function drawCtaBar(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  alpha: number,
+  width: number,
+  height: number,
+  ctaBarColor: string,
+  is916: boolean,
+): void {
+  if (alpha <= 0.001 || !text.trim()) return;
+
+  const barHeight = is916 ? 160 : 130;
+  const fontSize = is916 ? 44 : 38;
+  const barTop = height - barHeight;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // Solid brand-colored bar across the bottom edge.
+  ctx.fillStyle = ctaBarColor;
+  ctx.fillRect(0, barTop, width, barHeight);
+
+  // Inset subtle highlight at the top of the bar.
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.fillRect(0, barTop, width, 1);
+
+  // CTA text + arrow, centered.
+  ctx.font = `600 ${fontSize}px "Helvetica Neue", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif`;
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const arrow = '  →';
+  const display = text.trim() + arrow;
+  const measured = ctx.measureText(display);
+  const maxLineWidth = width - 80;
+  if (measured.width > maxLineWidth) {
+    // Drop the arrow if the line gets too long.
+    ctx.fillText(text.trim(), width / 2, barTop + barHeight / 2);
+  } else {
+    ctx.fillText(display, width / 2, barTop + barHeight / 2);
+  }
+
+  ctx.restore();
+}
+
+function drawBrandWatermark(
+  ctx: CanvasRenderingContext2D,
+  name: string | undefined,
+  width: number,
+  _height: number,
+  is916: boolean,
+): void {
+  if (!name || !name.trim()) return;
+
+  const text = name.trim().toUpperCase();
+  const fontSize = is916 ? 22 : 20;
+  const padding = is916 ? 56 : 40;
+
+  ctx.save();
+  ctx.font = `600 ${fontSize}px "Helvetica Neue", system-ui, sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+
+  // Pill background.
+  const m = ctx.measureText(text);
+  const pillW = m.width + 24;
+  const pillH = fontSize + 14;
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.beginPath();
+  // Older browsers don't have roundRect on all paths; fall back to rect.
+  if (typeof (ctx as unknown as { roundRect?: unknown }).roundRect === 'function') {
+    (ctx as unknown as { roundRect: (x: number, y: number, w: number, h: number, r: number) => void }).roundRect(
+      padding,
+      padding,
+      pillW,
+      pillH,
+      pillH / 2,
+    );
+    ctx.fill();
+  } else {
+    ctx.fillRect(padding, padding, pillW, pillH);
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.fillText(text, padding + 12, padding + 7);
+  // Suppress unused-var warning while keeping the width param for symmetry.
+  void width;
+  ctx.restore();
+}
+
+function drawAudioPulse(
+  ctx: CanvasRenderingContext2D,
+  rms: number,
+  width: number,
+  height: number,
+  is916: boolean,
+): void {
+  // Bottom-left circle that scales with audio amplitude — small but proves
+  // the voiceover is alive throughout the video.
+  const baseRadius = is916 ? 7 : 6;
+  const peakRadius = is916 ? 22 : 18;
+  const x = is916 ? 60 : 44;
+  // Sit above the CTA bar — at ~85% of the frame height for 9:16, slightly
+  // higher for 1:1.
+  const y = is916 ? height * 0.82 : height * 0.78;
+  const r = baseRadius + rms * (peakRadius - baseRadius);
+
+  ctx.save();
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(x, y, baseRadius, 0, Math.PI * 2);
+  ctx.fill();
+  void width;
+  ctx.restore();
+}
+
+function drawVignette(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+): void {
+  const grad = ctx.createRadialGradient(
+    width / 2,
+    height / 2,
+    Math.min(width, height) * 0.4,
+    width / 2,
+    height / 2,
+    Math.max(width, height) * 0.7,
+  );
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.28)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+}
+
+// ---------------------------------------------------------------------------
+// Main pipeline
+// ---------------------------------------------------------------------------
+
+export async function generateSlideshowVideo(
+  args: GenerateVideoArgs,
+): Promise<PlatformVideo> {
   if (typeof MediaRecorder === 'undefined') {
     throw new AppError(
       'unknown',
@@ -118,53 +463,79 @@ export async function generateSlideshowVideo(args: GenerateVideoArgs): Promise<P
   }
 
   const dims = VIDEO_DIMENSIONS[args.aspect];
+  const is916 = args.aspect === '9x16';
   const maxDuration = args.maxDurationSeconds ?? 30;
+  const ctaBarColor = args.ctaBarColor ?? '#15314b'; // navy from the editorial palette
 
-  const [img, audio] = await Promise.all([
-    loadImage(args.heroImageUrl),
-    loadAudio(args.audioUrl),
-  ]);
+  if (args.imageUrls.length === 0) {
+    throw new AppError('image/all-failed', 'No images supplied to video generator');
+  }
 
-  // If we still don't know the duration after metadata, fall back to maxDuration.
+  // Load images and audio in parallel.
+  const usedImageUrls = args.imageUrls.slice(0, MAX_SHOTS);
+  const imageLoads = await Promise.allSettled(usedImageUrls.map((u) => loadImage(u)));
+  const images: HTMLImageElement[] = [];
+  for (let i = 0; i < imageLoads.length; i++) {
+    const r = imageLoads[i]!;
+    if (r.status === 'fulfilled') images.push(r.value);
+  }
+  if (images.length === 0) {
+    throw new AppError('image/all-failed', 'All images failed to load for video generation');
+  }
+  const audio = await loadAudio(args.audioUrl);
+
   const audioDuration = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : maxDuration;
   const duration = Math.min(audioDuration, maxDuration);
 
+  // Plan shots over the duration.
+  const plans = planShots(
+    images.map((img) => img.src),
+    duration,
+  );
+  // Re-wire shotsEndApprox so "is this the last shot?" returns the actual
+  // last end-second (used by shotAlpha's tail-fade logic).
+  const lastEnd = plans[plans.length - 1]!.endSec;
+  shotsEndApprox = () => lastEnd;
+
+  // Pre-compute per-image base crops so we don't recompute every frame.
+  const baseCrops = plans.map((_plan, i) => {
+    const img = images[i] ?? images[images.length - 1]!;
+    return computeSourceCrop(img.naturalWidth, img.naturalHeight, dims.width, dims.height);
+  });
+
+  // Canvas + context.
   const canvas = document.createElement('canvas');
   canvas.width = dims.width;
   canvas.height = dims.height;
   const rawCtx = canvas.getContext('2d');
   if (!rawCtx) throw new AppError('unknown', '2D canvas context unavailable.');
-  // Capture as a non-null local so TS narrows it across the closure used in
-  // the animation loop below.
   const ctx: CanvasRenderingContext2D = rawCtx;
 
-  // Compute a base source crop that fits the target aspect from the hero.
-  // The Ken Burns animation will zoom into a smaller sub-rect of this base.
-  const baseCrop = computeSourceCrop(img.naturalWidth, img.naturalHeight, dims.width, dims.height);
-
-  // Animation parameters. Pan from a slight upper-left offset to a slight
-  // lower-right one as we zoom from 1.00x to 1.12x. Subtle — the goal is
-  // life, not motion sickness.
-  const startZoom = 1.0;
-  const endZoom = 1.12;
-  const startPanX = -0.02; // fraction of crop width
-  const endPanX = 0.02;
-  const startPanY = -0.015;
-  const endPanY = 0.025;
-
+  // Audio routing: src → MediaStreamDestination (for recorder) AND
+  // src → audioCtx.destination (for live playback) AND src → analyser
+  // (for amplitude). All three taps are off the same source.
   const fps = 30;
   const frameMs = 1000 / fps;
-
-  // Build the combined MediaStream: video from the canvas, audio from the
-  // approved voiceover. We route the audio through an AudioContext so the
-  // recorder can capture it while it also plays through speakers (so the
-  // user gets immediate feedback).
   const videoStream = canvas.captureStream(fps);
   const audioCtx = new AudioContext();
   const source = audioCtx.createMediaElementSource(audio);
   const dest = audioCtx.createMediaStreamDestination();
+  const analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 256;
   source.connect(dest);
-  source.connect(audioCtx.destination); // also audible during recording
+  source.connect(audioCtx.destination);
+  source.connect(analyser);
+  const amplitudeBuffer = new Uint8Array(analyser.frequencyBinCount);
+
+  function readAmplitude(): number {
+    analyser.getByteTimeDomainData(amplitudeBuffer);
+    let sum = 0;
+    for (let i = 0; i < amplitudeBuffer.length; i++) {
+      const v = (amplitudeBuffer[i]! - 128) / 128;
+      sum += v * v;
+    }
+    return Math.sqrt(sum / amplitudeBuffer.length);
+  }
 
   const combined = new MediaStream([
     ...videoStream.getVideoTracks(),
@@ -172,12 +543,54 @@ export async function generateSlideshowVideo(args: GenerateVideoArgs): Promise<P
   ]);
 
   const mimeType = pickMimeType();
-  const recorder = new MediaRecorder(combined, { mimeType, videoBitsPerSecond: 5_000_000 });
-
+  const recorder = new MediaRecorder(combined, { mimeType, videoBitsPerSecond: 5_500_000 });
   const chunks: Blob[] = [];
   recorder.ondataavailable = (e) => {
     if (e.data && e.data.size > 0) chunks.push(e.data);
   };
+
+  // Headline and CTA timing windows.
+  // Headline: visible from 0.4s to ~45% through, then fades out.
+  const headlineStart = 0.4;
+  const headlineEnd = Math.min(duration * 0.45, Math.max(headlineStart + 2.5, duration - CTA_TAIL_SECONDS - 1.5));
+  // CTA: visible the last CTA_TAIL_SECONDS, including the very end.
+  const ctaStart = Math.max(0, duration - CTA_TAIL_SECONDS);
+
+  function headlineAlpha(t: number): number {
+    if (t < headlineStart) return 0;
+    if (t < headlineStart + HEADLINE_FADE_IN)
+      return (t - headlineStart) / HEADLINE_FADE_IN;
+    if (t > headlineEnd) return 0;
+    if (t > headlineEnd - HEADLINE_FADE_OUT)
+      return Math.max(0, (headlineEnd - t) / HEADLINE_FADE_OUT);
+    return 1;
+  }
+  function ctaAlpha(t: number): number {
+    if (t < ctaStart) return 0;
+    if (t < ctaStart + CTA_FADE_IN) return (t - ctaStart) / CTA_FADE_IN;
+    return 1;
+  }
+
+  function drawShot(plan: ShotPlan, t: number, alpha: number): void {
+    if (alpha <= 0.001) return;
+    const local = (t - plan.startSec) / (plan.endSec - plan.startSec);
+    const lerp = (a: number, b: number) => a + (b - a) * local;
+    const zoom = lerp(plan.curve.zoomStart, plan.curve.zoomEnd);
+    const panX = lerp(plan.curve.panStartX, plan.curve.panEndX);
+    const panY = lerp(plan.curve.panStartY, plan.curve.panEndY);
+
+    const base = baseCrops[plan.index]!;
+    const img = images[plan.index] ?? images[images.length - 1]!;
+    const zw = base.sw / zoom;
+    const zh = base.sh / zoom;
+    const cx = base.sx + base.sw / 2 + panX * base.sw;
+    const cy = base.sy + base.sh / 2 + panY * base.sh;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, cx - zw / 2, cy - zh / 2, zw, zh, 0, 0, dims.width, dims.height);
+    ctx.restore();
+  }
 
   return new Promise<PlatformVideo>((resolve, reject) => {
     let rafId = 0;
@@ -190,10 +603,11 @@ export async function generateSlideshowVideo(args: GenerateVideoArgs): Promise<P
       cancelAnimationFrame(rafId);
       try { source.disconnect(); } catch { /* noop */ }
       try { dest.disconnect(); } catch { /* noop */ }
+      try { analyser.disconnect(); } catch { /* noop */ }
       try { audio.pause(); audio.currentTime = 0; } catch { /* noop */ }
       try { audioCtx.close(); } catch { /* noop */ }
       try {
-        for (const t of videoStream.getTracks()) t.stop();
+        for (const tr of videoStream.getTracks()) tr.stop();
       } catch { /* noop */ }
     }
 
@@ -217,68 +631,46 @@ export async function generateSlideshowVideo(args: GenerateVideoArgs): Promise<P
 
     function tick(now: number) {
       if (!startedAt) startedAt = now;
-      const elapsedMs = now - startedAt;
-      const t = Math.min(1, elapsedMs / (duration * 1000));
+      const t = (now - startedAt) / 1000;
 
-      // Interpolate zoom + pan
-      const zoom = startZoom + (endZoom - startZoom) * t;
-      const panX = startPanX + (endPanX - startPanX) * t;
-      const panY = startPanY + (endPanY - startPanY) * t;
-
-      // Compute the zoomed source rect inside baseCrop
-      const zw = baseCrop.sw / zoom;
-      const zh = baseCrop.sh / zoom;
-      const cx = baseCrop.sx + baseCrop.sw / 2 + panX * baseCrop.sw;
-      const cy = baseCrop.sy + baseCrop.sh / 2 + panY * baseCrop.sh;
-      const sx = cx - zw / 2;
-      const sy = cy - zh / 2;
-
-      // Draw — single-pass, no extra effects (keep encoding cheap).
-      ctx.drawImage(img, sx, sy, zw, zh, 0, 0, dims.width, dims.height);
-
-      // Subtle vignette: a radial gradient darkening the edges.
-      const grad = ctx.createRadialGradient(
-        dims.width / 2,
-        dims.height / 2,
-        Math.min(dims.width, dims.height) * 0.4,
-        dims.width / 2,
-        dims.height / 2,
-        Math.max(dims.width, dims.height) * 0.7,
-      );
-      grad.addColorStop(0, 'rgba(0,0,0,0)');
-      grad.addColorStop(1, 'rgba(0,0,0,0.25)');
-      ctx.fillStyle = grad;
+      // Black background under everything for transparency-safe compositing.
+      ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, dims.width, dims.height);
 
-      if (t >= 1) {
-        // Animation done — stop the recorder (will fire onstop).
-        try {
-          recorder.stop();
-        } catch {
-          /* already stopped */
-        }
+      // Draw all active shots in order; alpha controls crossfade.
+      for (const plan of plans) {
+        const a = shotAlpha(plan, t);
+        if (a > 0) drawShot(plan, t, a);
+      }
+
+      // Vignette over the image stack.
+      drawVignette(ctx, dims.width, dims.height);
+
+      // Brand-name watermark (persistent through whole video).
+      drawBrandWatermark(ctx, args.brandName, dims.width, dims.height, is916);
+
+      // Audio-reactive pulse dot.
+      const rms = readAmplitude();
+      drawAudioPulse(ctx, rms, dims.width, dims.height, is916);
+
+      // Text overlays.
+      drawHeadlineOverlay(ctx, args.headline, headlineAlpha(t), dims.width, dims.height, is916);
+      drawCtaBar(ctx, args.cta, ctaAlpha(t), dims.width, dims.height, ctaBarColor, is916);
+
+      if (t >= duration) {
+        try { recorder.stop(); } catch { /* already stopped */ }
         return;
       }
       rafId = requestAnimationFrame(tick);
     }
 
-    // Hard timeout — protect against recorder hanging if audio ended event
-    // never fired (some browsers/preset paths). 5s padding above duration.
     const timeoutMs = (duration + 5) * 1000;
     const timeout = setTimeout(() => {
-      try {
-        recorder.stop();
-      } catch {
-        /* noop */
-      }
+      try { recorder.stop(); } catch { /* noop */ }
     }, timeoutMs);
-    const clearOnStop = () => clearTimeout(timeout);
-    recorder.addEventListener('stop', clearOnStop, { once: true });
+    recorder.addEventListener('stop', () => clearTimeout(timeout), { once: true });
 
-    // Sequence: kick off recording → start audio → start animation. We rely
-    // on the timeline-driven Ken Burns animation (not audio.ended) to stop
-    // the recorder, because audio.ended can race the last few frames.
-    recorder.start(frameMs * 5); // request chunks every ~5 frames
+    recorder.start(frameMs * 5);
     audio.currentTime = 0;
     void audio
       .play()
@@ -288,7 +680,12 @@ export async function generateSlideshowVideo(args: GenerateVideoArgs): Promise<P
       .catch((err) => {
         cleanup();
         try { recorder.stop(); } catch { /* noop */ }
-        reject(new AppError('unknown', `Audio playback failed: ${err instanceof Error ? err.message : String(err)}`));
+        reject(
+          new AppError(
+            'unknown',
+            `Audio playback failed: ${err instanceof Error ? err.message : String(err)}`,
+          ),
+        );
       });
   });
 }
