@@ -41,6 +41,19 @@ export type ScriptVariant = {
   createdAt: number;
 };
 
+// Character-level timing data returned by ElevenLabs'
+// `text-to-speech/{voiceId}/with-timestamps` endpoint. Every character of
+// the rendered audio has a start- and end-second relative to the audio's
+// own timeline. We use this to drive word-level kinetic captions in the
+// video step and to emit WebVTT subtitle files for platform exports.
+export type AudioAlignment = {
+  characters: string[];
+  // Aligned arrays; charStartSec[i] is the timestamp the i-th character
+  // begins, charEndSec[i] is the timestamp it finishes.
+  charStartSec: number[];
+  charEndSec: number[];
+};
+
 export type AudioVariant = {
   kind: 'audio';
   id: string;
@@ -50,6 +63,9 @@ export type AudioVariant = {
   scriptId: string;
   durationSeconds?: number;
   createdAt: number;
+  // Present when audio was generated through the with-timestamps endpoint.
+  // Absent for sample-preset audio (the bake script didn't capture it).
+  alignment?: AudioAlignment;
 };
 
 export type DesignVariant = {

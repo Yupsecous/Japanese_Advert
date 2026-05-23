@@ -161,7 +161,7 @@ export function AudioStep() {
       if (current) {
         URL.revokeObjectURL(current.audioUrl);
       }
-      const { blob, url } = await generateAudio({
+      const { blob, url, alignment } = await generateAudio({
         script: approvedScript.script,
         voiceId: voice.elevenlabsVoiceId,
         apiKey,
@@ -174,6 +174,7 @@ export function AudioStep() {
         voiceId: voice.id,
         scriptId: approvedScript.id,
         createdAt: Date.now(),
+        ...(alignment ? { alignment } : {}),
       };
       if (opts.regenerate) {
         replaceVariants('audio', [variant]);

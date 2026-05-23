@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import { generateDirectorsNotesMarkdown } from './directorsNotes';
+import { buildWebVtt } from './subtitleService';
 import {
   audioVariantsOf,
   copyVariantsOf,
@@ -316,11 +317,18 @@ async function addImagePairToZip(args: {
   return { embedded, failed };
 }
 
-async function buildPlatformZip(args: {
+type PlatformZipArgs = {
   productName: string;
   platform: 'meta' | 'x';
   bundle: PlatformAssetsBundle;
-}): Promise<{ blob: Blob; result: PlatformDownloadResult }> {
+  // Optional caption inputs — when present, a captions.vtt is included in
+  // the ZIP. Meta and X both accept VTT for caption-track upload.
+  scriptText?: string;
+  audioDurationSeconds?: number;
+  alignment?: import('../types').AudioAlignment;
+};
+
+async function buildPlatformZip(args: PlatformZipArgs): Promise<{ blob: Blob; result: PlatformDownloadResult }> {
   const zip = new JSZip();
   const isMeta = args.platform === 'meta';
   const fileMap = isMeta ? META_ASPECT_FILES : X_ASPECT_FILES;
@@ -373,6 +381,19 @@ async function buildPlatformZip(args: {
     const baseName = isMeta ? 'stories-reels-9x16' : 'square-1x1';
     zip.file(`${baseName}.${ext}`, video.blob);
     videoEmbedded = true;
+  }
+
+  // Captions — when we have the script text + duration, emit a WebVTT
+  // file. Both Meta and X accept VTT as a caption-track upload alongside
+  // a video creative. Massively improves ad performance: ~85% of social
+  // feed video is watched with sound off.
+  if (args.scriptText && args.audioDurationSeconds && args.audioDurationSeconds > 0) {
+    const vtt = buildWebVtt({
+      scriptText: args.scriptText,
+      durationSeconds: args.audioDurationSeconds,
+      ...(args.alignment ? { alignment: args.alignment } : {}),
+    });
+    zip.file('captions.vtt', vtt);
   }
 
   // Copy JSON + checklist
@@ -455,11 +476,23 @@ async function buildPlatformZip(args: {
   };
 }
 
+export type PlatformExtras = {
+  scriptText?: string;
+  audioDurationSeconds?: number;
+  alignment?: import('../types').AudioAlignment;
+};
+
 export async function downloadMetaPackage(
   productName: string,
   bundle: PlatformAssetsBundle,
+  extras: PlatformExtras = {},
 ): Promise<PlatformDownloadResult> {
-  const { blob, result } = await buildPlatformZip({ productName, platform: 'meta', bundle });
+  const { blob, result } = await buildPlatformZip({
+    productName,
+    platform: 'meta',
+    bundle,
+    ...extras,
+  });
   triggerDownload(blob, result.filename);
   return result;
 }
@@ -467,8 +500,14 @@ export async function downloadMetaPackage(
 export async function downloadXPackage(
   productName: string,
   bundle: PlatformAssetsBundle,
+  extras: PlatformExtras = {},
 ): Promise<PlatformDownloadResult> {
-  const { blob, result } = await buildPlatformZip({ productName, platform: 'x', bundle });
+  const { blob, result } = await buildPlatformZip({
+    productName,
+    platform: 'x',
+    bundle,
+    ...extras,
+  });
   triggerDownload(blob, result.filename);
   return result;
 }

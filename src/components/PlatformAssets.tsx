@@ -15,6 +15,7 @@ import { InlineError } from './InlineError';
 import { useT } from '../i18n/hooks';
 import {
   audioVariantsOf,
+  scriptVariantsOf,
   type AspectRatio,
   type CopyVariant,
   type ImageVariant,
@@ -168,11 +169,15 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
   const brief = useAppStore((s) => s.brief);
   const audioVariants = useAppStore((s) => audioVariantsOf(s.steps.audio.variants));
   const audioSelectedIndex = useAppStore((s) => s.steps.audio.selectedIndex);
+  const scriptVariants = useAppStore((s) => scriptVariantsOf(s.steps.script.variants));
+  const scriptSelectedIndex = useAppStore((s) => s.steps.script.selectedIndex);
   const openDrawer = useAppStore((s) => s.openDrawer);
   const t = useT();
 
   const approvedAudio =
     audioSelectedIndex !== null ? audioVariants[audioSelectedIndex] : undefined;
+  const approvedScript =
+    scriptSelectedIndex !== null ? scriptVariants[scriptSelectedIndex] : undefined;
 
   const [phase, setPhase] = useState<Phase>('idle');
   const [bundle, setBundle] = useState<PlatformAssetsBundle | null>(null);
@@ -246,6 +251,8 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
         const carouselImageUrls = carousel?.images.map((c) => c.imageUrl) ?? [];
         const xImages = [...xImagesBase, ...carouselImageUrls];
 
+        const scriptText = approvedScript?.script ?? '';
+        const alignment = approvedAudio.alignment;
         const tasks: Promise<PlatformVideo | null>[] = [];
         if (reelsImages.length > 0) {
           tasks.push(
@@ -256,6 +263,8 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
               headline: approvedCopy.headline,
               cta: approvedCopy.cta,
               brandName: brand.name,
+              scriptText,
+              ...(alignment ? { alignment } : {}),
             }).catch((e) => {
               // eslint-disable-next-line no-console
               console.warn('[platform] 9x16 video failed:', e);
@@ -272,6 +281,8 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
               headline: approvedCopy.headline,
               cta: approvedCopy.cta,
               brandName: brand.name,
+              scriptText,
+              ...(alignment ? { alignment } : {}),
             }).catch((e) => {
               // eslint-disable-next-line no-console
               console.warn('[platform] 1x1 video failed:', e);
@@ -296,10 +307,16 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
     setDownloading(platform);
     setDownloadResult(null);
     try {
+      const extras = {
+        scriptText: approvedScript?.script,
+        audioDurationSeconds:
+          approvedAudio?.durationSeconds ?? bundle.videos[0]?.durationSeconds,
+        alignment: approvedAudio?.alignment,
+      };
       const result =
         platform === 'meta'
-          ? await downloadMetaPackage(brief.productName, bundle)
-          : await downloadXPackage(brief.productName, bundle);
+          ? await downloadMetaPackage(brief.productName, bundle, extras)
+          : await downloadXPackage(brief.productName, bundle, extras);
       setDownloadResult(result);
     } catch (err) {
       setError(err);
