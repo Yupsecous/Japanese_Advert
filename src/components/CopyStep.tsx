@@ -61,20 +61,36 @@ function VariantCard({
   index,
   total,
   isSelected,
+  isRefining,
   onPick,
+  onRefine,
 }: {
   variant: CopyVariant;
   index: number;
   total: number;
   isSelected: boolean;
+  isRefining: boolean;
   onPick: () => void;
+  onRefine: (direction: string) => void;
 }) {
   const t = useT();
+  const [refineOpen, setRefineOpen] = useState(false);
+  const [direction, setDirection] = useState('');
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const d = direction.trim();
+    if (!d) return;
+    onRefine(d);
+    setDirection('');
+    setRefineOpen(false);
+  }
+
   return (
     <article
       className={`flex flex-col rounded-lg border bg-white p-5 transition-colors ${
         isSelected ? 'border-emerald-400 ring-2 ring-emerald-200' : 'border-neutral-200'
-      }`}
+      } ${isRefining ? 'opacity-60' : ''}`}
     >
       <div className="flex items-center justify-between text-xs text-neutral-500">
         <span>{t('common.optionOf', { n: index + 1, total })}</span>
@@ -91,10 +107,53 @@ function VariantCard({
         <button
           type="button"
           onClick={onPick}
-          className="rounded-md bg-brand px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
+          disabled={isRefining}
+          className="rounded-md bg-brand px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-50"
         >
           {t('common.pickThis')}
         </button>
+      </div>
+      <div className="mt-3 border-t border-neutral-100 pt-3">
+        {!refineOpen ? (
+          <button
+            type="button"
+            onClick={() => setRefineOpen(true)}
+            disabled={isRefining}
+            className="text-xs font-medium text-neutral-500 underline-offset-4 hover:text-neutral-900 hover:underline disabled:opacity-50"
+          >
+            {isRefining ? t('refineOne.refining') : t('refineOne.openCopy')}
+          </button>
+        ) : (
+          <form onSubmit={submit} className="space-y-2">
+            <textarea
+              autoFocus
+              value={direction}
+              onChange={(e) => setDirection(e.target.value)}
+              rows={2}
+              placeholder={t('refineOne.placeholderCopy')}
+              className="w-full resize-none rounded-md border border-neutral-300 px-2.5 py-2 text-xs outline-none focus:border-neutral-900"
+            />
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setRefineOpen(false);
+                  setDirection('');
+                }}
+                className="text-xs text-neutral-500 hover:text-neutral-900"
+              >
+                {t('refineOne.cancel')}
+              </button>
+              <button
+                type="submit"
+                disabled={direction.trim().length === 0}
+                className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+              >
+                {t('refineOne.apply')}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </article>
   );
@@ -159,11 +218,43 @@ export function CopyStep() {
   const t = useT();
 
   const variants = copyVariantsOf(step.variants);
+  const replaceVariantById = useAppStore((s) => s.replaceVariantById);
 
   const [loading, setLoading] = useState<LoadOp>(null);
   const [errorState, setErrorState] = useState<{ op: LoadOp; error: unknown } | null>(null);
   const [refineText, setRefineText] = useState('');
+  // Per-variant refine state: tracks which variant ids are currently being
+  // refined. Used to dim the card and disable interactions while in flight.
+  const [refiningIds, setRefiningIds] = useState<Set<string>>(new Set());
   const initialAttemptedRef = useRef(false);
+
+  async function refineOneVariant(variant: CopyVariant, direction: string) {
+    setErrorState(null);
+    setRefiningIds((prev) => new Set(prev).add(variant.id));
+    try {
+      const next = await llmService.refineSingleCopy({
+        apiKeys: { openai: apiKey, anthropic: anthropicKey },
+        brief,
+        existingVariant: variant,
+        refineDirection: direction,
+        locale,
+        brand,
+      });
+      replaceVariantById('copy', variant.id, next);
+      addHistoryEntry(
+        'copy',
+        makeHistoryEntry('refine', `[per-variant] ${direction}`, 1),
+      );
+    } catch (err) {
+      setErrorState({ op: 'refine', error: err });
+    } finally {
+      setRefiningIds((prev) => {
+        const next = new Set(prev);
+        next.delete(variant.id);
+        return next;
+      });
+    }
+  }
 
   async function runInitial() {
     setErrorState(null);
@@ -316,7 +407,9 @@ export function CopyStep() {
               index={i}
               total={variants.length}
               isSelected={step.selectedIndex === i}
+              isRefining={refiningIds.has(v.id)}
               onPick={() => pickVariant('copy', i)}
+              onRefine={(direction) => void refineOneVariant(v, direction)}
             />
           ))
         )}

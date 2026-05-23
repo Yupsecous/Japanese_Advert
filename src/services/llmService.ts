@@ -26,6 +26,9 @@ export interface LlmService {
   generateCopy(args: GenerateCopyArgs): Promise<CopyVariant[]>;
   generateImages(args: GenerateImagesArgs): Promise<ImageVariant[]>;
   generateScript(args: GenerateScriptArgs): Promise<ScriptVariant[]>;
+  refineSingleCopy(args: RefineSingleCopyArgs): Promise<CopyVariant>;
+  refineSingleImage(args: RefineSingleImageArgs): Promise<ImageVariant>;
+  refineSingleScript(args: RefineSingleScriptArgs): Promise<ScriptVariant>;
 }
 
 export type GenerateScriptArgs = {
@@ -709,10 +712,243 @@ async function generateScript(args: GenerateScriptArgs): Promise<ScriptVariant[]
   });
 }
 
+// ---------------------------------------------------------------------------
+// Per-variant refine — replaces ONE specific variant in place, keeping
+// siblings. The system prompt instructs the model to refine the prior
+// variant rather than write fresh — the opposite of the standard refine
+// flow which produces 2 NEW variants.
+// ---------------------------------------------------------------------------
+
+export type RefineSingleCopyArgs = {
+  apiKeys: { openai: string; anthropic?: string };
+  brief: Brief;
+  existingVariant: CopyVariant;
+  refineDirection: string;
+  locale?: Locale;
+  brand?: BrandDictionary;
+};
+
+async function refineSingleCopy(args: RefineSingleCopyArgs): Promise<CopyVariant> {
+  const apiKey = args.apiKeys.openai.trim();
+  const anthropicKey = args.apiKeys.anthropic?.trim() ?? '';
+  if (!apiKey && !anthropicKey) throw new AppError('openai/missing-key');
+  const locale: Locale = args.locale ?? 'en';
+  const rawDirection = args.refineDirection.trim();
+  if (!rawDirection) throw new AppError('translator/empty-direction');
+
+  const translated = await translateDirection({
+    direction: rawDirection,
+    assetType: 'copy',
+    apiKey: apiKey || anthropicKey,
+    locale,
+    brand: args.brand,
+  });
+  if (translated.kind !== 'copy') {
+    throw new AppError('translator/wrong-shape', 'expected copy mods');
+  }
+  const enriched = translated.mods.enrichedDirection;
+  const avoid = translated.mods.avoid;
+  const emphasize = translated.mods.emphasize;
+
+  const basePrompt =
+    avoid.length > 0
+      ? `${COPY_SYSTEM_PROMPT}\n\nAdditional banned terms for this generation: ${avoid.join(', ')}.`
+      : COPY_SYSTEM_PROMPT;
+  const systemPrompt = `${basePrompt}\n\n${languageDirective(locale)}${brandPromptBlock(args.brand)}\n\nThis is a per-variant REFINEMENT pass. You're given ONE existing variant and the creative director's direction. Your job: produce ONE refined version of THAT variant that keeps its core idea but addresses the direction. Do NOT rewrite from scratch — refine.`;
+
+  const userMessage = [
+    formatBriefBlock(args.brief),
+    '',
+    'Existing variant to refine:',
+    `Headline: "${args.existingVariant.headline}"`,
+    `Caption: "${args.existingVariant.caption}"`,
+    `CTA: "${args.existingVariant.cta}"`,
+    '',
+    `Director's direction (enriched): "${enriched}"`,
+    ...(emphasize.length > 0 ? [`Lean into: ${emphasize.join('; ')}.`] : []),
+    '',
+    'Output one refined variant that keeps the core idea of the existing variant but addresses the direction. Same format: headline (6-10 words), caption (2-3 sentences), cta (3-5 words).',
+  ].join('\n');
+
+  const raw = anthropicKey
+    ? await messagesJson({
+        apiKey: anthropicKey,
+        systemPrompt,
+        userMessage,
+        toolName: 'submit_copy_variants',
+        toolDescription:
+          'Submit one refined copy variant that keeps the existing variant\'s core idea but addresses the director\'s direction.',
+        inputSchema: COPY_RESPONSE_SCHEMA as unknown as Record<string, unknown>,
+        maxTokens: 800,
+      })
+    : await chatCompletionsJson({
+        apiKey,
+        system: systemPrompt,
+        user: userMessage,
+        schemaName: 'copy_variants',
+        schema: COPY_RESPONSE_SCHEMA as unknown as Record<string, unknown>,
+        temperature: 0.7,
+        maxTokens: 600,
+      });
+
+  const parsed = CopyResponseZ.safeParse(raw);
+  if (!parsed.success || parsed.data.variants.length === 0) {
+    throw new AppError(
+      anthropicKey ? 'anthropic/bad-response' : 'openai/bad-response',
+      `refine schema mismatch: ${parsed.success ? 'empty variants' : parsed.error.message}`,
+    );
+  }
+  const v = parsed.data.variants[0]!;
+  return {
+    kind: 'copy',
+    id: crypto.randomUUID(),
+    headline: v.headline.trim(),
+    caption: v.caption.trim(),
+    cta: v.cta.trim(),
+    createdAt: Date.now(),
+  };
+}
+
+export type RefineSingleImageArgs = {
+  brief: Brief;
+  approvedCopy: CopyVariant;
+  existingVariant: ImageVariant;
+  refineDirection: string;
+  apiKeys: { openai: string; fal: string };
+  locale?: Locale;
+  brand?: BrandDictionary;
+};
+
+async function refineSingleImage(args: RefineSingleImageArgs): Promise<ImageVariant> {
+  const openai = args.apiKeys.openai.trim();
+  const fal = args.apiKeys.fal.trim();
+  if (!openai) throw new AppError('openai/missing-key');
+  if (!fal) throw new AppError('fal/missing-key');
+  const rawDirection = args.refineDirection.trim();
+  if (!rawDirection) throw new AppError('translator/empty-direction');
+
+  // Image prompts are English-locked (Flux performs poorly on non-English).
+  const translated = await translateDirection({
+    direction: rawDirection,
+    assetType: 'image',
+    apiKey: openai,
+    locale: 'en',
+    brand: args.brand,
+  });
+  if (translated.kind !== 'image') {
+    throw new AppError('translator/wrong-shape', 'expected image mods');
+  }
+  const mods = translated.mods;
+
+  // Build a fresh Flux prompt with the new mods. We don't reference the
+  // prior variant's prompt directly because Flux is text-to-image — there's
+  // no image-to-image refinement. The mods carry the director's intent.
+  const prompt = await buildImagePrompt({
+    brief: args.brief,
+    approvedCopy: args.approvedCopy,
+    mods,
+    apiKey: openai,
+    brand: args.brand,
+  });
+  const imageUrl = await generateFluxImage({ prompt, falKey: fal });
+
+  const refined: ImageVariant = {
+    kind: 'image',
+    id: crypto.randomUUID(),
+    imageUrl,
+    prompt,
+    createdAt: Date.now(),
+  };
+  refined.modsApplied = mods;
+  return refined;
+}
+
+export type RefineSingleScriptArgs = {
+  brief: Brief;
+  approvedCopy: CopyVariant;
+  approvedImage: ImageVariant;
+  existingVariant: ScriptVariant;
+  refineDirection: string;
+  apiKey: string;
+  locale?: Locale;
+  brand?: BrandDictionary;
+};
+
+async function refineSingleScript(args: RefineSingleScriptArgs): Promise<ScriptVariant> {
+  const apiKey = args.apiKey.trim();
+  if (!apiKey) throw new AppError('openai/missing-key');
+  const locale: Locale = args.locale ?? 'en';
+  const rawDirection = args.refineDirection.trim();
+  if (!rawDirection) throw new AppError('translator/empty-direction');
+
+  const translated = await translateDirection({
+    direction: rawDirection,
+    assetType: 'voice',
+    apiKey,
+    locale,
+    brand: args.brand,
+  });
+  if (translated.kind !== 'voice') {
+    throw new AppError('translator/wrong-shape', 'expected voice mods');
+  }
+  const mods = translated.mods;
+
+  const briefBlock = formatScriptBriefBlock({
+    brief: args.brief,
+    approvedCopy: args.approvedCopy,
+    approvedImage: args.approvedImage,
+  });
+
+  const systemPrompt = `${SCRIPT_SYSTEM_PROMPT}\n\n${languageDirective(locale)}${brandPromptBlock(args.brand)}\n\nThis is a per-variant REFINEMENT pass. You're given ONE existing script variant and the director's direction. Output ONE refined version that keeps the variant's core idea + emotional beat but addresses the direction.`;
+
+  const userMessage = [
+    briefBlock,
+    '',
+    'Existing script variant to refine:',
+    `Tone: ${args.existingVariant.toneDescription}`,
+    `Script: "${args.existingVariant.script}"`,
+    '',
+    `Director's direction (enriched): "${mods.scriptTone}"`,
+    '',
+    'Output one refined script variant that keeps the same emotional beat and claim but addresses the direction. Same format: 50-100 words, designed for spoken delivery.',
+  ].join('\n');
+
+  const raw = await chatCompletionsJson({
+    apiKey,
+    system: systemPrompt,
+    user: userMessage,
+    schemaName: 'script_variants',
+    schema: SCRIPT_RESPONSE_SCHEMA as unknown as Record<string, unknown>,
+    temperature: 0.7,
+    maxTokens: 800,
+  });
+  const parsed = ScriptResponseZ.safeParse(raw);
+  if (!parsed.success || parsed.data.variants.length === 0) {
+    throw new AppError(
+      'openai/bad-response',
+      `refine schema mismatch: ${parsed.success ? 'empty variants' : parsed.error.message}`,
+    );
+  }
+  const v = parsed.data.variants[0]!;
+  const refined: ScriptVariant = {
+    kind: 'script',
+    id: crypto.randomUUID(),
+    script: v.script.trim(),
+    durationEstimate: Math.round(v.durationEstimate),
+    toneDescription: v.toneDescription.trim(),
+    createdAt: Date.now(),
+  };
+  refined.modsApplied = mods;
+  return refined;
+}
+
 export const llmService: LlmService = {
   validateKey,
   validateAll,
   generateCopy,
   generateImages,
   generateScript,
+  refineSingleCopy,
+  refineSingleImage,
+  refineSingleScript,
 };

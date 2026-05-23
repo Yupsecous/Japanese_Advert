@@ -142,28 +142,43 @@ function VariantCard({
   index,
   total,
   isSelected,
+  isRefining,
   critique,
   critiqueDisabled,
   critiqueDisabledReason,
   onPick,
   onCritiqueLoad,
   onApplyCritique,
+  onRefine,
 }: {
   variant: ImageVariant;
   index: number;
   total: number;
   isSelected: boolean;
+  isRefining: boolean;
   critique: Critique | undefined;
   critiqueDisabled?: boolean;
   critiqueDisabledReason?: string;
   onPick: () => void;
   onCritiqueLoad: () => Promise<void>;
   onApplyCritique: (text: string) => void;
+  onRefine: (direction: string) => void;
 }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refineOpen, setRefineOpen] = useState(false);
+  const [direction, setDirection] = useState('');
+
+  function submitRefine(e: React.FormEvent) {
+    e.preventDefault();
+    const d = direction.trim();
+    if (!d) return;
+    onRefine(d);
+    setDirection('');
+    setRefineOpen(false);
+  }
 
   async function run() {
     setLoading(true);
@@ -192,15 +207,23 @@ function VariantCard({
     <article
       className={`overflow-hidden rounded-lg border bg-white transition-colors ${
         isSelected ? 'border-emerald-400 ring-2 ring-emerald-200' : 'border-neutral-200'
-      }`}
+      } ${isRefining ? 'opacity-60' : ''}`}
     >
-      <div className="aspect-[4/5] bg-neutral-100">
+      <div className="relative aspect-[4/5] bg-neutral-100">
         <img
           src={variant.imageUrl}
           alt={`Variant ${index + 1}`}
           className="h-full w-full object-cover"
           loading="lazy"
         />
+        {isRefining && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+            <div className="flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-brand" aria-hidden="true" />
+              {t('refineOne.refining')}
+            </div>
+          </div>
+        )}
       </div>
       <div className="space-y-3 p-4">
         <div className="flex items-center justify-between text-xs text-neutral-500">
@@ -211,19 +234,62 @@ function VariantCard({
           <button
             type="button"
             onClick={onPick}
-            className="flex-1 rounded-md bg-brand px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
+            disabled={isRefining}
+            className="flex-1 rounded-md bg-brand px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-50"
           >
             {t('common.pickThis')}
           </button>
           <button
             type="button"
             onClick={toggle}
-            disabled={critiqueDisabled && !critique}
+            disabled={(critiqueDisabled && !critique) || isRefining}
             title={critiqueDisabled && !critique ? critiqueDisabledReason : undefined}
             className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {open ? t('image.hideCritique') : critique ? t('image.showCritique') : t('image.critique')}
           </button>
+        </div>
+        <div className="border-t border-neutral-100 pt-3">
+          {!refineOpen ? (
+            <button
+              type="button"
+              onClick={() => setRefineOpen(true)}
+              disabled={isRefining}
+              className="text-xs font-medium text-neutral-500 underline-offset-4 hover:text-neutral-900 hover:underline disabled:opacity-50"
+            >
+              {t('refineOne.openImage')}
+            </button>
+          ) : (
+            <form onSubmit={submitRefine} className="space-y-2">
+              <textarea
+                autoFocus
+                value={direction}
+                onChange={(e) => setDirection(e.target.value)}
+                rows={2}
+                placeholder={t('refineOne.placeholderImage')}
+                className="w-full resize-none rounded-md border border-neutral-300 px-2.5 py-2 text-xs outline-none focus:border-neutral-900"
+              />
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRefineOpen(false);
+                    setDirection('');
+                  }}
+                  className="text-xs text-neutral-500 hover:text-neutral-900"
+                >
+                  {t('refineOne.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={direction.trim().length === 0}
+                  className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+                >
+                  {t('refineOne.apply')}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
       {open && (
@@ -316,11 +382,43 @@ export function ImageStep() {
   const t = useT();
 
   const variants = imageVariantsOf(step.variants);
+  const replaceVariantById = useAppStore((s) => s.replaceVariantById);
 
   const [loading, setLoading] = useState<LoadOp>(null);
   const [errorState, setErrorState] = useState<{ op: LoadOp; error: unknown } | null>(null);
   const [refineText, setRefineText] = useState('');
+  const [refiningIds, setRefiningIds] = useState<Set<string>>(new Set());
   const initialAttemptedRef = useRef(false);
+
+  async function refineOneVariant(variant: ImageVariant, direction: string) {
+    if (!approvedCopy) return;
+    setErrorState(null);
+    setRefiningIds((prev) => new Set(prev).add(variant.id));
+    try {
+      const next = await llmService.refineSingleImage({
+        brief,
+        approvedCopy,
+        existingVariant: variant,
+        refineDirection: direction,
+        apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
+        locale,
+        brand,
+      });
+      replaceVariantById('image', variant.id, next);
+      addHistoryEntry(
+        'image',
+        makeHistoryEntry('refine', `[per-variant] ${direction}`, 1),
+      );
+    } catch (err) {
+      setErrorState({ op: 'refine', error: err });
+    } finally {
+      setRefiningIds((prev) => {
+        const n = new Set(prev);
+        n.delete(variant.id);
+        return n;
+      });
+    }
+  }
 
   const approvedCopy =
     copyStep.selectedIndex !== null
@@ -517,10 +615,12 @@ export function ImageStep() {
               index={i}
               total={variants.length}
               isSelected={step.selectedIndex === i}
+              isRefining={refiningIds.has(v.id)}
               critique={step.critiques[v.id]}
               onPick={() => pickVariant('image', i)}
               onCritiqueLoad={() => loadCritique(v)}
               onApplyCritique={(text) => void runRefine(text, 'critique-applied')}
+              onRefine={(direction) => void refineOneVariant(v, direction)}
               critiqueDisabled={anthropicMissing}
               critiqueDisabledReason={t('image.critiqueDisabled')}
             />

@@ -243,6 +243,17 @@ const EN: Dict = {
   'common.errorDetail': 'Show technical detail',
   'common.back': 'Back',
 
+  // Per-variant refine — inline action on each variant card
+  'refineOne.openCopy': 'Refine this copy',
+  'refineOne.openImage': 'Refine this image',
+  'refineOne.openScript': 'Refine this script',
+  'refineOne.placeholderCopy': 'e.g. softer headline, drop the buzzword',
+  'refineOne.placeholderImage': 'e.g. tighter crop, warmer light',
+  'refineOne.placeholderScript': 'e.g. punchier opener, slower pace',
+  'refineOne.apply': 'Apply',
+  'refineOne.cancel': 'Cancel',
+  'refineOne.refining': 'Refining…',
+
   // Copy step
   'copy.heading': 'Copy',
   'copy.subtitle': 'Pick a variant, ask for more, or describe how to refine.',
@@ -705,6 +716,17 @@ const JA: Dict = {
   'common.errorTitle': 'このステップが中断されました',
   'common.errorDetail': '技術的な詳細を表示',
   'common.back': '戻る',
+
+  // Per-variant refine — inline action on each variant card
+  'refineOne.openCopy': 'このコピーを調整',
+  'refineOne.openImage': 'この画像を調整',
+  'refineOne.openScript': 'このスクリプトを調整',
+  'refineOne.placeholderCopy': '例: 見出しをもう少し柔らかく、バズワードを抜く',
+  'refineOne.placeholderImage': '例: クロップを寄せる、光をもっと温かく',
+  'refineOne.placeholderScript': '例: 出だしを切れ味よく、ペースをゆっくり',
+  'refineOne.apply': '反映',
+  'refineOne.cancel': 'キャンセル',
+  'refineOne.refining': '調整中…',
 
   // Copy step
   'copy.heading': 'コピー',
@@ -1174,6 +1196,17 @@ const PT: Dict = {
   'common.errorTitle': 'Algo interrompeu essa etapa',
   'common.errorDetail': 'Mostrar detalhe técnico',
   'common.back': 'Voltar',
+
+  // Per-variant refine
+  'refineOne.openCopy': 'Refinar este texto',
+  'refineOne.openImage': 'Refinar esta imagem',
+  'refineOne.openScript': 'Refinar este roteiro',
+  'refineOne.placeholderCopy': 'ex.: título mais suave, sem buzzwords',
+  'refineOne.placeholderImage': 'ex.: enquadramento mais fechado, luz mais quente',
+  'refineOne.placeholderScript': 'ex.: abertura mais incisiva, ritmo mais lento',
+  'refineOne.apply': 'Aplicar',
+  'refineOne.cancel': 'Cancelar',
+  'refineOne.refining': 'Refinando…',
 
   // Copy step
   'copy.heading': 'Texto',
@@ -1646,6 +1679,17 @@ const ES: Dict = {
   'common.errorDetail': 'Mostrar detalle técnico',
   'common.back': 'Atrás',
 
+  // Per-variant refine
+  'refineOne.openCopy': 'Refinar este texto',
+  'refineOne.openImage': 'Refinar esta imagen',
+  'refineOne.openScript': 'Refinar este guion',
+  'refineOne.placeholderCopy': 'p. ej. titular más suave, sin palabras vacías',
+  'refineOne.placeholderImage': 'p. ej. encuadre más cerrado, luz más cálida',
+  'refineOne.placeholderScript': 'p. ej. apertura más contundente, ritmo más lento',
+  'refineOne.apply': 'Aplicar',
+  'refineOne.cancel': 'Cancelar',
+  'refineOne.refining': 'Refinando…',
+
   // Copy step
   'copy.heading': 'Texto',
   'copy.subtitle': 'Elige una variante, pide más, o describe cómo refinar.',
@@ -2117,6 +2161,17 @@ const FR: Dict = {
   'common.errorDetail': 'Afficher le détail technique',
   'common.back': 'Retour',
 
+  // Per-variant refine
+  'refineOne.openCopy': 'Affiner ce texte',
+  'refineOne.openImage': 'Affiner cette image',
+  'refineOne.openScript': 'Affiner ce script',
+  'refineOne.placeholderCopy': 'ex. titre plus doux, sans mot creux',
+  'refineOne.placeholderImage': 'ex. cadrage plus serré, lumière plus chaude',
+  'refineOne.placeholderScript': "ex. ouverture plus percutante, rythme plus lent",
+  'refineOne.apply': 'Appliquer',
+  'refineOne.cancel': 'Annuler',
+  'refineOne.refining': 'Affinage…',
+
   // Copy step
   'copy.heading': 'Texte',
   'copy.subtitle': "Choisissez une variante, demandez-en plus, ou décrivez comment l'affiner.",
@@ -2587,6 +2642,17 @@ const DE: Dict = {
   'common.errorTitle': 'Etwas hat diesen Schritt unterbrochen',
   'common.errorDetail': 'Technisches Detail anzeigen',
   'common.back': 'Zurück',
+
+  // Per-variant refine
+  'refineOne.openCopy': 'Diesen Text verfeinern',
+  'refineOne.openImage': 'Dieses Bild verfeinern',
+  'refineOne.openScript': 'Dieses Skript verfeinern',
+  'refineOne.placeholderCopy': 'z. B. weichere Headline, ohne Buzzwords',
+  'refineOne.placeholderImage': 'z. B. engerer Ausschnitt, wärmeres Licht',
+  'refineOne.placeholderScript': 'z. B. prägnanterer Einstieg, langsameres Tempo',
+  'refineOne.apply': 'Anwenden',
+  'refineOne.cancel': 'Abbrechen',
+  'refineOne.refining': 'Verfeinere…',
 
   // Copy step
   'copy.heading': 'Text',

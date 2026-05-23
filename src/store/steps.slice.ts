@@ -25,6 +25,11 @@ export type StepsSlice = {
   selectVariant: (id: StepId, index: number) => void;
   appendVariants: (id: StepId, variants: Variant[]) => void;
   replaceVariants: (id: StepId, variants: Variant[]) => void;
+  // Per-variant refine: swaps one variant in place (matched by id),
+  // keeping siblings. If the replaced variant was the currently-selected
+  // one, downstream steps invalidate because the approved content changed.
+  // If a non-selected sibling was replaced, downstream stays intact.
+  replaceVariantById: (id: StepId, variantId: string, next: Variant) => void;
   addHistoryEntry: (id: StepId, entry: RefineEntry) => void;
   setCritique: (id: StepId, variantId: string, critique: Critique) => void;
   approveStep: (id: StepId) => void;
@@ -142,6 +147,31 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
         },
         id,
       );
+      const nextCache = writeCache(s.variantCache, { ...s, steps: nextSteps }, id);
+      return { steps: nextSteps, variantCache: nextCache };
+    }),
+
+  replaceVariantById: (id, variantId, next) =>
+    set((s) => {
+      const step = s.steps[id];
+      const idx = step.variants.findIndex((v) => v.id === variantId);
+      if (idx === -1) return s;
+      const nextVariants = [...step.variants];
+      nextVariants[idx] = next;
+      // Also drop any per-variant critique attached to the OLD id — the
+      // critique was about the previous render and no longer applies.
+      const nextCritiques = { ...step.critiques };
+      delete nextCritiques[variantId];
+      let nextSteps: Record<StepId, StepState> = {
+        ...s.steps,
+        [id]: { ...step, variants: nextVariants, critiques: nextCritiques },
+      };
+      // Only invalidate downstream when the replaced variant was the one
+      // currently selected — i.e. the approved content actually changed.
+      const wasSelected = step.selectedIndex === idx;
+      if (wasSelected) {
+        nextSteps = clearDownstream(nextSteps, id);
+      }
       const nextCache = writeCache(s.variantCache, { ...s, steps: nextSteps }, id);
       return { steps: nextSteps, variantCache: nextCache };
     }),

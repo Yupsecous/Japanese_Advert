@@ -314,6 +314,77 @@ describe('appendVariants vs replaceVariants', () => {
   });
 });
 
+describe('replaceVariantById (per-variant refine)', () => {
+  it('swaps the matched variant in place, keeping siblings', () => {
+    submitAndSkipAudience(store);
+    const a = copyVariant('A');
+    const b = copyVariant('B');
+    store.getState().appendVariants('copy', [a, b]);
+    const refined = copyVariant('A-refined');
+    store.getState().replaceVariantById('copy', a.id, refined);
+    const variants = store.getState().steps.copy.variants;
+    expect(variants).toHaveLength(2);
+    expect(variants[0]!.id).toBe(refined.id);
+    expect(variants[1]!.id).toBe(b.id);
+  });
+
+  it('does NOT clear downstream when a non-selected variant is replaced', () => {
+    submitAndSkipAudience(store);
+    const a = copyVariant('A');
+    const b = copyVariant('B');
+    store.getState().appendVariants('copy', [a, b]);
+    store.getState().pickVariant('copy', 0); // select A
+    store.getState().appendVariants('image', [imageVariant()]);
+    expect(store.getState().steps.image.variants).toHaveLength(1);
+    // Refining the NON-selected variant (B) shouldn't touch downstream.
+    const refinedB = copyVariant('B-refined');
+    store.getState().replaceVariantById('copy', b.id, refinedB);
+    expect(store.getState().steps.image.variants).toHaveLength(1);
+  });
+
+  it('DOES clear downstream when the selected variant is replaced', () => {
+    submitAndSkipAudience(store);
+    const a = copyVariant('A');
+    const b = copyVariant('B');
+    store.getState().appendVariants('copy', [a, b]);
+    store.getState().pickVariant('copy', 0); // select A
+    store.getState().appendVariants('image', [imageVariant()]);
+    expect(store.getState().steps.image.variants).toHaveLength(1);
+    // Refining the SELECTED variant (A) means approved content changed.
+    const refinedA = copyVariant('A-refined');
+    store.getState().replaceVariantById('copy', a.id, refinedA);
+    expect(store.getState().steps.image.variants).toHaveLength(0);
+  });
+
+  it('drops the per-variant critique attached to the old id', () => {
+    submitAndSkipAudience(store);
+    store.getState().appendVariants('copy', [copyVariant('A')]);
+    store.getState().pickVariant('copy', 0);
+    const img1 = imageVariant();
+    store.getState().appendVariants('image', [img1]);
+    store.getState().setCritique('image', img1.id, {
+      variantId: img1.id,
+      text: 'Critique attached to old image',
+      createdAt: 1,
+    });
+    expect(store.getState().steps.image.critiques[img1.id]).toBeDefined();
+    const refined = imageVariant();
+    store.getState().replaceVariantById('image', img1.id, refined);
+    // Old id's critique is gone; the new id has none yet.
+    expect(store.getState().steps.image.critiques[img1.id]).toBeUndefined();
+    expect(store.getState().steps.image.critiques[refined.id]).toBeUndefined();
+  });
+
+  it('is a no-op when the variant id is not found', () => {
+    submitAndSkipAudience(store);
+    store.getState().appendVariants('copy', [copyVariant('A')]);
+    const before = store.getState().steps.copy.variants;
+    store.getState().replaceVariantById('copy', 'no-such-id', copyVariant('X'));
+    const after = store.getState().steps.copy.variants;
+    expect(after).toBe(before); // referential equality — no change
+  });
+});
+
 describe('reopenStep', () => {
   it('script reopen clears selectedIndex AND selectedVoiceId, preserves variants', () => {
     store.getState().setBriefField('productName', 'P');
