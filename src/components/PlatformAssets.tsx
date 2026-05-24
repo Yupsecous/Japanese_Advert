@@ -6,7 +6,8 @@ import {
   generateCarousel,
 } from '../services/platformService';
 import { generateSlideshowVideo, type VideoAspect } from '../services/videoService';
-import { generateAiVideo, type AiVideoAspect } from '../services/aiVideoService';
+import { generateAiVideo, type AiVideoAspect, KLING_COST_USD_PER_CLIP } from '../services/aiVideoService';
+import { TIER_COST_USD } from '../services/fluxClient';
 import {
   downloadMetaPackage,
   downloadXPackage,
@@ -195,6 +196,22 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
   const falMissing = apiKeys.fal.trim().length === 0;
   const aiKeyMissing = apiKeys.openai.trim().length === 0 && apiKeys.anthropic.trim().length === 0;
   const keysMissing = falMissing || aiKeyMissing;
+
+  // Pre-flight cost estimate. Pipeline:
+  //   - Platform image pairs: 7 fresh Flux calls (4 aspects × A+B, minus the
+  //     4:5 A which reuses the approved hero)
+  //   - Carousel: +3 Flux calls when opted in
+  //   - AI video: +2 Kling clips (9:16 + 1:1) when ai_kling provider is set
+  //     AND audio is approved (slideshow is the gate for video tasks)
+  const flux = TIER_COST_USD[imageQualityTier];
+  const platformImageCost = 7 * flux;
+  const carouselCost = includeCarousel ? 3 * flux : 0;
+  const aiVideoCost =
+    includeVideo && approvedAudio && videoProvider === 'ai_kling'
+      ? 2 * KLING_COST_USD_PER_CLIP
+      : 0;
+  const estimatedCost = platformImageCost + carouselCost + aiVideoCost;
+  const costLabel = estimatedCost < 0.01 ? '<$0.01' : `$${estimatedCost.toFixed(2)}`;
 
   async function runGenerate() {
     setError(null);
@@ -469,8 +486,14 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
                 className="rounded-md bg-brand px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
               >
                 {t('platform.generate')}
+                <span className="ml-2 font-mono text-[11px] tabular-nums opacity-80">~{costLabel}</span>
               </button>
-              <span className="text-xs text-neutral-500">{t('platform.costNote')}</span>
+              <span className="text-xs text-neutral-500">
+                {t('platform.costEstimate', {
+                  tier: t(`generation.tier.${imageQualityTier}` as const),
+                  videoMode: t(`generation.video.${videoProvider}` as const),
+                })}
+              </span>
             </div>
           </div>
         )}

@@ -303,6 +303,10 @@ const EN: Dict = {
   'image.keysMissingBody':
     'Image generation needs both an OpenAI key (prompt builder) and a fal.ai key (Flux Schnell). Add them in Settings.',
   'image.anthropicMissing': 'Anthropic key missing — critique disabled',
+  'image.tierBadge.fast': 'Fast',
+  'image.tierBadge.balanced': 'Balanced',
+  'image.tierBadge.realistic': 'Realistic',
+  'image.tierBadgeTooltip': 'Image quality tier. Click to change in Settings.',
   'image.critique': 'Critique',
   'image.hideCritique': 'Hide critique',
   'image.showCritique': 'Show critique',
@@ -493,6 +497,8 @@ const EN: Dict = {
   'platform.regenerateNote': 'Reruns image, copy, carousel, and video — counts as fresh API spend.',
   'platform.costNote':
     'Image pairs via fal.ai (~8s) · copy adaptation via Claude (~3s) · video encoded in-browser from the voiceover.',
+  'platform.costEstimate':
+    'Estimated spend at the current settings ({tier} · {videoMode}). Change in Settings to adjust quality vs cost.',
   'platform.progressCopy': 'Adapting A/B copy for Meta and X…',
   'platform.progressImages': 'Generating A/B image pairs at 1:1, 4:5, 9:16, 1.91:1…',
   'platform.progressCarousel': 'Generating Meta carousel cards…',
@@ -812,6 +818,10 @@ const JA: Dict = {
   'image.keysMissingBody':
     '画像生成にはOpenAIキー(プロンプトビルダー)とfal.aiキー(Flux Schnell)の両方が必要です。設定から追加してください。',
   'image.anthropicMissing': 'Anthropicキー未設定 — 批評機能は無効です',
+  'image.tierBadge.fast': 'Fast',
+  'image.tierBadge.balanced': 'Balanced',
+  'image.tierBadge.realistic': 'Realistic',
+  'image.tierBadgeTooltip': '画像品質ティア。設定から変更できます。',
   'image.critique': '批評',
   'image.hideCritique': '批評を隠す',
   'image.showCritique': '批評を表示',
@@ -1008,6 +1018,8 @@ const JA: Dict = {
   'platform.regenerateNote': '画像・コピー・カルーセル・動画をすべて再生成します。API料金が再度発生します。',
   'platform.costNote':
     'fal.aiでペア画像を生成(約8秒) · Claudeでコピー調整(約3秒) · 動画はブラウザ内でボイスオーバーから生成。',
+  'platform.costEstimate':
+    '現在の設定での想定コスト({tier} · {videoMode})。品質とコストのバランスは設定から変更できます。',
   'platform.progressCopy': 'Meta と X 向けに A/B コピーを調整中…',
   'platform.progressImages': '1:1, 4:5, 9:16, 1.91:1 の A/B 画像ペアを生成中…',
   'platform.progressCarousel': 'Metaカルーセル用カードを生成中…',
@@ -1327,6 +1339,10 @@ const PT: Dict = {
   'image.keysMissingBody':
     'A geração de imagem precisa de uma chave OpenAI (construtor de prompt) e uma chave fal.ai (Flux Schnell). Adicione-as em Configurações.',
   'image.anthropicMissing': 'Chave Anthropic ausente — crítica desativada',
+  'image.tierBadge.fast': 'Fast',
+  'image.tierBadge.balanced': 'Balanced',
+  'image.tierBadge.realistic': 'Realistic',
+  'image.tierBadgeTooltip': 'Nível de qualidade de imagem. Clique para alterar nas Configurações.',
   'image.critique': 'Crítica',
   'image.hideCritique': 'Ocultar crítica',
   'image.showCritique': 'Mostrar crítica',
@@ -1525,6 +1541,8 @@ const PT: Dict = {
   'platform.regenerateNote': 'Regenera imagens, texto, carrossel e vídeo — conta como novo uso de API.',
   'platform.costNote':
     'Pares de imagem via fal.ai (~8s) · adaptação de texto via Claude (~3s) · vídeo codificado no navegador a partir da locução.',
+  'platform.costEstimate':
+    'Gasto estimado nas configurações atuais ({tier} · {videoMode}). Altere nas Configurações para ajustar qualidade vs custo.',
   'platform.progressCopy': 'Adaptando texto A/B para Meta e X…',
   'platform.progressImages': 'Gerando pares A/B em 1:1, 4:5, 9:16, 1.91:1…',
   'platform.progressCarousel': 'Gerando cartões de carrossel Meta…',
@@ -1844,6 +1862,10 @@ const ES: Dict = {
   'image.keysMissingBody':
     'La generación de imagen necesita una clave OpenAI (constructor de prompt) y una clave fal.ai (Flux Schnell). Añádelas en Ajustes.',
   'image.anthropicMissing': 'Clave Anthropic ausente — crítica deshabilitada',
+  'image.tierBadge.fast': 'Fast',
+  'image.tierBadge.balanced': 'Balanced',
+  'image.tierBadge.realistic': 'Realistic',
+  'image.tierBadgeTooltip': 'Nivel de calidad de imagen. Haz clic para cambiar en Ajustes.',
   'image.critique': 'Crítica',
   'image.hideCritique': 'Ocultar crítica',
   'image.showCritique': 'Mostrar crítica',
@@ -2041,6 +2063,8 @@ const ES: Dict = {
   'platform.regenerateNote': 'Vuelve a generar imágenes, texto, carrusel y video — cuenta como nuevo uso de API.',
   'platform.costNote':
     'Pares de imagen vía fal.ai (~8s) · adaptación de texto vía Claude (~3s) · video codificado en el navegador desde la locución.',
+  'platform.costEstimate':
+    'Gasto estimado en los ajustes actuales ({tier} · {videoMode}). Cámbialo en Ajustes para equilibrar calidad y coste.',
   'platform.progressCopy': 'Adaptando texto A/B para Meta y X…',
   'platform.progressImages': 'Generando pares A/B en 1:1, 4:5, 9:16, 1.91:1…',
   'platform.progressCarousel': 'Generando tarjetas de carrusel Meta…',
@@ -2361,6 +2385,10 @@ const FR: Dict = {
   'image.keysMissingBody':
     "La génération d'image nécessite à la fois une clé OpenAI (constructeur de prompt) et une clé fal.ai (Flux Schnell). Ajoutez-les dans les paramètres.",
   'image.anthropicMissing': 'Clé Anthropic manquante — critique désactivée',
+  'image.tierBadge.fast': 'Fast',
+  'image.tierBadge.balanced': 'Balanced',
+  'image.tierBadge.realistic': 'Realistic',
+  'image.tierBadgeTooltip': "Niveau de qualité d'image. Cliquez pour modifier dans Paramètres.",
   'image.critique': 'Critique',
   'image.hideCritique': 'Masquer la critique',
   'image.showCritique': 'Afficher la critique',
@@ -2558,6 +2586,8 @@ const FR: Dict = {
   'platform.regenerateNote': 'Régénère images, texte, carrousel et vidéo — compte comme nouvelle utilisation API.',
   'platform.costNote':
     "Paires d'images via fal.ai (~8s) · adaptation du texte via Claude (~3s) · vidéo encodée dans le navigateur depuis la voix off.",
+  'platform.costEstimate':
+    'Dépense estimée avec les paramètres actuels ({tier} · {videoMode}). À modifier dans Paramètres pour équilibrer qualité et coût.',
   'platform.progressCopy': 'Adaptation du texte A/B pour Meta et X…',
   'platform.progressImages': "Génération des paires A/B en 1:1, 4:5, 9:16, 1.91:1…",
   'platform.progressCarousel': 'Génération des cartes carrousel Meta…',
@@ -2878,6 +2908,10 @@ const DE: Dict = {
   'image.keysMissingBody':
     'Bildgenerierung benötigt sowohl einen OpenAI-Schlüssel (Prompt-Builder) als auch einen fal.ai-Schlüssel (Flux Schnell). Fügen Sie sie in den Einstellungen hinzu.',
   'image.anthropicMissing': 'Anthropic-Schlüssel fehlt — Kritik deaktiviert',
+  'image.tierBadge.fast': 'Fast',
+  'image.tierBadge.balanced': 'Balanced',
+  'image.tierBadge.realistic': 'Realistic',
+  'image.tierBadgeTooltip': 'Bildqualitäts-Tier. Klicke, um es in den Einstellungen zu ändern.',
   'image.critique': 'Kritik',
   'image.hideCritique': 'Kritik ausblenden',
   'image.showCritique': 'Kritik anzeigen',
@@ -3078,6 +3112,8 @@ const DE: Dict = {
   'platform.regenerateNote': 'Generiert Bilder, Text, Carousel und Video komplett neu — verursacht neue API-Kosten.',
   'platform.costNote':
     'Bildpaare via fal.ai (~8s) · Textanpassung via Claude (~3s) · Video im Browser aus dem Voiceover kodiert.',
+  'platform.costEstimate':
+    'Geschätzte Kosten bei aktuellen Einstellungen ({tier} · {videoMode}). In den Einstellungen änderbar, um Qualität und Kosten auszubalancieren.',
   'platform.progressCopy': 'A/B-Text für Meta und X wird angepasst…',
   'platform.progressImages': 'A/B-Bildpaare in 1:1, 4:5, 9:16, 1.91:1 werden generiert…',
   'platform.progressCarousel': 'Meta-Carousel-Karten werden generiert…',

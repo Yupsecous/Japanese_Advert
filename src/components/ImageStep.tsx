@@ -3,6 +3,7 @@ import { useAppStore } from '../store';
 import { llmService } from '../services/llmService';
 import { critiqueImage } from '../services/critiqueService';
 import { computeStepHash } from '../services/stepHash';
+import { TIER_COST_USD } from '../services/fluxClient';
 import { CacheRestorePill } from './CacheRestorePill';
 import { InlineError } from './InlineError';
 import { BackButton } from './BackButton';
@@ -572,12 +573,30 @@ export function ImageStep() {
       <div>
         <BackButton label={t('image.backToCopy')} onClick={() => reopenStep('copy')} disabled={loading !== null} />
       </div>
-      <header className="flex items-baseline justify-between">
+      <header className="flex items-baseline justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">{t('image.heading')}</h2>
           <p className="mt-1 text-sm text-neutral-500">{t('image.subtitle')}</p>
         </div>
-        <span className="text-xs uppercase tracking-wide text-neutral-500">{step.status}</span>
+        <div className="flex flex-col items-end gap-1">
+          <button
+            type="button"
+            onClick={openDrawer}
+            title={t('image.tierBadgeTooltip')}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10px] tabular-nums transition-colors ${
+              imageQualityTier === 'realistic'
+                ? 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                : imageQualityTier === 'balanced'
+                  ? 'border-sky-300 bg-sky-50 text-sky-800 hover:bg-sky-100'
+                  : 'border-neutral-300 bg-neutral-50 text-neutral-700 hover:bg-neutral-100'
+            }`}
+          >
+            {t(`image.tierBadge.${imageQualityTier}` as const)}
+            <span className="opacity-70">·</span>
+            <span>{TIER_COST_USD[imageQualityTier] < 0.01 ? '<$0.01' : `$${TIER_COST_USD[imageQualityTier].toFixed(2)}`}/img</span>
+          </button>
+          <span className="text-xs uppercase tracking-wide text-neutral-500">{step.status}</span>
+        </div>
       </header>
 
       {keysMissing && (
