@@ -398,15 +398,20 @@ export type CarouselSet = {
   images: CarouselImage[]; // length 1..3, ideally 3
 };
 
-// Browser-generated slideshow video (Canvas + MediaRecorder). Always WebM
-// — universally accepted by Meta Reels / Stories and X video ads.
+// Browser-generated slideshow video (Canvas + MediaRecorder, provider:
+// 'slideshow', WebM) OR a real-motion clip from fal.ai Kling
+// (provider: 'ai_kling', MP4). Both are universally accepted by
+// Meta Reels / Stories and X video ads.
 export type PlatformVideo = {
   aspect: '9x16' | '1x1';
   blob: Blob;
   durationSeconds: number;
-  mimeType: string; // typically 'video/webm'
+  mimeType: string;
   width: number;
   height: number;
+  // Defaults to 'slideshow' when omitted so legacy persisted bundles
+  // continue to render. AI clips are silent (Kling has no audio).
+  provider?: 'slideshow' | 'ai_kling';
 };
 
 export type PlatformAssetsBundle = {
@@ -473,6 +478,16 @@ export type EffectivenessRecord = {
   watchTimeSeconds: number | null;
   dropOffPoint: string | null;
 };
+
+// Image generation quality tier — global preference. Higher tiers use
+// more inference steps + better models on fal.ai. Cost varies by ~13×
+// from fast → realistic.
+export type ImageQualityTier = 'fast' | 'balanced' | 'realistic';
+
+// Video provider — global preference. Slideshow uses Canvas + MediaRecorder
+// (free, in-browser, current default). ai_kling routes through fal.ai
+// Kling v1.6 image-to-video for real motion (~$0.35 per 5-sec clip).
+export type VideoProvider = 'slideshow' | 'ai_kling';
 
 // Phase 5 — learned insights are plain strings (one summary sentence per
 // feedback-loop run). They appear in two places:

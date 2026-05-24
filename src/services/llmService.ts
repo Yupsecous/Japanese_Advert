@@ -5,6 +5,7 @@ import { AppError } from './errorMessages';
 import { translateDirection } from './translator';
 import { buildImagePrompt } from './imagePromptBuilder';
 import { brandPromptBlock } from './brandPrompt';
+import { callFlux } from './fluxClient';
 import { languageDirective, type Locale } from '../i18n';
 import type {
   ApiKeys,
@@ -12,6 +13,7 @@ import type {
   BrandDictionary,
   CopyVariant,
   ImagePromptMods,
+  ImageQualityTier,
   ImageVariant,
   Provider,
   ScriptVariant,
@@ -65,6 +67,9 @@ export type GenerateImagesArgs = {
   apiKeys: { openai: string; fal: string };
   locale?: Locale;
   brand?: BrandDictionary;
+  // Optional quality tier — routes Flux to Schnell (default fast), Dev (balanced),
+  // or Pro 1.1 (realistic). Each tier costs more but is visibly more photoreal.
+  tier?: ImageQualityTier;
 };
 
 type ValidationConfig = {
@@ -344,65 +349,6 @@ async function generateCopy(args: GenerateCopyArgs): Promise<CopyVariant[]> {
   }));
 }
 
-const FalImageZ = z.object({
-  images: z
-    .array(
-      z.object({
-        url: z.string(),
-      }),
-    )
-    .min(1),
-});
-
-async function generateFluxImage(args: { prompt: string; falKey: string }): Promise<string> {
-  const apiKey = args.falKey.trim();
-  if (!apiKey) {
-    throw new AppError('fal/missing-key');
-  }
-
-  let res: Response;
-  try {
-    res = await fetch('https://fal.run/fal-ai/flux/schnell', {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: args.prompt,
-        image_size: { width: 768, height: 960 },
-        num_inference_steps: 4,
-        num_images: 1,
-        enable_safety_checker: true,
-      }),
-    });
-  } catch (err) {
-    throw new AppError('fal/network', err instanceof Error ? err.message : 'fetch failed');
-  }
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    if (res.status === 401) throw new AppError('fal/auth-failed', text.slice(0, 200));
-    if (res.status === 402) throw new AppError('fal/no-credits', text.slice(0, 200));
-    if (res.status === 403) throw new AppError('fal/forbidden', text.slice(0, 200));
-    if (res.status === 429) throw new AppError('fal/rate-limit', text.slice(0, 200));
-    throw new AppError('fal/bad-response', `status ${res.status}: ${text.slice(0, 200)}`);
-  }
-
-  let body: unknown;
-  try {
-    body = await res.json();
-  } catch {
-    throw new AppError('fal/bad-response', 'response was not valid JSON');
-  }
-
-  const parsed = FalImageZ.safeParse(body);
-  if (!parsed.success) {
-    throw new AppError('fal/bad-response', `image schema mismatch: ${parsed.error.message}`);
-  }
-  return parsed.data.images[0]!.url;
-}
-
 async function generateImages(args: GenerateImagesArgs): Promise<ImageVariant[]> {
   const openai = args.apiKeys.openai.trim();
   const fal = args.apiKeys.fal.trim();
@@ -437,7 +383,13 @@ async function generateImages(args: GenerateImagesArgs): Promise<ImageVariant[]>
       apiKey: openai,
       brand: args.brand,
     });
-    const imageUrl = await generateFluxImage({ prompt, falKey: fal });
+    const imageUrl = await callFlux({
+      prompt,
+      width: 768,
+      height: 960,
+      falKey: fal,
+      ...(args.tier ? { tier: args.tier } : {}),
+    });
     const variant: ImageVariant = {
       kind: 'image',
       id: crypto.randomUUID(),
@@ -817,6 +769,7 @@ export type RefineSingleImageArgs = {
   apiKeys: { openai: string; fal: string };
   locale?: Locale;
   brand?: BrandDictionary;
+  tier?: ImageQualityTier;
 };
 
 async function refineSingleImage(args: RefineSingleImageArgs): Promise<ImageVariant> {
@@ -850,7 +803,13 @@ async function refineSingleImage(args: RefineSingleImageArgs): Promise<ImageVari
     apiKey: openai,
     brand: args.brand,
   });
-  const imageUrl = await generateFluxImage({ prompt, falKey: fal });
+  const imageUrl = await callFlux({
+    prompt,
+    width: 768,
+    height: 960,
+    falKey: fal,
+    ...(args.tier ? { tier: args.tier } : {}),
+  });
 
   const refined: ImageVariant = {
     kind: 'image',

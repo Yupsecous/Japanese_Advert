@@ -372,14 +372,22 @@ async function buildPlatformZip(args: PlatformZipArgs): Promise<{ blob: Blob; re
     }
   }
 
-  // Video
+  // Video — embed slideshow (has audio) and AI Kling clip (silent motion)
+  // as separate files when both exist, so the user can pick which to ship.
   let videoEmbedded = false;
   const wantedVideoAspect = isMeta ? '9x16' : '1x1';
-  const video = args.bundle.videos.find((v) => v.aspect === wantedVideoAspect);
-  if (video) {
-    const ext = extensionForVideoMime(video.mimeType);
-    const baseName = isMeta ? 'stories-reels-9x16' : 'square-1x1';
-    zip.file(`${baseName}.${ext}`, video.blob);
+  const baseName = isMeta ? 'stories-reels-9x16' : 'square-1x1';
+  const sameAspect = args.bundle.videos.filter((v) => v.aspect === wantedVideoAspect);
+  const slideshow = sameAspect.find((v) => v.provider !== 'ai_kling');
+  const aiClip = sameAspect.find((v) => v.provider === 'ai_kling');
+  if (slideshow) {
+    const ext = extensionForVideoMime(slideshow.mimeType);
+    zip.file(`${baseName}.${ext}`, slideshow.blob);
+    videoEmbedded = true;
+  }
+  if (aiClip) {
+    const ext = extensionForVideoMime(aiClip.mimeType);
+    zip.file(`${baseName}-ai-motion.${ext}`, aiClip.blob);
     videoEmbedded = true;
   }
 

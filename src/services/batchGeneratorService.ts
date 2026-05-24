@@ -17,12 +17,14 @@ import { messagesJson } from './anthropicClient';
 import { chatCompletionsJson } from './openaiClient';
 import { AppError } from './errorMessages';
 import { brandPromptBlock, brandVisualBlock } from './brandPrompt';
+import { callFlux } from './fluxClient';
 import { languageDirective, type Locale } from '../i18n';
 import type {
   BrandDictionary,
   Brief,
   Customer,
   GeneratedAssetSet,
+  ImageQualityTier,
   IndividualBrief,
 } from '../types';
 
@@ -111,10 +113,6 @@ const PROMPT_SCHEMA = {
 
 const PromptZ = z.object({ prompt: z.string() });
 
-const FalImageZ = z.object({
-  images: z.array(z.object({ url: z.string() })).min(1),
-});
-
 async function generateCustomerImagePrompt(args: {
   campaignBrief: Brief;
   individualBrief: IndividualBrief;
@@ -148,28 +146,18 @@ The output prompt MUST be in English regardless of the brief language — diffus
   return parsed.prompt.trim();
 }
 
-async function generateCustomerImage(args: { prompt: string; falKey: string }): Promise<string> {
-  const res = await fetch('https://fal.run/fal-ai/flux/schnell', {
-    method: 'POST',
-    headers: {
-      Authorization: `Key ${args.falKey.trim()}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      prompt: args.prompt,
-      image_size: { width: 768, height: 960 },
-      num_inference_steps: 4,
-      num_images: 1,
-      enable_safety_checker: true,
-    }),
+async function generateCustomerImage(args: {
+  prompt: string;
+  falKey: string;
+  tier?: ImageQualityTier;
+}): Promise<string> {
+  return callFlux({
+    prompt: args.prompt,
+    width: 768,
+    height: 960,
+    falKey: args.falKey,
+    ...(args.tier ? { tier: args.tier } : {}),
   });
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new AppError('fal/bad-response', `status ${res.status}: ${text.slice(0, 200)}`);
-  }
-  const body = (await res.json()) as unknown;
-  const parsed = FalImageZ.parse(body);
-  return parsed.images[0]!.url;
 }
 
 // ---------------------------------------------------------------------------
@@ -228,6 +216,7 @@ export type GenerateAssetsForCustomerArgs = {
   apiKeys: { openai: string; anthropic: string; fal: string };
   locale: Locale;
   brand?: BrandDictionary;
+  tier?: ImageQualityTier;
 };
 
 // Generates the full asset set for a single customer. Copy + Image (prompt
@@ -235,7 +224,7 @@ export type GenerateAssetsForCustomerArgs = {
 export async function generateAssetsForCustomer(
   args: GenerateAssetsForCustomerArgs,
 ): Promise<GeneratedAssetSet> {
-  const { campaignBrief, individualBrief, customer, apiKeys, locale, brand } = args;
+  const { campaignBrief, individualBrief, customer, apiKeys, locale, brand, tier } = args;
 
   // Image generation has two steps (prompt builder then Flux), so wrap it
   // as a single promise.
@@ -248,7 +237,11 @@ export async function generateAssetsForCustomer(
       openaiKey: apiKeys.openai,
       ...(brand ? { brand } : {}),
     });
-    return await generateCustomerImage({ prompt, falKey: apiKeys.fal });
+    return await generateCustomerImage({
+      prompt,
+      falKey: apiKeys.fal,
+      ...(tier ? { tier } : {}),
+    });
   })();
 
   const copyPromise = generateCustomerCopy({
@@ -313,6 +306,7 @@ export type BatchAssetArgs = {
   apiKeys: { openai: string; anthropic: string; fal: string };
   locale: Locale;
   brand?: BrandDictionary;
+  tier?: ImageQualityTier;
   onAsset?: (asset: GeneratedAssetSet) => void;
   onProgress?: (p: BatchAssetProgress) => void;
   signal?: AbortSignal;
@@ -361,6 +355,7 @@ export async function generateAssetsBatch(args: BatchAssetArgs): Promise<BatchAs
           apiKeys: args.apiKeys,
           locale: args.locale,
           ...(args.brand ? { brand: args.brand } : {}),
+          ...(args.tier ? { tier: args.tier } : {}),
         });
         assets[customer.id] = asset;
         args.onAsset?.(asset);

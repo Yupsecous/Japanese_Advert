@@ -68,6 +68,7 @@ export function AudienceConsole() {
   const locale = useAppStore((s) => s.locale);
   const brand = useAppStore((s) => s.brand);
   const setBrand = useAppStore((s) => s.setBrand);
+  const imageQualityTier = useAppStore((s) => s.imageQualityTier);
 
   if (Object.keys(briefCache).length === 0) {
     // Console is gated on individual briefs existing.
@@ -104,6 +105,7 @@ export function AudienceConsole() {
         apiKeys={apiKeys}
         locale={locale}
         brand={brand}
+        tier={imageQualityTier}
         onAsset={setAssetForCustomer}
         onClear={clearGeneratedAssets}
       />
@@ -170,6 +172,7 @@ function BatchGeneratorPanel({
   apiKeys,
   locale,
   brand,
+  tier,
   onAsset,
   onClear,
 }: {
@@ -180,6 +183,7 @@ function BatchGeneratorPanel({
   apiKeys: ReturnType<typeof useAppStore.getState>['keys'];
   locale: ReturnType<typeof useAppStore.getState>['locale'];
   brand: ReturnType<typeof useAppStore.getState>['brand'];
+  tier: ReturnType<typeof useAppStore.getState>['imageQualityTier'];
   onAsset: (id: string, asset: GeneratedAssetSet) => void;
   onClear: () => void;
 }) {
@@ -215,6 +219,7 @@ function BatchGeneratorPanel({
         },
         locale,
         brand,
+        tier,
         signal: ctrl.signal,
         onAsset: (asset) => onAsset(asset.customerId, asset),
         onProgress: setProgress,

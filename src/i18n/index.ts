@@ -87,7 +87,31 @@ const EN: Dict = {
   'settings.placeholder': '{provider} API key',
   'settings.keysSection': 'API keys',
   'settings.brandSection': 'Brand dictionary',
+  'settings.generationSection': 'Generation quality',
   'settings.signOut': 'Sign out',
+
+  // Generation quality
+  'generation.imageQuality': 'Image quality tier',
+  'generation.imageQualityNote':
+    'Higher tiers route through better Flux models — visibly more photorealistic at higher cost. Default is fast.',
+  'generation.tier.fast': 'Fast — Flux Schnell',
+  'generation.tier.fast.desc':
+    'Default. Cheapest and quickest. Good for iteration but the "AI look" is more visible.',
+  'generation.tier.balanced': 'Balanced — Flux Dev',
+  'generation.tier.balanced.desc':
+    '28-step inference. Much cleaner faces, hands, and textures than Schnell. ~8× the cost.',
+  'generation.tier.realistic': 'Realistic — Flux Pro 1.1',
+  'generation.tier.realistic.desc':
+    'Most photorealistic. Best skin, light falloff, and material detail. Use for hero shots that need to read as real.',
+  'generation.videoProvider': 'Video provider',
+  'generation.videoProviderNote':
+    "Slideshow is free and uses your voiceover. AI motion is a silent 5s clip with real camera and subject motion — ships alongside the slideshow when enabled.",
+  'generation.video.slideshow': 'Slideshow (Canvas + voiceover)',
+  'generation.video.slideshow.desc':
+    'Default. Ken Burns motion over hero images, synced to the approved voiceover. Free.',
+  'generation.video.ai_kling': 'AI motion — Kling v1.6',
+  'generation.video.ai_kling.desc':
+    'Adds a silent 5-second real-motion clip per platform aspect, generated from the approved hero image. Ships alongside the slideshow.',
 
   // Auth gate
   'auth.heading': 'Sign in',
@@ -487,6 +511,10 @@ const EN: Dict = {
   'platform.videoForX': 'Video — X promoted tweet',
   'platform.videoNote':
     'Ken Burns slideshow over the approved hero image, synced to the approved voiceover. Drop directly into the Reels / Promoted-tweet uploader.',
+  'platform.aiVideoForReels': 'AI motion clip — Meta Reels & Stories',
+  'platform.aiVideoForX': 'AI motion clip — X promoted tweet',
+  'platform.aiVideoNote':
+    'Silent 5-second clip with real camera + subject motion (Kling v1.6). Ships alongside the slideshow as an alternate take — pick whichever performs better in your account.',
   'platform.carousel': 'Carousel cards',
   'platform.downloadMeta': 'Download Meta ZIP',
   'platform.downloadX': 'Download X ZIP',
@@ -564,7 +592,30 @@ const JA: Dict = {
   'settings.placeholder': '{provider} APIキー',
   'settings.keysSection': 'APIキー',
   'settings.brandSection': 'ブランド辞書',
+  'settings.generationSection': '生成品質',
   'settings.signOut': 'サインアウト',
+
+  'generation.imageQuality': '画像クオリティ',
+  'generation.imageQualityNote':
+    '上位ティアほど高品質なFluxモデルを使用します。よりフォトリアルになりますが、コストも増えます。既定はFastです。',
+  'generation.tier.fast': 'Fast — Flux Schnell',
+  'generation.tier.fast.desc':
+    '既定。最安・最速。反復には十分ですが、AIっぽさは残ります。',
+  'generation.tier.balanced': 'Balanced — Flux Dev',
+  'generation.tier.balanced.desc':
+    '28ステップ推論。顔、手、質感がSchnellよりかなりクリーン。コストは約8倍。',
+  'generation.tier.realistic': 'Realistic — Flux Pro 1.1',
+  'generation.tier.realistic.desc':
+    '最もフォトリアル。肌、光の落ち方、素材感が最良。リアルに見せたいヒーローカットに。',
+  'generation.videoProvider': '動画プロバイダ',
+  'generation.videoProviderNote':
+    'スライドショーは無料でナレーション付き。AIモーションは無音5秒の実モーションクリップで、有効時はスライドショーと並行して生成されます。',
+  'generation.video.slideshow': 'スライドショー (Canvas + ナレーション)',
+  'generation.video.slideshow.desc':
+    '既定。ヒーロー画像のKen Burnsモーションを承認済みナレーションと同期。無料。',
+  'generation.video.ai_kling': 'AIモーション — Kling v1.6',
+  'generation.video.ai_kling.desc':
+    '承認済みヒーロー画像からプラットフォーム別アスペクト比ごとに無音5秒の実モーションクリップを生成。スライドショーと併送されます。',
 
   // Auth gate
   'auth.heading': 'サインイン',
@@ -975,6 +1026,10 @@ const JA: Dict = {
   'platform.videoForX': '動画 — X プロモーションツイート',
   'platform.videoNote':
     '承認済みヒーロー画像のKen Burnsスライドショーに、承認済みボイスオーバーを同期しています。Reels・プロモツイートのアップローダーにそのまま投入できます。',
+  'platform.aiVideoForReels': 'AIモーションクリップ — Meta Reels と Stories',
+  'platform.aiVideoForX': 'AIモーションクリップ — X プロモーションツイート',
+  'platform.aiVideoNote':
+    '実際のカメラ・被写体モーションを伴う無音5秒クリップ (Kling v1.6)。スライドショーと並行して同梱されます — アカウントで成績の良い方を選択してください。',
   'platform.carousel': 'カルーセルカード',
   'platform.downloadMeta': 'Meta ZIP をダウンロード',
   'platform.downloadX': 'X ZIP をダウンロード',
@@ -1052,7 +1107,30 @@ const PT: Dict = {
   'settings.placeholder': 'Chave de API {provider}',
   'settings.keysSection': 'Chaves de API',
   'settings.brandSection': 'Dicionário de marca',
+  'settings.generationSection': 'Qualidade de geração',
   'settings.signOut': 'Sair',
+
+  'generation.imageQuality': 'Tier de qualidade de imagem',
+  'generation.imageQualityNote':
+    'Tiers mais altos roteiam por modelos Flux melhores — visivelmente mais fotorrealistas com custo maior. Padrão é fast.',
+  'generation.tier.fast': 'Fast — Flux Schnell',
+  'generation.tier.fast.desc':
+    'Padrão. Mais barato e rápido. Bom para iteração, mas o "ar de IA" é mais visível.',
+  'generation.tier.balanced': 'Balanced — Flux Dev',
+  'generation.tier.balanced.desc':
+    'Inferência de 28 passos. Rostos, mãos e texturas muito mais limpos que Schnell. ~8× o custo.',
+  'generation.tier.realistic': 'Realistic — Flux Pro 1.1',
+  'generation.tier.realistic.desc':
+    'Mais fotorrealista. Melhor pele, queda de luz e detalhe de material. Use para hero shots que precisam parecer reais.',
+  'generation.videoProvider': 'Provedor de vídeo',
+  'generation.videoProviderNote':
+    'Slideshow é gratuito e usa sua locução. Movimento AI é um clipe silencioso de 5s com câmera e sujeito reais — sai junto com o slideshow quando habilitado.',
+  'generation.video.slideshow': 'Slideshow (Canvas + locução)',
+  'generation.video.slideshow.desc':
+    'Padrão. Movimento Ken Burns sobre imagens hero, sincronizado com a locução aprovada. Gratuito.',
+  'generation.video.ai_kling': 'Movimento AI — Kling v1.6',
+  'generation.video.ai_kling.desc':
+    'Adiciona um clipe silencioso de 5 segundos com movimento real por aspecto de plataforma, gerado a partir da imagem hero aprovada. Sai junto com o slideshow.',
 
   // Auth gate
   'auth.heading': 'Entrar',
@@ -1465,6 +1543,10 @@ const PT: Dict = {
   'platform.videoForX': 'Vídeo — Tweet promovido X',
   'platform.videoNote':
     'Slideshow Ken Burns sobre a imagem hero, sincronizado com a locução aprovada. Carregue direto no uploader de Reels ou tweet promovido.',
+  'platform.aiVideoForReels': 'Clipe de movimento AI — Meta Reels e Stories',
+  'platform.aiVideoForX': 'Clipe de movimento AI — Tweet promovido X',
+  'platform.aiVideoNote':
+    'Clipe silencioso de 5 segundos com movimento real de câmera e sujeito (Kling v1.6). Sai junto com o slideshow como tomada alternativa — escolha o que tiver melhor desempenho na sua conta.',
   'platform.carousel': 'Cartões do carrossel',
   'platform.downloadMeta': 'Baixar ZIP do Meta',
   'platform.downloadX': 'Baixar ZIP do X',
@@ -1542,7 +1624,30 @@ const ES: Dict = {
   'settings.placeholder': 'Clave de API {provider}',
   'settings.keysSection': 'Claves de API',
   'settings.brandSection': 'Diccionario de marca',
+  'settings.generationSection': 'Calidad de generación',
   'settings.signOut': 'Cerrar sesión',
+
+  'generation.imageQuality': 'Nivel de calidad de imagen',
+  'generation.imageQualityNote':
+    'Niveles superiores usan modelos Flux mejores — visiblemente más fotorrealistas con mayor coste. Por defecto: fast.',
+  'generation.tier.fast': 'Fast — Flux Schnell',
+  'generation.tier.fast.desc':
+    'Por defecto. Lo más barato y rápido. Bueno para iterar, pero el "aire de IA" es más visible.',
+  'generation.tier.balanced': 'Balanced — Flux Dev',
+  'generation.tier.balanced.desc':
+    'Inferencia de 28 pasos. Rostros, manos y texturas mucho más limpios que Schnell. ~8× el coste.',
+  'generation.tier.realistic': 'Realistic — Flux Pro 1.1',
+  'generation.tier.realistic.desc':
+    'Lo más fotorrealista. Mejor piel, caída de luz y detalle de material. Usa para hero shots que necesitan parecer reales.',
+  'generation.videoProvider': 'Proveedor de video',
+  'generation.videoProviderNote':
+    'Slideshow es gratis y usa tu locución. Movimiento IA es un clip silencioso de 5s con cámara y sujeto reales — se entrega junto con el slideshow cuando se activa.',
+  'generation.video.slideshow': 'Slideshow (Canvas + locución)',
+  'generation.video.slideshow.desc':
+    'Por defecto. Movimiento Ken Burns sobre imágenes hero, sincronizado con la locución aprobada. Gratis.',
+  'generation.video.ai_kling': 'Movimiento IA — Kling v1.6',
+  'generation.video.ai_kling.desc':
+    'Añade un clip silencioso de 5 segundos con movimiento real por cada aspecto de plataforma, generado a partir de la imagen hero aprobada. Se entrega junto con el slideshow.',
 
   // Auth gate
   'auth.heading': 'Iniciar sesión',
@@ -1954,6 +2059,10 @@ const ES: Dict = {
   'platform.videoForX': 'Video — Tweet promocionado X',
   'platform.videoNote':
     'Slideshow Ken Burns sobre la imagen hero, sincronizado con la locución aprobada. Súbelo directamente al uploader de Reels o tweet promocionado.',
+  'platform.aiVideoForReels': 'Clip de movimiento IA — Meta Reels y Stories',
+  'platform.aiVideoForX': 'Clip de movimiento IA — Tweet promocionado X',
+  'platform.aiVideoNote':
+    'Clip silencioso de 5 segundos con movimiento real de cámara y sujeto (Kling v1.6). Se entrega junto con el slideshow como toma alternativa — elige la que rinda mejor en tu cuenta.',
   'platform.carousel': 'Tarjetas del carrusel',
   'platform.downloadMeta': 'Descargar ZIP de Meta',
   'platform.downloadX': 'Descargar ZIP de X',
@@ -2031,7 +2140,30 @@ const FR: Dict = {
   'settings.placeholder': "Clé d'API {provider}",
   'settings.keysSection': "Clés d'API",
   'settings.brandSection': 'Dictionnaire de marque',
+  'settings.generationSection': 'Qualité de génération',
   'settings.signOut': 'Se déconnecter',
+
+  'generation.imageQuality': "Niveau de qualité d'image",
+  'generation.imageQualityNote':
+    'Les niveaux supérieurs utilisent de meilleurs modèles Flux — visiblement plus photoréalistes, à un coût plus élevé. Par défaut : fast.',
+  'generation.tier.fast': 'Fast — Flux Schnell',
+  'generation.tier.fast.desc':
+    'Par défaut. Le moins cher et le plus rapide. Bon pour itérer, mais l\'« air d\'IA » est plus visible.',
+  'generation.tier.balanced': 'Balanced — Flux Dev',
+  'generation.tier.balanced.desc':
+    'Inférence en 28 étapes. Visages, mains et textures bien plus propres que Schnell. ~8× le coût.',
+  'generation.tier.realistic': 'Realistic — Flux Pro 1.1',
+  'generation.tier.realistic.desc':
+    'Le plus photoréaliste. Meilleure peau, chute de lumière et détail des matières. À utiliser pour les hero shots qui doivent paraître réels.',
+  'generation.videoProvider': 'Fournisseur vidéo',
+  'generation.videoProviderNote':
+    'Slideshow est gratuit et utilise votre voix off. Mouvement IA est un clip silencieux de 5s avec caméra et sujet réels — livré aux côtés du slideshow quand activé.',
+  'generation.video.slideshow': 'Slideshow (Canvas + voix off)',
+  'generation.video.slideshow.desc':
+    'Par défaut. Mouvement Ken Burns sur les images hero, synchronisé avec la voix off approuvée. Gratuit.',
+  'generation.video.ai_kling': 'Mouvement IA — Kling v1.6',
+  'generation.video.ai_kling.desc':
+    "Ajoute un clip silencieux de 5 secondes en mouvement réel par aspect de plateforme, généré à partir de l'image hero approuvée. Livré aux côtés du slideshow.",
 
   // Auth gate
   'auth.heading': 'Connexion',
@@ -2444,6 +2576,10 @@ const FR: Dict = {
   'platform.videoForX': 'Vidéo — Tweet promu X',
   'platform.videoNote':
     "Slideshow Ken Burns sur l'image hero approuvée, synchronisé avec la voix off approuvée. À glisser directement dans l'uploader Reels ou tweet promu.",
+  'platform.aiVideoForReels': 'Clip de mouvement IA — Meta Reels et Stories',
+  'platform.aiVideoForX': 'Clip de mouvement IA — Tweet promu X',
+  'platform.aiVideoNote':
+    "Clip silencieux de 5 secondes avec mouvement de caméra et de sujet réel (Kling v1.6). Livré aux côtés du slideshow comme prise alternative — choisissez celui qui performe le mieux sur votre compte.",
   'platform.carousel': 'Cartes du carrousel',
   'platform.downloadMeta': 'Télécharger ZIP Meta',
   'platform.downloadX': 'Télécharger ZIP X',
@@ -2521,7 +2657,30 @@ const DE: Dict = {
   'settings.placeholder': '{provider} API-Schlüssel',
   'settings.keysSection': 'API-Schlüssel',
   'settings.brandSection': 'Markenwörterbuch',
+  'settings.generationSection': 'Generierungsqualität',
   'settings.signOut': 'Abmelden',
+
+  'generation.imageQuality': 'Bildqualitäts-Tier',
+  'generation.imageQualityNote':
+    'Höhere Tiers verwenden bessere Flux-Modelle — sichtbar fotorealistischer bei höheren Kosten. Standard ist fast.',
+  'generation.tier.fast': 'Fast — Flux Schnell',
+  'generation.tier.fast.desc':
+    'Standard. Am günstigsten und schnellsten. Gut für Iteration, aber der „KI-Look" bleibt sichtbar.',
+  'generation.tier.balanced': 'Balanced — Flux Dev',
+  'generation.tier.balanced.desc':
+    '28-Schritt-Inferenz. Gesichter, Hände und Texturen viel sauberer als Schnell. ~8× die Kosten.',
+  'generation.tier.realistic': 'Realistic — Flux Pro 1.1',
+  'generation.tier.realistic.desc':
+    'Am fotorealistischsten. Beste Haut, Lichtabfall und Materialdetail. Für Hero-Shots, die echt wirken sollen.',
+  'generation.videoProvider': 'Video-Provider',
+  'generation.videoProviderNote':
+    'Slideshow ist kostenlos und nutzt dein Voiceover. KI-Bewegung ist ein stummer 5-Sek-Clip mit echter Kamera- und Subjektbewegung — wird zusätzlich zur Slideshow erzeugt, wenn aktiviert.',
+  'generation.video.slideshow': 'Slideshow (Canvas + Voiceover)',
+  'generation.video.slideshow.desc':
+    'Standard. Ken-Burns-Bewegung über Hero-Bildern, synchronisiert mit dem freigegebenen Voiceover. Kostenlos.',
+  'generation.video.ai_kling': 'KI-Bewegung — Kling v1.6',
+  'generation.video.ai_kling.desc':
+    'Fügt einen stummen 5-Sekunden-Clip mit echter Bewegung pro Plattform-Aspekt hinzu, generiert aus dem freigegebenen Hero-Bild. Wird zusammen mit der Slideshow ausgeliefert.',
 
   // Auth gate
   'auth.heading': 'Anmelden',
@@ -2937,6 +3096,10 @@ const DE: Dict = {
   'platform.videoForX': 'Video — Promoted Tweet X',
   'platform.videoNote':
     'Ken-Burns-Slideshow über dem freigegebenen Hero-Bild, synchronisiert mit dem freigegebenen Voiceover. Direkt in den Reels-/Promoted-Tweet-Uploader laden.',
+  'platform.aiVideoForReels': 'KI-Bewegungs-Clip — Meta Reels und Stories',
+  'platform.aiVideoForX': 'KI-Bewegungs-Clip — Promoted Tweet X',
+  'platform.aiVideoNote':
+    'Stummer 5-Sekunden-Clip mit echter Kamera- und Subjektbewegung (Kling v1.6). Wird zusammen mit der Slideshow als alternative Aufnahme ausgeliefert — wähle die, die in deinem Konto besser performt.',
   'platform.carousel': 'Carousel-Karten',
   'platform.downloadMeta': 'Meta-ZIP herunterladen',
   'platform.downloadX': 'X-ZIP herunterladen',

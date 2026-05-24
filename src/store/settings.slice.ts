@@ -1,5 +1,12 @@
 import type { StateCreator } from 'zustand';
-import type { ApiKeys, BrandDictionary, Provider, Validations } from '../types';
+import type {
+  ApiKeys,
+  BrandDictionary,
+  ImageQualityTier,
+  Provider,
+  Validations,
+  VideoProvider,
+} from '../types';
 import { EMPTY_BRAND_DICTIONARY } from '../types';
 import type { Locale } from '../i18n';
 import { llmService } from '../services/llmService';
@@ -9,6 +16,49 @@ import { llmService } from '../services/llmService';
 // configure it once and reuse it for every campaign. API keys stay in
 // sessionStorage by design — sensitive, tab-scoped.
 const BRAND_STORAGE_KEY = 'demo-v2-brand';
+
+// Generation-quality prefs live in localStorage (per-browser, durable —
+// like brand). Defaults preserve current behavior (Schnell + slideshow).
+const QUALITY_STORAGE_KEY = 'demo-v2-quality';
+
+type StoredQualityPrefs = {
+  imageQualityTier: ImageQualityTier;
+  videoProvider: VideoProvider;
+};
+
+const DEFAULT_QUALITY: StoredQualityPrefs = {
+  imageQualityTier: 'fast',
+  videoProvider: 'slideshow',
+};
+
+function loadStoredQuality(): StoredQualityPrefs {
+  if (typeof window === 'undefined') return DEFAULT_QUALITY;
+  try {
+    const raw = window.localStorage.getItem(QUALITY_STORAGE_KEY);
+    if (!raw) return DEFAULT_QUALITY;
+    const parsed = JSON.parse(raw) as Partial<StoredQualityPrefs>;
+    return {
+      imageQualityTier:
+        parsed.imageQualityTier === 'balanced' ||
+        parsed.imageQualityTier === 'realistic'
+          ? parsed.imageQualityTier
+          : 'fast',
+      videoProvider:
+        parsed.videoProvider === 'ai_kling' ? 'ai_kling' : 'slideshow',
+    };
+  } catch {
+    return DEFAULT_QUALITY;
+  }
+}
+
+function persistQuality(prefs: StoredQualityPrefs): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(QUALITY_STORAGE_KEY, JSON.stringify(prefs));
+  } catch {
+    /* noop */
+  }
+}
 
 function loadStoredBrand(): BrandDictionary {
   if (typeof window === 'undefined') return EMPTY_BRAND_DICTIONARY;
@@ -48,6 +98,10 @@ export type SettingsSlice = {
   validating: boolean;
   locale: Locale;
   brand: BrandDictionary;
+  // Image generation quality tier — global preference, durable.
+  imageQualityTier: ImageQualityTier;
+  // Video generation provider — global preference, durable.
+  videoProvider: VideoProvider;
   // Session-scoped auth gate. Soft-gate only — the check runs client-side
   // and is bypassable by anyone reading the JS bundle. Used to keep the
   // demo URL behind a shared credential for prospect previews.
@@ -60,6 +114,8 @@ export type SettingsSlice = {
   setLocale: (locale: Locale) => void;
   setBrand: (brand: BrandDictionary) => void;
   clearBrand: () => void;
+  setImageQualityTier: (tier: ImageQualityTier) => void;
+  setVideoProvider: (provider: VideoProvider) => void;
   setAuthed: (v: boolean) => void;
   signOut: () => void;
 };
@@ -90,6 +146,8 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   validating: false,
   locale: defaultLocale(),
   brand: loadStoredBrand(),
+  imageQualityTier: loadStoredQuality().imageQualityTier,
+  videoProvider: loadStoredQuality().videoProvider,
   authed: false,
   setKey: (provider, value) =>
     set((s) => ({
@@ -127,6 +185,17 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   clearBrand: () => {
     persistBrand(EMPTY_BRAND_DICTIONARY);
     set({ brand: EMPTY_BRAND_DICTIONARY });
+  },
+  setImageQualityTier: (tier) => {
+    persistQuality({ imageQualityTier: tier, videoProvider: get().videoProvider });
+    set({ imageQualityTier: tier });
+  },
+  setVideoProvider: (provider) => {
+    persistQuality({
+      imageQualityTier: get().imageQualityTier,
+      videoProvider: provider,
+    });
+    set({ videoProvider: provider });
   },
   setAuthed: (v) => set({ authed: v }),
   signOut: () => set({ authed: false, drawerOpen: false }),

@@ -368,6 +368,7 @@ export function ImageStep() {
   const apiKeys = useAppStore((s) => s.keys);
   const locale = useAppStore((s) => s.locale);
   const brand = useAppStore((s) => s.brand);
+  const imageQualityTier = useAppStore((s) => s.imageQualityTier);
   const step = useAppStore((s) => s.steps.image);
   const copyStep = useAppStore((s) => s.steps.copy);
   const setStepStatus = useAppStore((s) => s.setStepStatus);
@@ -403,6 +404,7 @@ export function ImageStep() {
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
         locale,
         brand,
+        tier: imageQualityTier,
       });
       replaceVariantById('image', variant.id, next);
       addHistoryEntry(
@@ -437,6 +439,7 @@ export function ImageStep() {
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
         locale,
         brand,
+        tier: imageQualityTier,
       });
       appendVariants('image', next);
       addHistoryEntry('image', makeHistoryEntry('initial', null, next.length));
@@ -461,6 +464,7 @@ export function ImageStep() {
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
         locale,
         brand,
+        tier: imageQualityTier,
       });
       appendVariants('image', next);
       addHistoryEntry('image', makeHistoryEntry('more', null, next.length));
@@ -491,6 +495,7 @@ export function ImageStep() {
         apiKeys: { openai: apiKeys.openai, fal: apiKeys.fal },
         locale,
         brand,
+        tier: imageQualityTier,
       });
       addHistoryEntry('image', makeHistoryEntry(kind, direction, next.length));
       replaceVariants('image', next);

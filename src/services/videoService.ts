@@ -807,6 +807,7 @@ export async function generateSlideshowVideo(
         mimeType,
         width: dims.width,
         height: dims.height,
+        provider: 'slideshow',
       });
     };
 

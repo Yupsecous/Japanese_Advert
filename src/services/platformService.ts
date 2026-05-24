@@ -3,6 +3,7 @@ import { chatCompletionsJson } from './openaiClient';
 import { messagesJson } from './anthropicClient';
 import { AppError } from './errorMessages';
 import { brandPromptBlock, brandVisualBlock } from './brandPrompt';
+import { callFlux } from './fluxClient';
 import { languageDirective, type Locale } from '../i18n';
 import {
   META_CTAS,
@@ -13,6 +14,7 @@ import {
   type CarouselImage,
   type CarouselSet,
   type CopyVariant,
+  type ImageQualityTier,
   type MetaCta,
   type PlatformCopy,
   type PlatformImagePair,
@@ -228,56 +230,6 @@ const ASPECT_DIMENSIONS: Record<AspectRatio, { width: number; height: number }> 
   '1.91x1': { width: 1216, height: 640 },
 };
 
-const FalImageZ = z.object({
-  images: z.array(z.object({ url: z.string() })).min(1),
-});
-
-async function callFlux(args: {
-  prompt: string;
-  falKey: string;
-  width: number;
-  height: number;
-}): Promise<string> {
-  let res: Response;
-  try {
-    res = await fetch('https://fal.run/fal-ai/flux/schnell', {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${args.falKey.trim()}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: args.prompt,
-        image_size: { width: args.width, height: args.height },
-        num_inference_steps: 4,
-        num_images: 1,
-        enable_safety_checker: true,
-      }),
-    });
-  } catch (err) {
-    throw new AppError('fal/network', err instanceof Error ? err.message : 'fetch failed');
-  }
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    if (res.status === 401) throw new AppError('fal/auth-failed', text.slice(0, 200));
-    if (res.status === 402) throw new AppError('fal/no-credits', text.slice(0, 200));
-    if (res.status === 403) throw new AppError('fal/forbidden', text.slice(0, 200));
-    if (res.status === 429) throw new AppError('fal/rate-limit', text.slice(0, 200));
-    throw new AppError('fal/bad-response', `status ${res.status}: ${text.slice(0, 200)}`);
-  }
-  let body: unknown;
-  try {
-    body = await res.json();
-  } catch {
-    throw new AppError('fal/bad-response', 'response was not valid JSON');
-  }
-  const parsed = FalImageZ.safeParse(body);
-  if (!parsed.success) {
-    throw new AppError('fal/bad-response', `image schema mismatch: ${parsed.error.message}`);
-  }
-  return parsed.data.images[0]!.url;
-}
-
 // Builds a B-variant prompt by injecting a different framing/energy directive.
 // Same scene, different angle — preserves the brief's mood but produces a
 // genuinely distinct image for A/B testing.
@@ -294,6 +246,7 @@ export type GeneratePlatformImagesArgs = {
   approvedImageUrl: string; // the approved 4:5 hero — reused as variant A's 4:5
   apiKeys: { fal: string };
   brand?: BrandDictionary;
+  tier?: ImageQualityTier;
 };
 
 const PLATFORM_ASPECTS: AspectRatio[] = ['1x1', '4x5', '9x16', '1.91x1'];
@@ -334,6 +287,7 @@ export async function generatePlatformImagePairs(
       falKey: fal,
       width: dims.width,
       height: dims.height,
+      ...(args.tier ? { tier: args.tier } : {}),
     });
     return {
       aspect: slot.aspect,
@@ -420,6 +374,7 @@ export type GenerateCarouselArgs = {
   approvedImageUrl: string; // reused as card 1
   apiKeys: { fal: string };
   brand?: BrandDictionary;
+  tier?: ImageQualityTier;
 };
 
 export async function generateCarousel(args: GenerateCarouselArgs): Promise<CarouselSet> {
@@ -440,6 +395,7 @@ export async function generateCarousel(args: GenerateCarouselArgs): Promise<Caro
       falKey: fal,
       width: square.width,
       height: square.height,
+      ...(args.tier ? { tier: args.tier } : {}),
     });
   });
 

@@ -6,6 +6,7 @@ import {
   generateCarousel,
 } from '../services/platformService';
 import { generateSlideshowVideo, type VideoAspect } from '../services/videoService';
+import { generateAiVideo, type AiVideoAspect } from '../services/aiVideoService';
 import {
   downloadMetaPackage,
   downloadXPackage,
@@ -167,6 +168,8 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
   const locale = useAppStore((s) => s.locale);
   const brand = useAppStore((s) => s.brand);
   const brief = useAppStore((s) => s.brief);
+  const imageQualityTier = useAppStore((s) => s.imageQualityTier);
+  const videoProvider = useAppStore((s) => s.videoProvider);
   const audioVariants = useAppStore((s) => audioVariantsOf(s.steps.audio.variants));
   const audioSelectedIndex = useAppStore((s) => s.steps.audio.selectedIndex);
   const scriptVariants = useAppStore((s) => scriptVariantsOf(s.steps.script.variants));
@@ -215,6 +218,7 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
         approvedImageUrl: approvedImage.imageUrl,
         apiKeys: { fal: apiKeys.fal },
         brand,
+        tier: imageQualityTier,
       });
 
       // 3. Carousel (Meta, optional)
@@ -227,6 +231,7 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
             approvedImageUrl: approvedImage.imageUrl,
             apiKeys: { fal: apiKeys.fal },
             brand,
+            tier: imageQualityTier,
           });
         } catch (e) {
           // Carousel failure is non-fatal — log and continue.
@@ -235,7 +240,9 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
         }
       }
 
-      // 4. Video (multi-shot slideshow, optional, needs audio)
+      // 4. Video (multi-shot slideshow, optional, needs audio; ai_kling is
+      // an additional silent motion clip generated in parallel when the
+      // user opts in via Settings)
       const videos: PlatformVideo[] = [];
       if (includeVideo && approvedAudio) {
         setPhase('generating-video');
@@ -290,6 +297,43 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
             }),
           );
         }
+
+        // AI motion clip (Kling) — opt-in via Settings. Generates silent
+        // 5-second clips with real camera + subject motion that the
+        // slideshow path can't produce. Runs in parallel with slideshow so
+        // total wall-clock is bounded by the slowest call (~75s).
+        if (videoProvider === 'ai_kling' && apiKeys.fal.trim()) {
+          const aiPrompt = approvedImage.prompt;
+          if (reelsImages.length > 0) {
+            tasks.push(
+              generateAiVideo({
+                aspect: '9x16' as AiVideoAspect,
+                imageUrl: reelsImages[0]!,
+                prompt: aiPrompt,
+                falKey: apiKeys.fal,
+              }).catch((e) => {
+                // eslint-disable-next-line no-console
+                console.warn('[platform] 9x16 ai video failed:', e);
+                return null;
+              }),
+            );
+          }
+          if (xImages.length > 0) {
+            tasks.push(
+              generateAiVideo({
+                aspect: '1x1' as AiVideoAspect,
+                imageUrl: xImages[0]!,
+                prompt: aiPrompt,
+                falKey: apiKeys.fal,
+              }).catch((e) => {
+                // eslint-disable-next-line no-console
+                console.warn('[platform] 1x1 ai video failed:', e);
+                return null;
+              }),
+            );
+          }
+        }
+
         const results = await Promise.all(tasks);
         for (const r of results) if (r) videos.push(r);
       }
@@ -327,8 +371,16 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
 
   const metaPairs = bundle?.imagePairs.filter((p) => META_ASPECTS_TO_SHOW.includes(p.aspect)) ?? [];
   const xPairs = bundle?.imagePairs.filter((p) => X_ASPECTS_TO_SHOW.includes(p.aspect)) ?? [];
-  const reelsVideo = bundle?.videos.find((v) => v.aspect === '9x16');
-  const xVideo = bundle?.videos.find((v) => v.aspect === '1x1');
+  // Slideshow has audio, so it's the primary preview slot. AI clips are
+  // shown alongside as silent-motion alternates when generated.
+  const reelsSlideshow = bundle?.videos.find(
+    (v) => v.aspect === '9x16' && v.provider !== 'ai_kling',
+  );
+  const reelsAiVideo = bundle?.videos.find((v) => v.aspect === '9x16' && v.provider === 'ai_kling');
+  const xSlideshow = bundle?.videos.find(
+    (v) => v.aspect === '1x1' && v.provider !== 'ai_kling',
+  );
+  const xAiVideo = bundle?.videos.find((v) => v.aspect === '1x1' && v.provider === 'ai_kling');
 
   const progressLabel: Partial<Record<Phase, string>> = {
     'generating-copy': t('platform.progressCopy'),
@@ -482,12 +534,22 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
                 ))}
               </div>
 
-              {reelsVideo && (
+              {reelsSlideshow && (
                 <div className="grid gap-4 md:grid-cols-[280px_1fr]">
-                  <VideoPreview video={reelsVideo} />
+                  <VideoPreview video={reelsSlideshow} />
                   <div className="rounded-md border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700">
                     <p className="font-medium text-neutral-900">{t('platform.videoForReels')}</p>
                     <p className="mt-1 text-xs leading-relaxed text-neutral-600">{t('platform.videoNote')}</p>
+                  </div>
+                </div>
+              )}
+
+              {reelsAiVideo && (
+                <div className="grid gap-4 md:grid-cols-[280px_1fr]">
+                  <VideoPreview video={reelsAiVideo} />
+                  <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                    <p className="font-medium">{t('platform.aiVideoForReels')}</p>
+                    <p className="mt-1 text-xs leading-relaxed">{t('platform.aiVideoNote')}</p>
                   </div>
                 </div>
               )}
@@ -562,12 +624,22 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
                 ))}
               </div>
 
-              {xVideo && (
+              {xSlideshow && (
                 <div className="grid gap-4 md:grid-cols-[280px_1fr]">
-                  <VideoPreview video={xVideo} />
+                  <VideoPreview video={xSlideshow} />
                   <div className="rounded-md border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700">
                     <p className="font-medium text-neutral-900">{t('platform.videoForX')}</p>
                     <p className="mt-1 text-xs leading-relaxed text-neutral-600">{t('platform.videoNote')}</p>
+                  </div>
+                </div>
+              )}
+
+              {xAiVideo && (
+                <div className="grid gap-4 md:grid-cols-[280px_1fr]">
+                  <VideoPreview video={xAiVideo} />
+                  <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                    <p className="font-medium">{t('platform.aiVideoForX')}</p>
+                    <p className="mt-1 text-xs leading-relaxed">{t('platform.aiVideoNote')}</p>
                   </div>
                 </div>
               )}

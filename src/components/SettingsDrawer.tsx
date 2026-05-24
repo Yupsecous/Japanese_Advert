@@ -1,6 +1,7 @@
 import { useAppStore } from '../store';
 import { useT } from '../i18n/hooks';
 import { BrandSettings } from './BrandSettings';
+import { GenerationSettings } from './GenerationSettings';
 import { PROVIDER_LABELS, type Provider, type ValidationStatus } from '../types';
 
 const PROVIDERS: Provider[] = ['fal', 'eleven', 'openai', 'anthropic'];
@@ -97,6 +98,13 @@ export function SettingsDrawer() {
               />
             </div>
           ))}
+
+          <div className="space-y-2 border-t border-neutral-200 pt-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+              {t('settings.generationSection')}
+            </p>
+            <GenerationSettings />
+          </div>
 
           <div className="space-y-2 border-t border-neutral-200 pt-4">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
