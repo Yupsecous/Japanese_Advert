@@ -189,6 +189,14 @@ const EN: Dict = {
   'feedback.appliedLabel': 'Applied insights',
   'feedback.keyMissing': 'Anthropic key required — feedback uses Claude.',
 
+  // Campaign report
+  'report.heading': 'Download campaign report',
+  'report.subtitle':
+    'Single ZIP with executive summary, customer list, briefs, generated ads, delivery log, effectiveness data, segment heatmap, KPI summary, and applied insights — ready to share with stakeholders.',
+  'report.download': 'Download report ZIP',
+  'report.packaging': 'Packaging…',
+  'report.fileCount': '{n} files',
+
   // Brand dictionary
   'brandSettings.heading': 'Brand voice & rules',
   'brandSettings.active': '{n} rule(s) active',
@@ -657,6 +665,14 @@ const JA: Dict = {
   'feedback.runNote': '約 5 秒で完了。結果はブランド辞書に追記されます。',
   'feedback.appliedLabel': '反映済みインサイト',
   'feedback.keyMissing': 'Anthropic キーが必要です — フィードバックは Claude を使用します。',
+
+  // Campaign report
+  'report.heading': 'キャンペーンレポートをダウンロード',
+  'report.subtitle':
+    'エグゼクティブサマリー・顧客リスト・個別ブリーフ・生成アセット・配信ログ・効果データ・セグメントヒートマップ・KPI サマリー・反映済みインサイトを 1 つの ZIP にまとめ、関係者と共有できます。',
+  'report.download': 'レポート ZIP をダウンロード',
+  'report.packaging': 'パッケージング中…',
+  'report.fileCount': '{n} ファイル',
 
   'auth.footnote':
     'アクセス情報は担当者から共有されます。認証はクライアント側で行われるため、ソフトゲートであってセキュリティバリアではありません。',
@@ -1136,6 +1152,14 @@ const PT: Dict = {
   'feedback.runNote': '~5 segundos. O resultado é anexado ao dicionário de marca.',
   'feedback.appliedLabel': 'Insights aplicados',
   'feedback.keyMissing': 'Chave Anthropic necessária — o feedback usa Claude.',
+
+  // Campaign report
+  'report.heading': 'Baixar relatório de campanha',
+  'report.subtitle':
+    'ZIP único com sumário executivo, lista de clientes, briefings, anúncios gerados, log de entrega, dados de efetividade, heatmap, KPIs e insights aplicados — pronto para compartilhar com stakeholders.',
+  'report.download': 'Baixar ZIP do relatório',
+  'report.packaging': 'Empacotando…',
+  'report.fileCount': '{n} arquivos',
 
   'auth.footnote':
     'O acesso é compartilhado pelo seu contato. As credenciais são verificadas no navegador — esta é uma barreira leve, não uma proteção de segurança.',
@@ -1619,6 +1643,14 @@ const ES: Dict = {
   'feedback.appliedLabel': 'Insights aplicados',
   'feedback.keyMissing': 'Se requiere clave Anthropic — el feedback usa Claude.',
 
+  // Campaign report
+  'report.heading': 'Descargar informe de campaña',
+  'report.subtitle':
+    'ZIP único con resumen ejecutivo, lista de clientes, briefs, anuncios generados, registro de entrega, datos de efectividad, heatmap, KPIs e insights aplicados — listo para compartir con stakeholders.',
+  'report.download': 'Descargar ZIP del informe',
+  'report.packaging': 'Empaquetando…',
+  'report.fileCount': '{n} archivos',
+
   'auth.footnote':
     'El acceso lo comparte tu contacto. Las credenciales se verifican en el navegador — esta es una barrera blanda, no una protección de seguridad.',
 
@@ -2101,6 +2133,14 @@ const FR: Dict = {
   'feedback.appliedLabel': 'Insights appliqués',
   'feedback.keyMissing': 'Clé Anthropic requise — le feedback utilise Claude.',
 
+  // Campaign report
+  'report.heading': 'Télécharger le rapport de campagne',
+  'report.subtitle':
+    "ZIP unique avec résumé exécutif, liste clients, briefs, publicités générées, journal de livraison, données d'efficacité, heatmap, KPI et insights appliqués — prêt à partager avec les parties prenantes.",
+  'report.download': 'Télécharger le ZIP du rapport',
+  'report.packaging': 'Empaquetage…',
+  'report.fileCount': '{n} fichiers',
+
   'auth.footnote':
     "L'accès est partagé par votre contact. Les identifiants sont vérifiés côté navigateur — il s'agit d'une barrière souple, pas d'une protection de sécurité.",
 
@@ -2582,6 +2622,14 @@ const DE: Dict = {
   'feedback.runNote': '~5 Sekunden. Das Ergebnis wird dem Markenwörterbuch hinzugefügt.',
   'feedback.appliedLabel': 'Angewandte Insights',
   'feedback.keyMissing': 'Anthropic-Schlüssel erforderlich — Feedback nutzt Claude.',
+
+  // Campaign report
+  'report.heading': 'Kampagnenbericht herunterladen',
+  'report.subtitle':
+    'Einzelne ZIP mit Executive Summary, Kundenliste, Briefings, generierten Anzeigen, Lieferprotokoll, Wirksamkeitsdaten, Heatmap, KPI-Übersicht und angewandten Insights — bereit zum Teilen mit Stakeholdern.',
+  'report.download': 'Bericht-ZIP herunterladen',
+  'report.packaging': 'Paketierung…',
+  'report.fileCount': '{n} Dateien',
 
   'auth.footnote':
     'Der Zugriff wird von Ihrem Ansprechpartner geteilt. Die Zugangsdaten werden im Browser geprüft — dies ist eine sanfte Sperre, kein Sicherheitsschutz.',

@@ -16,6 +16,7 @@ import {
   type HeatmapCell,
 } from '../services/effectivenessService';
 import { extractLearnedInsight } from '../services/feedbackService';
+import { downloadCampaignReport, type ReportResult } from '../services/audienceReportService';
 import { InlineError } from './InlineError';
 import { useT } from '../i18n/hooks';
 import type {
@@ -138,6 +139,12 @@ export function AudienceConsole() {
           learnedInsights={learnedInsights}
           anthropicKey={apiKeys.anthropic}
           locale={locale}
+          // Report-export inputs:
+          brief={brief}
+          briefCache={briefCache}
+          generatedAssets={generatedAssets}
+          brand={brand}
+          runVersion={runVersion}
           onInsight={(text) => {
             appendLearnedInsight(text);
             // Also push to the durable brand dictionary so all 8 generation
@@ -911,6 +918,11 @@ function FeedbackLoopPanel({
   learnedInsights,
   anthropicKey,
   locale,
+  brief,
+  briefCache,
+  generatedAssets,
+  brand,
+  runVersion,
   onInsight,
 }: {
   customers: Customer[];
@@ -919,11 +931,18 @@ function FeedbackLoopPanel({
   learnedInsights: string[];
   anthropicKey: string;
   locale: ReturnType<typeof useAppStore.getState>['locale'];
+  brief: ReturnType<typeof useAppStore.getState>['brief'];
+  briefCache: Record<string, any>;
+  generatedAssets: Record<string, GeneratedAssetSet>;
+  brand: ReturnType<typeof useAppStore.getState>['brand'];
+  runVersion: number;
   onInsight: (text: string) => void;
 }) {
   const t = useT();
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [reportResult, setReportResult] = useState<ReportResult | null>(null);
 
   async function run() {
     if (!anthropicKey.trim()) {
@@ -945,6 +964,28 @@ function FeedbackLoopPanel({
       setError(err);
     } finally {
       setRunning(false);
+    }
+  }
+
+  async function downloadReport() {
+    setDownloading(true);
+    try {
+      const result = await downloadCampaignReport({
+        brief,
+        customers,
+        briefCache,
+        generatedAssets,
+        deliveryLog,
+        effectivenessData,
+        learnedInsights,
+        runVersion,
+        brand,
+      });
+      setReportResult(result);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setDownloading(false);
     }
   }
 
@@ -991,6 +1032,32 @@ function FeedbackLoopPanel({
           ))}
         </div>
       )}
+
+      {/* Campaign report download — closes the audience-console loop with
+          a takeaway deliverable. Zero API cost; pure data export. */}
+      <div className="mt-6 border-t border-emerald-100 pt-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="max-w-xl">
+            <p className="text-sm font-medium text-neutral-900">{t('report.heading')}</p>
+            <p className="mt-1 text-xs leading-relaxed text-neutral-600">{t('report.subtitle')}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void downloadReport()}
+            disabled={downloading}
+            className="rounded-md border border-emerald-300 bg-white px-3.5 py-1.5 text-sm font-medium text-emerald-800 transition-colors hover:bg-emerald-50 disabled:opacity-50"
+          >
+            {downloading ? t('report.packaging') : t('report.download')}
+          </button>
+        </div>
+        {reportResult && (
+          <p className="mt-3 text-xs text-emerald-700">
+            <span className="font-mono">{reportResult.filename}</span>
+            {' · '}
+            {t('report.fileCount', { n: reportResult.fileCount })}
+          </p>
+        )}
+      </div>
     </section>
   );
 }
