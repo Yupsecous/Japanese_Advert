@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setToken } from '../services/backend';
 import type {
+  AudioVariant,
   Brief,
   CopyVariant,
   ImageQualityTier,
@@ -15,6 +16,7 @@ import type {
 
 const TOKEN_KEY = 'advert.token';
 const TIER_KEY = 'advert.imageQualityTier';
+const VOICE_KEY = 'advert.voiceId';
 
 export type AppState = {
   // Auth
@@ -54,6 +56,12 @@ export type AppState = {
   pickScript: (index: number) => void;
   resetScript: () => void;
 
+  // Audio step
+  audioVariant: AudioVariant | null;
+  setAudioVariant: (a: AudioVariant | null) => void;
+  voiceId: string | null;
+  setVoiceId: (id: string) => Promise<void>;
+
   // Generation settings (durable)
   imageQualityTier: ImageQualityTier;
   setImageQualityTier: (t: ImageQualityTier) => Promise<void>;
@@ -88,12 +96,14 @@ export const useAppStore = create<AppState>((set) => ({
       imageIndex: null,
       scriptVariants: [],
       scriptIndex: null,
+      audioVariant: null,
     });
   },
   hydrate: async () => {
-    const [token, tier] = await Promise.all([
+    const [token, tier, voiceId] = await Promise.all([
       AsyncStorage.getItem(TOKEN_KEY),
       AsyncStorage.getItem(TIER_KEY),
+      AsyncStorage.getItem(VOICE_KEY),
     ]);
     if (token) {
       setToken(token);
@@ -102,6 +112,7 @@ export const useAppStore = create<AppState>((set) => ({
       token,
       authed: !!token,
       imageQualityTier: parseStoredTier(tier),
+      voiceId,
       hydrating: false,
     });
   },
@@ -117,6 +128,7 @@ export const useAppStore = create<AppState>((set) => ({
       imageIndex: null,
       scriptVariants: [],
       scriptIndex: null,
+      audioVariant: null,
     }),
 
   copyVariants: [],
@@ -142,6 +154,14 @@ export const useAppStore = create<AppState>((set) => ({
     set((s) => ({ scriptVariants: [...s.scriptVariants, ...v] })),
   pickScript: (index) => set({ scriptIndex: index }),
   resetScript: () => set({ scriptVariants: [], scriptIndex: null }),
+
+  audioVariant: null,
+  setAudioVariant: (a) => set({ audioVariant: a }),
+  voiceId: null,
+  setVoiceId: async (id) => {
+    await AsyncStorage.setItem(VOICE_KEY, id);
+    set({ voiceId: id });
+  },
 
   imageQualityTier: 'fast',
   setImageQualityTier: async (tier) => {

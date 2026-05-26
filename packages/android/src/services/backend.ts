@@ -124,3 +124,15 @@ export async function elevenLabsTts(args: {
 }): Promise<TtsResponse> {
   return post<TtsResponse>('/api/elevenlabs/tts', args);
 }
+
+export type ElevenVoice = {
+  voice_id: string;
+  name: string;
+  category?: string;
+  labels?: Record<string, string>;
+  description?: string;
+};
+
+export async function elevenLabsVoices(): Promise<{ voices: ElevenVoice[] }> {
+  return post<{ voices: ElevenVoice[] }>('/api/elevenlabs/voices', {});
+}

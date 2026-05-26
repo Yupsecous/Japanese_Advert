@@ -54,11 +54,15 @@ Both checked server-side. Configure in `packages/backend/.env.local`.
   every prompt. Tier choice persists in `AsyncStorage`.
 - **Script step** — 2 tonally distinct voice-over scripts via Anthropic
   (4o-mini fallback). Tone label + duration estimate per card.
+- **Audio step** — voice picker (modal listing your ElevenLabs account
+  voices), TTS generation, in-app playback with progress bar, re-render
+  on demand. Voice choice persists in `AsyncStorage`. Alignment data
+  preserved for the kinetic captions feature (still to land).
 
 ## What lands next (in order)
 
 1. Per-variant refine + Claude critique on Image
-2. Audio step (with kinetic-caption preview)
+2. Kinetic captions overlay on Audio playback
 4. Design step
 5. Platform exports (Meta + X ZIPs + carousel + AI motion video)
 6. Audience Console (5 phases)

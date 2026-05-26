@@ -179,6 +179,13 @@ with the web app. Listed in recommended build order.
 2. ✅ **Script step (landed)** — Claude Sonnet via the Anthropic proxy
    (4o-mini fallback). 2 tonally distinct variants with toneDescription
    and durationEstimate per card.
+3. ✅ **Audio step (landed)** — voice picker (modal listing every voice
+   on the connected ElevenLabs account), TTS generation via
+   `/api/elevenlabs/tts`, base64 audio decoded to a local file with
+   `expo-file-system`, playback with `expo-av`. Alignment data is
+   preserved on the variant for kinetic captions (still to land).
+   Voice selection persists per-device. Kinetic-caption rendering and a
+   waveform view still pending.
 3. **Audio step** — `/api/elevenlabs/tts` (with-timestamps); decode the
    base64 audio to a file via `expo-file-system`; play with `expo-av`;
    render the alignment as kinetic captions.

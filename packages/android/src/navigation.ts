@@ -3,5 +3,6 @@ export type RootStackParamList = {
   Copy: undefined;
   Image: undefined;
   Script: undefined;
-  NextStepPlaceholder: { step: 'audio' | 'design' };
+  Audio: undefined;
+  NextStepPlaceholder: { step: 'design' };
 };

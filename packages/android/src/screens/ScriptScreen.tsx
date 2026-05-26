@@ -135,7 +135,7 @@ export function ScriptScreen({ navigation }: Props) {
               selected={selectedIndex === i}
               onPick={() => {
                 pickScript(i);
-                navigation.navigate('NextStepPlaceholder', { step: 'audio' });
+                navigation.navigate('Audio');
               }}
             />
           ))
