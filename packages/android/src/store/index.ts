@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setToken } from '../services/backend';
 import type {
@@ -9,7 +9,7 @@ import type {
   ImageQualityTier,
   ImageVariant,
   ScriptVariant,
-} from '@advert/shared';
+} from '../shared';
 
 // Slimmed-down store for v1. Web app's slices will port over in
 // subsequent sessions; for now only what auth + brief + copy + image

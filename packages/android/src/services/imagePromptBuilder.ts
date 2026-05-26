@@ -1,33 +1,33 @@
-// Builds a Flux prompt from brief + approved copy (+ optional direction
-// mods). Ported from packages/web/src/services/imagePromptBuilder.ts —
+﻿// Builds a Flux prompt from brief + approved copy (+ optional direction
+// mods). Ported from packages/web/src/services/imagePromptBuilder.ts â€”
 // the system prompt keeps the photorealism cues so the AI look is
 // minimized at every tier (Schnell, Dev, Pro 1.1).
 //
-// The Flux prompt is intentionally English-only — diffusion models
+// The Flux prompt is intentionally English-only â€” diffusion models
 // perform measurably worse on non-English prompts. Locale-aware copy
 // stays in copy/script/voice paths.
 
 import { z } from 'zod';
-import type { Brief, CopyVariant, ImagePromptMods } from '@advert/shared';
+import type { Brief, CopyVariant, ImagePromptMods } from '../shared';
 import { openaiChat } from './backend';
 
-const BUILDER_SYSTEM_PROMPT = `You construct prompts for Flux marketing image generation. You write in prose, single paragraph, vivid and specific. You never use tag-lists or comma-soup. You describe one image — what the camera sees, what the light does, what the subject is doing.
+const BUILDER_SYSTEM_PROMPT = `You construct prompts for Flux marketing image generation. You write in prose, single paragraph, vivid and specific. You never use tag-lists or comma-soup. You describe one image â€” what the camera sees, what the light does, what the subject is doing.
 
 When direction is provided, you weave the lighting, composition, palette, mood, subject, background, and energy modifications heavily into the prose. The direction is not optional flavor; it is the spine of the image.
 
-When an "avoid" list is provided, you write the prompt so it actively excludes those qualities — not by appending a negative, but by choosing prose that points the image away from them.
+When an "avoid" list is provided, you write the prompt so it actively excludes those qualities â€” not by appending a negative, but by choosing prose that points the image away from them.
 
 End every prompt with one aspect ratio cue: "Portrait 4:5".
 
 PHOTOREALISM REQUIREMENTS (always apply unless the brief explicitly calls for illustration):
 
-The output must read as a real photograph — not an AI render, not an illustration, not a digital painting. Bake these realism cues into every prompt:
+The output must read as a real photograph â€” not an AI render, not an illustration, not a digital painting. Bake these realism cues into every prompt:
 
 - Camera + lens specifics: mention a real-world camera + focal length where natural. Examples: "shot on a Sony A7 with an 85mm f/1.8", "Hasselblad medium-format, 80mm", "Fujifilm X-T5 with a 56mm portrait lens". Pick lens length to match the framing: 35-50mm for environmental, 85-105mm for portrait.
 - Skin and texture realism: when the subject is a person, include "visible skin texture, natural pores, no retouching" or "soft natural skin grain". This is the single biggest counter to the plasticky AI look.
 - Light realism: describe the light SOURCE specifically, not just its quality. "Late-afternoon window light spilling from camera-left" beats "soft natural light".
-- Subtle imperfection: include one realistic imperfection — "a strand of hair out of place", "faint dust on the matte surface", "wrinkles in the linen background", "condensation beading on the glass". Perfect symmetry reads as AI.
-- Depth and falloff: name the depth of field. "Shallow depth, f/2 — eyes sharp, background softly out of focus" beats "soft bokeh".
+- Subtle imperfection: include one realistic imperfection â€” "a strand of hair out of place", "faint dust on the matte surface", "wrinkles in the linen background", "condensation beading on the glass". Perfect symmetry reads as AI.
+- Depth and falloff: name the depth of field. "Shallow depth, f/2 â€” eyes sharp, background softly out of focus" beats "soft bokeh".
 - Anti-AI directives in prose form: "natural color grading, not over-saturated", "no plastic skin, no over-smoothing", "no extra fingers, anatomically correct hands". Weave these as prose at the end of the description.
 
 Now produce a single-paragraph prompt for the brief, copy, and direction in the user message. Return only the JSON object with a "prompt" field.`;

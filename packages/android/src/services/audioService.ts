@@ -1,4 +1,4 @@
-// Lists voices, generates TTS via the backend proxy, and writes the
+﻿// Lists voices, generates TTS via the backend proxy, and writes the
 // returned base64 audio to a local file so expo-av can play it.
 // Alignment data is preserved on the resulting AudioVariant for the
 // kinetic-caption layer (which lands in a follow-up session).
@@ -8,7 +8,7 @@ import type {
   AudioAlignment,
   AudioVariant,
   ScriptVariant,
-} from '@advert/shared';
+} from '../shared';
 import {
   elevenLabsTts,
   elevenLabsVoices,
@@ -64,7 +64,7 @@ export async function generateAudio(args: GenerateAudioArgs): Promise<AudioVaria
 
   // ElevenLabs returns audio as base64-encoded MP3. Write it to a file
   // because expo-av needs a uri (data: uris are flaky in RN). The
-  // documents directory is sandboxed and survives across app restarts —
+  // documents directory is sandboxed and survives across app restarts â€”
   // good enough for the demo, the user can re-generate to clear.
   const uri = `${FileSystem.documentDirectory}voice-${newId()}.mp3`;
   await FileSystem.writeAsStringAsync(uri, tts.audio_base64, {

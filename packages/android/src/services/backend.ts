@@ -1,10 +1,10 @@
-// Thin client for the Vercel backend. Mirrors the route shapes from
-// packages/backend/api/. All provider calls flow through here — there
+﻿// Thin client for the Vercel backend. Mirrors the route shapes from
+// packages/backend/api/. All provider calls flow through here â€” there
 // are NO direct provider API calls in the Android app (keys live only
 // on the backend).
 
 import Constants from 'expo-constants';
-import type { ImageQualityTier } from '@advert/shared';
+import type { ImageQualityTier } from '../shared';
 
 function backendBaseUrl(): string {
   const fromExtra = (Constants.expoConfig?.extra as { backendUrl?: string } | undefined)?.backendUrl;

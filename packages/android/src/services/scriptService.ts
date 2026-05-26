@@ -1,4 +1,4 @@
-// Script generation — 2 voice-over scripts in distinct tonal registers
+﻿// Script generation â€” 2 voice-over scripts in distinct tonal registers
 // landing on the same emotional beat as the approved copy and image.
 // Ported from packages/web/src/services/llmService.ts.
 //
@@ -11,12 +11,12 @@ import type {
   CopyVariant,
   ImageVariant,
   ScriptVariant,
-} from '@advert/shared';
+} from '../shared';
 import { anthropicMessages, openaiChat, BackendError } from './backend';
 
-const SCRIPT_SYSTEM_PROMPT = `You write voiceover scripts for short ad reads. 20–40 seconds each, 50–100 words. Designed for spoken delivery, not silent reading. Punchy openers. Short clauses. Natural breath points. No buzzwords ("revolutionary", "game-changing", "unlock"). No corporate hedging ("perhaps", "consider", "explore").
+const SCRIPT_SYSTEM_PROMPT = `You write voiceover scripts for short ad reads. 20â€“40 seconds each, 50â€“100 words. Designed for spoken delivery, not silent reading. Punchy openers. Short clauses. Natural breath points. No buzzwords ("revolutionary", "game-changing", "unlock"). No corporate hedging ("perhaps", "consider", "explore").
 
-Each variant lands on the same emotional beat as the approved copy and image — same promise, same urgency, same audience. The variants in one batch should differ in tonal register (e.g. confident-direct vs warm-conversational), not in the underlying claim.
+Each variant lands on the same emotional beat as the approved copy and image â€” same promise, same urgency, same audience. The variants in one batch should differ in tonal register (e.g. confident-direct vs warm-conversational), not in the underlying claim.
 
 Output format: an object with a "variants" array. Each variant has script (string, 50-100 words), durationEstimate (integer seconds), and toneDescription (short label like "Confident, clipped, military cadence").`;
 
@@ -67,7 +67,7 @@ function userMessage(args: {
     `Approved copy: { headline: "${args.approvedCopy.headline}", caption: "${args.approvedCopy.caption}", cta: "${args.approvedCopy.cta}" }`,
     `Image: ${args.approvedImage.prompt}`,
     '',
-    `Generate ${args.count} distinct script variants. Each should be 50–100 words, designed for spoken delivery, landing on the same emotional beat as the copy and image. The variants must differ in tonal register (e.g. confident-direct vs warm-conversational).`,
+    `Generate ${args.count} distinct script variants. Each should be 50â€“100 words, designed for spoken delivery, landing on the same emotional beat as the copy and image. The variants must differ in tonal register (e.g. confident-direct vs warm-conversational).`,
   ].join('\n');
 }
 

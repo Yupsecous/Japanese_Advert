@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -18,7 +18,7 @@ import {
   TIER_LATENCY_SECONDS,
   type ImageQualityTier,
   type ImageVariant,
-} from '@advert/shared';
+} from '../shared';
 import { colors, radius, spacing, type as typeStyle } from '../theme';
 import { useAppStore } from '../store';
 import { generateImages } from '../services/imageService';

@@ -1,11 +1,11 @@
-// Orchestrates image variant generation:
+﻿// Orchestrates image variant generation:
 //   1. Optionally translate the director's plain-English direction into
 //      structured Flux mods (only when a direction is provided).
 //   2. Ask the prompt builder to weave brief + copy + mods into a Flux
 //      prompt with photoreal cues baked in.
 //   3. Call the tier-aware Flux endpoint via the backend proxy.
 //
-// All three calls flow through the @advert/backend proxy — keys live on
+// All three calls flow through the @advert/backend proxy â€” keys live on
 // the server, never on the device.
 
 import type {
@@ -14,7 +14,7 @@ import type {
   ImagePromptMods,
   ImageQualityTier,
   ImageVariant,
-} from '@advert/shared';
+} from '../shared';
 import { fluxGenerate, BackendError } from './backend';
 import { buildImagePrompt } from './imagePromptBuilder';
 import { translateImageDirection } from './imageTranslator';

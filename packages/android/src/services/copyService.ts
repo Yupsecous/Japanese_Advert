@@ -1,8 +1,8 @@
-// Copy generation — same prompt + schema as web, routed through the
+﻿// Copy generation â€” same prompt + schema as web, routed through the
 // backend's Anthropic proxy. Falls back to OpenAI if Anthropic 5xxs.
 
 import { z } from 'zod';
-import type { Brief, CopyVariant } from '@advert/shared';
+import type { Brief, CopyVariant } from '../shared';
 import { anthropicMessages, openaiChat, BackendError } from './backend';
 
 const COPY_SYSTEM_PROMPT = `You are a senior performance copywriter. You write ad copy that converts. Punchy, direct, specific. No corporate buzzwords. No hedging. No "unlock," "elevate," "leverage," "synergy," "revolutionary," or "game-changing." Lead with the specific outcome, not the abstract benefit.`;
@@ -43,7 +43,7 @@ function userMessage(brief: Brief, count: number): string {
     `Target audience: ${brief.targetAudience}`,
     `Ad angle: ${brief.adAngle}`,
     '',
-    `Generate ${count} distinct variants of ad copy. Each variant must take a genuinely different angle on the brief — different hook, different emotional register, different structure. Not paraphrases.`,
+    `Generate ${count} distinct variants of ad copy. Each variant must take a genuinely different angle on the brief â€” different hook, different emotional register, different structure. Not paraphrases.`,
     '',
     'Each variant returns:',
     '- headline: 6-10 words',

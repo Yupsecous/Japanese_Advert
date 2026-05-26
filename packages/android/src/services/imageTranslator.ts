@@ -1,9 +1,9 @@
-// Translates a director's plain-language image direction into structured
+﻿// Translates a director's plain-language image direction into structured
 // Flux modifications. Ported from the web's translator.ts (image branch
 // only). Calls the OpenAI proxy for structured-output JSON.
 
 import { z } from 'zod';
-import type { ImagePromptMods } from '@advert/shared';
+import type { ImagePromptMods } from '../shared';
 import { openaiChat, BackendError } from './backend';
 
 const IMAGE_SYSTEM_PROMPT = `You translate a creative director's plain-language direction into structured image generation modifications. The output drives an image model (Flux / Stable Diffusion class).

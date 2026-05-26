@@ -12,7 +12,7 @@
       "env": {
         "BACKEND_URL": "https://poems-palmer-beaches-pollution.trycloudflare.com"
       },
-      "channel": "preview"
+      "autoIncrement": false
     },
     "production": {
       "android": {
@@ -22,7 +22,7 @@
       "env": {
         "BACKEND_URL": "https://poems-palmer-beaches-pollution.trycloudflare.com"
       },
-      "channel": "production"
+      "autoIncrement": true
     }
   },
   "submit": {

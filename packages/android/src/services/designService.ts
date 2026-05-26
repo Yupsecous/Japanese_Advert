@@ -1,4 +1,4 @@
-// Generates a single-file React + Tailwind landing-page component for
+﻿// Generates a single-file React + Tailwind landing-page component for
 // the approved campaign. Ported from packages/web/src/services/designService.ts.
 // Uses claude-opus-4-7 via the backend Anthropic proxy because the
 // output is a full TSX file (~6-8k tokens) and the bigger model writes
@@ -10,7 +10,7 @@ import type {
   CopyVariant,
   DesignVariant,
   ImageVariant,
-} from '@advert/shared';
+} from '../shared';
 import { anthropicMessages, BackendError } from './backend';
 
 const DESIGN_SYSTEM_PROMPT = `You generate single-file React landing-page components for short-form marketing campaigns. The user provides a brief, the approved ad copy, the approved hero-image URL, and an optional refine direction. You return a self-contained React component.
