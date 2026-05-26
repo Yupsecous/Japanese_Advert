@@ -193,7 +193,7 @@ export function ImageScreen({ navigation }: Props) {
               selected={selectedIndex === i}
               onPick={() => {
                 pickImage(i);
-                navigation.navigate('NextStepPlaceholder', { step: 'script' });
+                navigation.navigate('Script');
               }}
             />
           ))

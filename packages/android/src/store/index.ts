@@ -1,7 +1,13 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setToken } from '../services/backend';
-import type { Brief, CopyVariant, ImageQualityTier, ImageVariant } from '@advert/shared';
+import type {
+  Brief,
+  CopyVariant,
+  ImageQualityTier,
+  ImageVariant,
+  ScriptVariant,
+} from '@advert/shared';
 
 // Slimmed-down store for v1. Web app's slices will port over in
 // subsequent sessions; for now only what auth + brief + copy + image
@@ -40,6 +46,14 @@ export type AppState = {
   pickImage: (index: number) => void;
   resetImage: () => void;
 
+  // Script step
+  scriptVariants: ScriptVariant[];
+  scriptIndex: number | null;
+  setScriptVariants: (v: ScriptVariant[]) => void;
+  appendScriptVariants: (v: ScriptVariant[]) => void;
+  pickScript: (index: number) => void;
+  resetScript: () => void;
+
   // Generation settings (durable)
   imageQualityTier: ImageQualityTier;
   setImageQualityTier: (t: ImageQualityTier) => Promise<void>;
@@ -72,6 +86,8 @@ export const useAppStore = create<AppState>((set) => ({
       copyIndex: null,
       imageVariants: [],
       imageIndex: null,
+      scriptVariants: [],
+      scriptIndex: null,
     });
   },
   hydrate: async () => {
@@ -99,6 +115,8 @@ export const useAppStore = create<AppState>((set) => ({
       copyIndex: null,
       imageVariants: [],
       imageIndex: null,
+      scriptVariants: [],
+      scriptIndex: null,
     }),
 
   copyVariants: [],
@@ -116,6 +134,14 @@ export const useAppStore = create<AppState>((set) => ({
     set((s) => ({ imageVariants: [...s.imageVariants, ...v] })),
   pickImage: (index) => set({ imageIndex: index }),
   resetImage: () => set({ imageVariants: [], imageIndex: null }),
+
+  scriptVariants: [],
+  scriptIndex: null,
+  setScriptVariants: (v) => set({ scriptVariants: v, scriptIndex: null }),
+  appendScriptVariants: (v) =>
+    set((s) => ({ scriptVariants: [...s.scriptVariants, ...v] })),
+  pickScript: (index) => set({ scriptIndex: index }),
+  resetScript: () => set({ scriptVariants: [], scriptIndex: null }),
 
   imageQualityTier: 'fast',
   setImageQualityTier: async (tier) => {

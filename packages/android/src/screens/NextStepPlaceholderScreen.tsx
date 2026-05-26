@@ -11,7 +11,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'NextStepPlaceholder'>;
 // port lands them step-by-step in later sessions.
 
 const PLANNED: Record<string, string> = {
-  script: 'Script generation (tone-paired variants)',
   audio: 'Audio synthesis (ElevenLabs with timestamps + kinetic captions)',
   design: 'Landing-page design generation',
 };
