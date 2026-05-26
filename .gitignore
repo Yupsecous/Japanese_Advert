@@ -24,3 +24,4 @@ samples/audio/
 !public/samples/preset.json
 !public/samples/images/*
 !public/samples/audio/*
+_build7.json
