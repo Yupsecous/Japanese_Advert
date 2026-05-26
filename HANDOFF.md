@@ -192,6 +192,12 @@ with the web app. Listed in recommended build order.
    "Copy code" button writes the TSX to the clipboard via
    `expo-clipboard`. Refine box accepts plain-English direction. Finish
    button returns to a fresh brief.
+5. ✅ **i18n parity (landed)** — 6 locales (EN/JA/PT/ES/FR/DE). EN + JA
+   have full coverage; the other 4 cover headings, common buttons, and
+   high-frequency strings, falling back to EN for anything missing.
+   Language picker pill in the auth + brief headers; choice persists
+   per-device via AsyncStorage. Web i18n dict is unchanged — the two
+   dictionaries will converge into @advert/shared later.
 3. **Audio step** — `/api/elevenlabs/tts` (with-timestamps); decode the
    base64 audio to a file via `expo-file-system`; play with `expo-av`;
    render the alignment as kinetic captions.

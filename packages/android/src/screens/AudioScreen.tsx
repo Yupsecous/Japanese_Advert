@@ -20,6 +20,7 @@ import {
   type VoiceSample,
 } from '../services/audioService';
 import { BackendError } from '../services/backend';
+import { useT, translate, useLocaleStore } from '../i18n';
 import type { RootStackParamList } from '../navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Audio'>;
@@ -31,6 +32,7 @@ export function AudioScreen({ navigation }: Props) {
   const setAudioVariant = useAppStore((s) => s.setAudioVariant);
   const voiceId = useAppStore((s) => s.voiceId);
   const setVoiceId = useAppStore((s) => s.setVoiceId);
+  const t = useT();
 
   const approvedScript = scriptIndex !== null ? scriptVariants[scriptIndex] : undefined;
 
@@ -138,10 +140,10 @@ export function AudioScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.missing}>
-          <Text style={styles.heading}>Earlier steps missing</Text>
-          <Text style={styles.subtitle}>Pick a script first.</Text>
+          <Text style={styles.heading}>{t('missing.heading')}</Text>
+          <Text style={styles.subtitle}>{t('missing.scriptMissing')}</Text>
           <Pressable style={styles.submit} onPress={() => navigation.popToTop()}>
-            <Text style={styles.submitText}>Back to brief</Text>
+            <Text style={styles.submitText}>{t('missing.backToBrief')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -152,19 +154,16 @@ export function AudioScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← Back to script</Text>
+          <Text style={styles.back}>{t('audio.backToScript')}</Text>
         </Pressable>
 
-        <Text style={typeStyle.eyebrow}>Step 4 of 6</Text>
-        <Text style={styles.heading}>Pick a voice. Hear it.</Text>
-        <Text style={styles.subtitle}>
-          Tap a voice, generate the read, then play it back. Re-pick a voice to
-          generate again.
-        </Text>
+        <Text style={typeStyle.eyebrow}>{t('audio.eyebrow')}</Text>
+        <Text style={styles.heading}>{t('audio.heading')}</Text>
+        <Text style={styles.subtitle}>{t('audio.subtitle')}</Text>
 
         <View style={styles.voiceCard}>
           <View style={styles.voiceCardHead}>
-            <Text style={styles.voiceLabel}>Voice</Text>
+            <Text style={styles.voiceLabel}>{t('audio.voiceLabel')}</Text>
             <Pressable
               style={styles.voicePick}
               onPress={() => setPickerOpen(true)}
@@ -172,10 +171,10 @@ export function AudioScreen({ navigation }: Props) {
             >
               <Text style={styles.voicePickText}>
                 {voicesLoading
-                  ? 'Loading…'
+                  ? t('audio.voicePickLoading')
                   : selectedVoice
-                    ? `${selectedVoice.displayName}`
-                    : 'Pick a voice'}
+                    ? selectedVoice.displayName
+                    : t('audio.voicePick')}
               </Text>
             </Pressable>
           </View>
@@ -209,13 +208,15 @@ export function AudioScreen({ navigation }: Props) {
             {generating ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.generateText}>Generate voice-over</Text>
+              <Text style={styles.generateText}>{t('audio.generate')}</Text>
             )}
           </Pressable>
         ) : (
           <View style={styles.player}>
             <Pressable style={styles.playBtn} onPress={() => void onPlayPause()}>
-              <Text style={styles.playText}>{playing ? '⏸  Pause' : '▶  Play'}</Text>
+              <Text style={styles.playText}>
+                {playing ? t('audio.pause') : t('audio.play')}
+              </Text>
             </Pressable>
             <View style={styles.progressTrack}>
               <View
@@ -242,7 +243,7 @@ export function AudioScreen({ navigation }: Props) {
               disabled={generating}
             >
               <Text style={styles.regenerateText}>
-                {generating ? 'Generating…' : 'Re-generate with current voice'}
+                {generating ? t('common.generating') : t('audio.regenerate')}
               </Text>
             </Pressable>
 
@@ -250,7 +251,7 @@ export function AudioScreen({ navigation }: Props) {
               style={styles.continue}
               onPress={() => navigation.navigate('Design')}
             >
-              <Text style={styles.continueText}>Continue to design step →</Text>
+              <Text style={styles.continueText}>{t('audio.continueDesign')}</Text>
             </Pressable>
           </View>
         )}
@@ -294,6 +295,7 @@ function VoicePickerModal({
   onClose: () => void;
   onPick: (id: string) => void | Promise<void>;
 }) {
+  const t = useT();
   return (
     <Modal
       visible={open}
@@ -303,15 +305,10 @@ function VoicePickerModal({
     >
       <Pressable style={styles.modalBackdrop} onPress={onClose}>
         <Pressable style={styles.modalSheet} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.modalHeading}>Pick a voice</Text>
-          <Text style={styles.modalSub}>
-            Voices come from your ElevenLabs account. Default voice is saved
-            per-device.
-          </Text>
+          <Text style={styles.modalHeading}>{t('audio.modalHeading')}</Text>
+          <Text style={styles.modalSub}>{t('audio.modalSub')}</Text>
           {voices.length === 0 ? (
-            <Text style={styles.modalEmpty}>
-              No voices found. Add voices in your ElevenLabs dashboard.
-            </Text>
+            <Text style={styles.modalEmpty}>{t('audio.modalEmpty')}</Text>
           ) : (
             <FlatList
               data={voices}
@@ -335,7 +332,7 @@ function VoicePickerModal({
             />
           )}
           <Pressable style={styles.modalClose} onPress={onClose}>
-            <Text style={styles.modalCloseText}>Close</Text>
+            <Text style={styles.modalCloseText}>{t('common.close')}</Text>
           </Pressable>
         </Pressable>
       </Pressable>
@@ -351,13 +348,16 @@ function formatMs(ms: number): string {
 }
 
 function formatError(err: unknown): string {
+  const locale = useLocaleStore.getState().locale;
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
   if (err instanceof BackendError) {
-    if (err.code === 'auth/unauthorized') return 'Session expired. Sign in again.';
-    if (err.code === 'cost/cap-exceeded') return 'Cost cap reached.';
-    if (err.code === 'config/missing-key') return `Backend missing API key (${err.detail ?? '?'}).`;
-    if (err.code === 'upstream/auth-failed') return 'ElevenLabs key was rejected.';
-    if (err.code === 'upstream/no-credits') return 'ElevenLabs account is out of character credits.';
-    if (err.code === 'network') return 'Could not reach the backend.';
+    if (err.code === 'auth/unauthorized') return t('error.sessionExpired');
+    if (err.code === 'cost/cap-exceeded') return t('error.costCap');
+    if (err.code === 'config/missing-key') return t('error.missingKey', { key: err.detail ?? '?' });
+    if (err.code === 'upstream/auth-failed') return t('error.upstreamAuth');
+    if (err.code === 'upstream/no-credits') return t('error.upstreamNoCredits');
+    if (err.code === 'network') return t('error.network');
   }
   return err instanceof Error ? err.message : String(err);
 }

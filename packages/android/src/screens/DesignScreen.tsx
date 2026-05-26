@@ -15,6 +15,7 @@ import { colors, radius, spacing, type as typeStyle } from '../theme';
 import { useAppStore } from '../store';
 import { generateDesign } from '../services/designService';
 import { BackendError } from '../services/backend';
+import { useT, translate, useLocaleStore } from '../i18n';
 import type { RootStackParamList } from '../navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Design'>;
@@ -27,6 +28,7 @@ export function DesignScreen({ navigation }: Props) {
   const imageIndex = useAppStore((s) => s.imageIndex);
   const designVariant = useAppStore((s) => s.designVariant);
   const setDesignVariant = useAppStore((s) => s.setDesignVariant);
+  const t = useT();
 
   const approvedCopy = copyIndex !== null ? copyVariants[copyIndex] : undefined;
   const approvedImage = imageIndex !== null ? imageVariants[imageIndex] : undefined;
@@ -82,12 +84,10 @@ export function DesignScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.missing}>
-          <Text style={styles.heading}>Earlier steps missing</Text>
-          <Text style={styles.subtitle}>
-            Approve a copy variant and an image variant first.
-          </Text>
+          <Text style={styles.heading}>{t('missing.heading')}</Text>
+          <Text style={styles.subtitle}>{t('missing.copyImageMissing')}</Text>
           <Pressable style={styles.submit} onPress={() => navigation.popToTop()}>
-            <Text style={styles.submitText}>Back to brief</Text>
+            <Text style={styles.submitText}>{t('missing.backToBrief')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -98,22 +98,18 @@ export function DesignScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← Back to audio</Text>
+          <Text style={styles.back}>{t('design.backToAudio')}</Text>
         </Pressable>
 
-        <Text style={typeStyle.eyebrow}>Step 6 of 6 — final</Text>
-        <Text style={styles.heading}>Landing-page component</Text>
-        <Text style={styles.subtitle}>
-          A single-file React + Tailwind v4 component, self-contained, ready to
-          paste into your app. Tap "Copy code" to copy the TSX to your
-          clipboard.
-        </Text>
+        <Text style={typeStyle.eyebrow}>{t('design.eyebrow')}</Text>
+        <Text style={styles.heading}>{t('design.heading')}</Text>
+        <Text style={styles.subtitle}>{t('design.subtitle')}</Text>
 
         {error && (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{error}</Text>
             <Pressable style={styles.retry} onPress={() => void runGenerate()}>
-              <Text style={styles.retryText}>Retry</Text>
+              <Text style={styles.retryText}>{t('common.retry')}</Text>
             </Pressable>
           </View>
         )}
@@ -121,14 +117,12 @@ export function DesignScreen({ navigation }: Props) {
         {loading && !designVariant ? (
           <View style={styles.loading}>
             <ActivityIndicator color={colors.brand} />
-            <Text style={styles.loadingText}>
-              Generating landing page (Claude Opus, ~30–60s)…
-            </Text>
+            <Text style={styles.loadingText}>{t('design.loading')}</Text>
           </View>
         ) : designVariant ? (
           <>
             <View style={styles.rationaleBox}>
-              <Text style={styles.rationaleLabel}>Rationale</Text>
+              <Text style={styles.rationaleLabel}>{t('design.rationaleLabel')}</Text>
               <Text style={styles.rationaleText}>{designVariant.rationale}</Text>
             </View>
 
@@ -138,7 +132,7 @@ export function DesignScreen({ navigation }: Props) {
               </Text>
               <Pressable style={styles.copyBtn} onPress={() => void onCopy()}>
                 <Text style={styles.copyText}>
-                  {copied ? 'Copied ✓' : 'Copy code'}
+                  {copied ? t('design.copied') : t('design.copyCode')}
                 </Text>
               </Pressable>
             </View>
@@ -155,15 +149,13 @@ export function DesignScreen({ navigation }: Props) {
             </View>
 
             <View style={styles.refineBox}>
-              <Text style={styles.refineLabel}>Refine the design</Text>
-              <Text style={styles.refineHint}>
-                Plain English. e.g. "warmer palette", "bigger hero, less text".
-              </Text>
+              <Text style={styles.refineLabel}>{t('design.refineLabel')}</Text>
+              <Text style={styles.refineHint}>{t('design.refineHint')}</Text>
               <TextInput
                 style={styles.refineInput}
                 value={refineText}
                 onChangeText={setRefineText}
-                placeholder="Tell the designer what to change"
+                placeholder={t('design.refinePlaceholder')}
                 placeholderTextColor={colors.inkFaint}
                 multiline
                 numberOfLines={3}
@@ -178,7 +170,7 @@ export function DesignScreen({ navigation }: Props) {
                 disabled={loading || !refineText.trim()}
               >
                 <Text style={styles.refineSubmitText}>
-                  {loading ? 'Generating…' : 'Refine'}
+                  {loading ? t('common.generating') : t('common.refine')}
                 </Text>
               </Pressable>
             </View>
@@ -187,7 +179,7 @@ export function DesignScreen({ navigation }: Props) {
               style={styles.finishBtn}
               onPress={() => navigation.popToTop()}
             >
-              <Text style={styles.finishText}>Finish — back to a new brief</Text>
+              <Text style={styles.finishText}>{t('design.finish')}</Text>
             </Pressable>
           </>
         ) : null}
@@ -197,12 +189,15 @@ export function DesignScreen({ navigation }: Props) {
 }
 
 function formatError(err: unknown): string {
+  const locale = useLocaleStore.getState().locale;
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
   if (err instanceof BackendError) {
-    if (err.code === 'auth/unauthorized') return 'Session expired. Sign in again.';
-    if (err.code === 'cost/cap-exceeded') return 'Cost cap reached.';
-    if (err.code === 'config/missing-key') return `Backend missing API key (${err.detail ?? '?'}).`;
-    if (err.code === 'upstream/auth-failed') return 'Anthropic key was rejected.';
-    if (err.code === 'network') return 'Could not reach the backend.';
+    if (err.code === 'auth/unauthorized') return t('error.sessionExpired');
+    if (err.code === 'cost/cap-exceeded') return t('error.costCap');
+    if (err.code === 'config/missing-key') return t('error.missingKey', { key: err.detail ?? '?' });
+    if (err.code === 'upstream/auth-failed') return t('error.upstreamAuth');
+    if (err.code === 'network') return t('error.network');
   }
   return err instanceof Error ? err.message : String(err);
 }

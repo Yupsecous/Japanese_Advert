@@ -14,6 +14,7 @@ import { colors, radius, spacing, type as typeStyle } from '../theme';
 import { useAppStore } from '../store';
 import { generateScript } from '../services/scriptService';
 import { BackendError } from '../services/backend';
+import { useT, translate, useLocaleStore } from '../i18n';
 import type { RootStackParamList } from '../navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Script'>;
@@ -29,6 +30,7 @@ export function ScriptScreen({ navigation }: Props) {
   const setVariants = useAppStore((s) => s.setScriptVariants);
   const appendVariants = useAppStore((s) => s.appendScriptVariants);
   const pickScript = useAppStore((s) => s.pickScript);
+  const t = useT();
 
   const approvedCopy = copyIndex !== null ? copyVariants[copyIndex] : undefined;
   const approvedImage = imageIndex !== null ? imageVariants[imageIndex] : undefined;
@@ -85,12 +87,10 @@ export function ScriptScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.missing}>
-          <Text style={styles.heading}>Earlier steps missing</Text>
-          <Text style={styles.subtitle}>
-            Approve a copy variant and an image variant first.
-          </Text>
+          <Text style={styles.heading}>{t('missing.heading')}</Text>
+          <Text style={styles.subtitle}>{t('missing.copyImageMissing')}</Text>
           <Pressable style={styles.submit} onPress={() => navigation.popToTop()}>
-            <Text style={styles.submitText}>Back to brief</Text>
+            <Text style={styles.submitText}>{t('missing.backToBrief')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -101,21 +101,18 @@ export function ScriptScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← Back to image</Text>
+          <Text style={styles.back}>{t('script.backToImage')}</Text>
         </Pressable>
 
-        <Text style={typeStyle.eyebrow}>Step 3 of 6</Text>
-        <Text style={styles.heading}>Pick your script</Text>
-        <Text style={styles.subtitle}>
-          Two takes, same emotional beat, different tonal registers. Tap one
-          to approve and continue.
-        </Text>
+        <Text style={typeStyle.eyebrow}>{t('script.eyebrow')}</Text>
+        <Text style={styles.heading}>{t('script.heading')}</Text>
+        <Text style={styles.subtitle}>{t('script.subtitle')}</Text>
 
         {error && (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{error}</Text>
             <Pressable style={styles.retry} onPress={() => void runInitial()}>
-              <Text style={styles.retryText}>Retry</Text>
+              <Text style={styles.retryText}>{t('common.retry')}</Text>
             </Pressable>
           </View>
         )}
@@ -123,7 +120,7 @@ export function ScriptScreen({ navigation }: Props) {
         {loading === 'initial' && variants.length === 0 ? (
           <View style={styles.loading}>
             <ActivityIndicator color={colors.brand} />
-            <Text style={styles.loadingText}>Writing scripts…</Text>
+            <Text style={styles.loadingText}>{t('script.loading')}</Text>
           </View>
         ) : (
           variants.map((v, i) => (
@@ -148,7 +145,7 @@ export function ScriptScreen({ navigation }: Props) {
             disabled={loading !== null}
           >
             <Text style={styles.moreText}>
-              {loading === 'more' ? 'Generating…' : 'Show more variants'}
+              {loading === 'more' ? t('common.generating') : t('common.showMore')}
             </Text>
           </Pressable>
         )}
@@ -170,19 +167,22 @@ function ScriptCard({
   selected: boolean;
   onPick: () => void;
 }) {
+  const t = useT();
   return (
     <View style={[styles.card, selected && styles.cardSelected]}>
       <View style={styles.cardHead}>
         <Text style={styles.cardEyebrow}>
-          Option {index + 1} of {total}
+          {t('common.option', { n: index + 1, total })}
         </Text>
-        <Text style={styles.duration}>~{variant.durationEstimate}s</Text>
+        <Text style={styles.duration}>
+          {t('script.duration', { seconds: variant.durationEstimate })}
+        </Text>
       </View>
       <Text style={styles.tone}>{variant.toneDescription}</Text>
       <Text style={styles.script}>{variant.script}</Text>
       <Pressable style={styles.pick} onPress={onPick}>
         <Text style={styles.pickText}>
-          {selected ? 'Selected ✓' : 'Pick this'}
+          {selected ? t('common.selected') : t('common.pickThis')}
         </Text>
       </Pressable>
     </View>
@@ -190,11 +190,14 @@ function ScriptCard({
 }
 
 function formatError(err: unknown): string {
+  const locale = useLocaleStore.getState().locale;
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
   if (err instanceof BackendError) {
-    if (err.code === 'auth/unauthorized') return 'Session expired. Sign in again.';
-    if (err.code === 'cost/cap-exceeded') return 'Cost cap reached.';
-    if (err.code === 'config/missing-key') return `Backend missing API key (${err.detail ?? '?'}).`;
-    if (err.code === 'network') return 'Could not reach the backend.';
+    if (err.code === 'auth/unauthorized') return t('error.sessionExpired');
+    if (err.code === 'cost/cap-exceeded') return t('error.costCap');
+    if (err.code === 'config/missing-key') return t('error.missingKey', { key: err.detail ?? '?' });
+    if (err.code === 'network') return t('error.network');
   }
   return err instanceof Error ? err.message : String(err);
 }

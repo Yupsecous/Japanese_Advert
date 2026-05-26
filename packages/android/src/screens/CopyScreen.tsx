@@ -14,6 +14,7 @@ import { colors, radius, spacing, type as typeStyle } from '../theme';
 import { useAppStore } from '../store';
 import { generateCopy } from '../services/copyService';
 import { BackendError } from '../services/backend';
+import { useT, translate, useLocaleStore } from '../i18n';
 import type { RootStackParamList } from '../navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Copy'>;
@@ -25,6 +26,7 @@ export function CopyScreen({ navigation }: Props) {
   const setVariants = useAppStore((s) => s.setCopyVariants);
   const appendVariants = useAppStore((s) => s.appendCopyVariants);
   const pickCopy = useAppStore((s) => s.pickCopy);
+  const t = useT();
 
   const [loading, setLoading] = useState<'initial' | 'more' | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,15 +68,12 @@ export function CopyScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← Back to brief</Text>
+          <Text style={styles.back}>{t('copy.backToBrief')}</Text>
         </Pressable>
 
-        <Text style={typeStyle.eyebrow}>Step 1 of 6</Text>
-        <Text style={styles.heading}>Pick your copy direction</Text>
-        <Text style={styles.subtitle}>
-          Each variant is a different hook on the same brief. Tap one to
-          approve and move to the image step.
-        </Text>
+        <Text style={typeStyle.eyebrow}>{t('copy.eyebrow')}</Text>
+        <Text style={styles.heading}>{t('copy.heading')}</Text>
+        <Text style={styles.subtitle}>{t('copy.subtitle')}</Text>
 
         {error && (
           <View style={styles.errorBox}>
@@ -83,7 +82,7 @@ export function CopyScreen({ navigation }: Props) {
               style={styles.retry}
               onPress={() => void runInitial()}
             >
-              <Text style={styles.retryText}>Retry</Text>
+              <Text style={styles.retryText}>{t('common.retry')}</Text>
             </Pressable>
           </View>
         )}
@@ -91,7 +90,7 @@ export function CopyScreen({ navigation }: Props) {
         {loading === 'initial' && variants.length === 0 ? (
           <View style={styles.loading}>
             <ActivityIndicator color={colors.brand} />
-            <Text style={styles.loadingText}>Generating copy…</Text>
+            <Text style={styles.loadingText}>{t('copy.loading')}</Text>
           </View>
         ) : (
           variants.map((v, i) => (
@@ -116,7 +115,7 @@ export function CopyScreen({ navigation }: Props) {
             disabled={loading !== null}
           >
             <Text style={styles.moreText}>
-              {loading === 'more' ? 'Generating…' : 'Show more variants'}
+              {loading === 'more' ? t('common.generating') : t('common.showMore')}
             </Text>
           </Pressable>
         )}
@@ -138,10 +137,11 @@ function CopyCard({
   selected: boolean;
   onPick: () => void;
 }) {
+  const t = useT();
   return (
     <View style={[styles.card, selected && styles.cardSelected]}>
       <Text style={styles.cardEyebrow}>
-        Option {index + 1} of {total}
+        {t('common.option', { n: index + 1, total })}
       </Text>
       <Text style={styles.headline}>{variant.headline}</Text>
       <Text style={styles.caption}>{variant.caption}</Text>
@@ -149,18 +149,23 @@ function CopyCard({
         <Text style={styles.ctaPill}>{variant.cta}</Text>
       </View>
       <Pressable style={styles.pick} onPress={onPick}>
-        <Text style={styles.pickText}>{selected ? 'Selected ✓' : 'Pick this'}</Text>
+        <Text style={styles.pickText}>
+          {selected ? t('common.selected') : t('common.pickThis')}
+        </Text>
       </Pressable>
     </View>
   );
 }
 
 function formatError(err: unknown): string {
+  const locale = useLocaleStore.getState().locale;
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
   if (err instanceof BackendError) {
-    if (err.code === 'auth/unauthorized') return 'Session expired. Sign in again.';
-    if (err.code === 'cost/cap-exceeded') return 'Daily cost cap reached. Try again later or raise the cap in backend env.';
-    if (err.code === 'config/missing-key') return `Backend is missing an API key (${err.detail ?? '?'}).`;
-    if (err.code === 'network') return 'Could not reach the backend.';
+    if (err.code === 'auth/unauthorized') return t('error.sessionExpired');
+    if (err.code === 'cost/cap-exceeded') return t('error.costCap');
+    if (err.code === 'config/missing-key') return t('error.missingKey', { key: err.detail ?? '?' });
+    if (err.code === 'network') return t('error.network');
   }
   return err instanceof Error ? err.message : String(err);
 }

@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useAppStore } from './src/store';
+import { useLocaleStore } from './src/i18n';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { BriefScreen } from './src/screens/BriefScreen';
 import { CopyScreen } from './src/screens/CopyScreen';
@@ -21,10 +22,12 @@ export default function App() {
   const authed = useAppStore((s) => s.authed);
   const hydrating = useAppStore((s) => s.hydrating);
   const hydrate = useAppStore((s) => s.hydrate);
+  const hydrateLocale = useLocaleStore((s) => s.hydrate);
 
   useEffect(() => {
     void hydrate();
-  }, [hydrate]);
+    void hydrateLocale();
+  }, [hydrate, hydrateLocale]);
 
   if (hydrating) {
     return (

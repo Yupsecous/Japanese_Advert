@@ -13,6 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors, radius, spacing, type as typeStyle } from '../theme';
 import { useAppStore } from '../store';
+import { useT } from '../i18n';
+import { LanguagePicker } from '../components/LanguagePicker';
 import type { RootStackParamList } from '../navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Brief'>;
@@ -21,6 +23,7 @@ export function BriefScreen({ navigation }: Props) {
   const briefState = useAppStore((s) => s.brief);
   const setBrief = useAppStore((s) => s.setBrief);
   const signOut = useAppStore((s) => s.signOut);
+  const t = useT();
 
   const [productName, setProductName] = useState(briefState.productName);
   const [targetAudience, setTargetAudience] = useState(briefState.targetAudience);
@@ -52,48 +55,48 @@ export function BriefScreen({ navigation }: Props) {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.headerRow}>
-            <View>
-              <Text style={typeStyle.eyebrow}>The brief</Text>
-              <Text style={styles.heading}>Three lines, four assets.</Text>
+            <View style={styles.headerLeft}>
+              <Text style={typeStyle.eyebrow}>{t('brief.eyebrow')}</Text>
+              <Text style={styles.heading}>{t('brief.heading')}</Text>
             </View>
-            <Pressable onPress={() => void signOut()} hitSlop={12}>
-              <Text style={styles.signOut}>Sign out</Text>
-            </Pressable>
+            <View style={styles.headerActions}>
+              <LanguagePicker />
+              <Pressable onPress={() => void signOut()} hitSlop={12}>
+                <Text style={styles.signOut}>{t('common.signOut')}</Text>
+              </Pressable>
+            </View>
           </View>
 
-          <Text style={styles.intro}>
-            The director's cockpit walks you through copy, image, script and
-            audio — one at a time.
-          </Text>
+          <Text style={styles.intro}>{t('brief.intro')}</Text>
 
           <Field
-            label="Product name"
-            placeholder="e.g. Lumen Sleep Mist"
+            label={t('brief.productName')}
+            placeholder={t('brief.placeholderProduct')}
             value={productName}
             onChange={setProductName}
-            error={touched && !productName.trim() ? 'Product name is required.' : null}
+            error={touched && !productName.trim() ? t('brief.requiredProduct') : null}
           />
           <Field
-            label="Target audience"
-            placeholder="e.g. Burned-out parents, 30–45"
+            label={t('brief.targetAudience')}
+            placeholder={t('brief.placeholderAudience')}
             value={targetAudience}
             onChange={setTargetAudience}
-            error={touched && !targetAudience.trim() ? 'Target audience is required.' : null}
+            error={touched && !targetAudience.trim() ? t('brief.requiredAudience') : null}
           />
           <Field
-            label="Ad angle"
-            placeholder="e.g. Fall asleep in seven minutes flat"
+            label={t('brief.adAngle')}
+            placeholder={t('brief.placeholderAngle')}
             value={adAngle}
             onChange={setAdAngle}
             multiline
-            error={touched && !adAngle.trim() ? 'Ad angle is required.' : null}
+            error={touched && !adAngle.trim() ? t('brief.requiredAngle') : null}
           />
 
           <Pressable
             style={[styles.submit, !canSubmit && styles.submitDisabled]}
             onPress={onSubmit}
           >
-            <Text style={styles.submitText}>Start</Text>
+            <Text style={styles.submitText}>{t('brief.start')}</Text>
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -143,6 +146,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: spacing.md,
   },
+  headerLeft: { flex: 1, paddingRight: spacing.sm },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   heading: {
     fontSize: 28,
     fontWeight: '500',

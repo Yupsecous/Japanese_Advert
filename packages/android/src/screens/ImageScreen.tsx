@@ -23,20 +23,16 @@ import { colors, radius, spacing, type as typeStyle } from '../theme';
 import { useAppStore } from '../store';
 import { generateImages } from '../services/imageService';
 import { BackendError } from '../services/backend';
+import { useT, translate, useLocaleStore } from '../i18n';
 import type { RootStackParamList } from '../navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Image'>;
 
 const TIERS: ImageQualityTier[] = ['fast', 'balanced', 'realistic'];
-const TIER_LABELS: Record<ImageQualityTier, string> = {
-  fast: 'Fast',
-  balanced: 'Balanced',
-  realistic: 'Realistic',
-};
-const TIER_BLURB: Record<ImageQualityTier, string> = {
-  fast: 'Flux Schnell. Cheapest and quickest. The AI look is more visible.',
-  balanced: 'Flux Dev. Much cleaner faces, hands, textures. ~8× the cost of Fast.',
-  realistic: 'Flux Pro 1.1. Most photorealistic. Best skin, light, materials.',
+const TIER_BLURB_KEY: Record<ImageQualityTier, string> = {
+  fast: 'image.tier.fastBlurb',
+  balanced: 'image.tier.balancedBlurb',
+  realistic: 'image.tier.realisticBlurb',
 };
 
 export function ImageScreen({ navigation }: Props) {
@@ -50,6 +46,7 @@ export function ImageScreen({ navigation }: Props) {
   const pickImage = useAppStore((s) => s.pickImage);
   const tier = useAppStore((s) => s.imageQualityTier);
   const setTier = useAppStore((s) => s.setImageQualityTier);
+  const t = useT();
 
   const approvedCopy = copyIndex !== null ? copyVariants[copyIndex] : undefined;
 
@@ -129,10 +126,10 @@ export function ImageScreen({ navigation }: Props) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.missing}>
-          <Text style={styles.heading}>No approved copy</Text>
-          <Text style={styles.subtitle}>Pick a copy variant first.</Text>
+          <Text style={styles.heading}>{t('missing.heading')}</Text>
+          <Text style={styles.subtitle}>{t('missing.copyMissing')}</Text>
           <Pressable style={styles.submit} onPress={() => navigation.popToTop()}>
-            <Text style={styles.submitText}>Back to brief</Text>
+            <Text style={styles.submitText}>{t('missing.backToBrief')}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -143,34 +140,31 @@ export function ImageScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Pressable hitSlop={12} onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← Back to copy</Text>
+          <Text style={styles.back}>{t('image.backToCopy')}</Text>
         </Pressable>
 
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
-            <Text style={typeStyle.eyebrow}>Step 2 of 6</Text>
-            <Text style={styles.heading}>Pick your hero image</Text>
+            <Text style={typeStyle.eyebrow}>{t('image.eyebrow')}</Text>
+            <Text style={styles.heading}>{t('image.heading')}</Text>
           </View>
           <Pressable
             style={[styles.tierBadge, tierBadgeStyle(tier)]}
             onPress={() => setTierModalOpen(true)}
           >
             <Text style={styles.tierBadgeText}>
-              {TIER_LABELS[tier]} · {formatCostUsd(TIER_COST_USD[tier])}/img
+              {t(`image.tierBadge.${tier}` as const)} · {formatCostUsd(TIER_COST_USD[tier])}/img
             </Text>
           </Pressable>
         </View>
 
-        <Text style={styles.subtitle}>
-          Photoreal cues baked into every prompt. Tap a card to approve and
-          continue.
-        </Text>
+        <Text style={styles.subtitle}>{t('image.subtitle')}</Text>
 
         {error && (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{error}</Text>
             <Pressable style={styles.retry} onPress={() => void runInitial()}>
-              <Text style={styles.retryText}>Retry</Text>
+              <Text style={styles.retryText}>{t('common.retry')}</Text>
             </Pressable>
           </View>
         )}
@@ -179,8 +173,7 @@ export function ImageScreen({ navigation }: Props) {
           <View style={styles.loading}>
             <ActivityIndicator color={colors.brand} />
             <Text style={styles.loadingText}>
-              Generating images at {TIER_LABELS[tier]} tier
-              {' '}(~{TIER_LATENCY_SECONDS[tier]}s)…
+              {t('image.loading', { tier: t(`image.tierBadge.${tier}` as const), seconds: TIER_LATENCY_SECONDS[tier] })}
             </Text>
           </View>
         ) : (
@@ -207,21 +200,18 @@ export function ImageScreen({ navigation }: Props) {
               disabled={loading !== null}
             >
               <Text style={styles.moreText}>
-                {loading === 'more' ? 'Generating…' : 'Show more variants'}
+                {loading === 'more' ? t('common.generating') : t('common.showMore')}
               </Text>
             </Pressable>
 
             <View style={styles.refineBox}>
-              <Text style={styles.refineLabel}>Refine</Text>
-              <Text style={styles.refineHint}>
-                Plain English. e.g. "more cinematic", "lighter background, more
-                energy".
-              </Text>
+              <Text style={styles.refineLabel}>{t('image.refineLabel')}</Text>
+              <Text style={styles.refineHint}>{t('image.refineHint')}</Text>
               <TextInput
                 style={styles.refineInput}
                 value={refineText}
                 onChangeText={setRefineText}
-                placeholder="Tell the director what to change"
+                placeholder={t('image.refinePlaceholder')}
                 placeholderTextColor={colors.inkFaint}
                 multiline
                 numberOfLines={3}
@@ -236,7 +226,7 @@ export function ImageScreen({ navigation }: Props) {
                 disabled={loading !== null || !refineText.trim()}
               >
                 <Text style={styles.refineSubmitText}>
-                  {loading === 'refine' ? 'Refining…' : 'Refine'}
+                  {loading === 'refine' ? t('common.refining') : t('common.refine')}
                 </Text>
               </Pressable>
             </View>
@@ -270,6 +260,7 @@ function ImageCard({
   selected: boolean;
   onPick: () => void;
 }) {
+  const t = useT();
   return (
     <View style={[styles.card, selected && styles.cardSelected]}>
       <Image
@@ -279,11 +270,11 @@ function ImageCard({
       />
       <View style={styles.cardBody}>
         <Text style={styles.cardEyebrow}>
-          Option {index + 1} of {total}
+          {t('common.option', { n: index + 1, total })}
         </Text>
         <Pressable style={styles.pick} onPress={onPick}>
           <Text style={styles.pickText}>
-            {selected ? 'Selected ✓' : 'Pick this'}
+            {selected ? t('common.selected') : t('common.pickThis')}
           </Text>
         </Pressable>
       </View>
@@ -302,6 +293,7 @@ function TierPickerModal({
   onClose: () => void;
   onPick: (t: ImageQualityTier) => void;
 }) {
+  const t = useT();
   return (
     <Modal
       visible={open}
@@ -311,31 +303,30 @@ function TierPickerModal({
     >
       <Pressable style={styles.modalBackdrop} onPress={onClose}>
         <Pressable style={styles.modalSheet} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.modalHeading}>Image quality tier</Text>
-          <Text style={styles.modalSub}>
-            Higher tiers use better Flux models — visibly more photorealistic
-            at higher cost. Saved per-device.
-          </Text>
-          {TIERS.map((t) => {
-            const isCurrent = t === current;
+          <Text style={styles.modalHeading}>{t('image.tierModalHeading')}</Text>
+          <Text style={styles.modalSub}>{t('image.tierModalSub')}</Text>
+          {TIERS.map((tier) => {
+            const isCurrent = tier === current;
             return (
               <Pressable
-                key={t}
+                key={tier}
                 style={[styles.tierOption, isCurrent && styles.tierOptionSelected]}
-                onPress={() => onPick(t)}
+                onPress={() => onPick(tier)}
               >
                 <View style={styles.tierOptionHeader}>
-                  <Text style={styles.tierOptionTitle}>{TIER_LABELS[t]}</Text>
+                  <Text style={styles.tierOptionTitle}>
+                    {t(`image.tierBadge.${tier}` as const)}
+                  </Text>
                   <Text style={styles.tierOptionCost}>
-                    {formatCostUsd(TIER_COST_USD[t])}/img · ~{TIER_LATENCY_SECONDS[t]}s
+                    {formatCostUsd(TIER_COST_USD[tier])}/img · ~{TIER_LATENCY_SECONDS[tier]}s
                   </Text>
                 </View>
-                <Text style={styles.tierOptionBlurb}>{TIER_BLURB[t]}</Text>
+                <Text style={styles.tierOptionBlurb}>{t(TIER_BLURB_KEY[tier])}</Text>
               </Pressable>
             );
           })}
           <Pressable style={styles.modalClose} onPress={onClose}>
-            <Text style={styles.modalCloseText}>Close</Text>
+            <Text style={styles.modalCloseText}>{t('common.close')}</Text>
           </Pressable>
         </Pressable>
       </Pressable>
@@ -350,14 +341,17 @@ function tierBadgeStyle(t: ImageQualityTier) {
 }
 
 function formatError(err: unknown): string {
+  const locale = useLocaleStore.getState().locale;
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
   if (err instanceof BackendError) {
-    if (err.code === 'auth/unauthorized') return 'Session expired. Sign in again.';
-    if (err.code === 'cost/cap-exceeded') return 'Daily cost cap reached.';
-    if (err.code === 'config/missing-key') return `Backend missing API key (${err.detail ?? '?'}).`;
-    if (err.code === 'upstream/no-credits') return 'fal.ai account is out of credits.';
-    if (err.code === 'upstream/auth-failed') return 'fal.ai key was rejected by the provider.';
-    if (err.code === 'upstream/rate-limit') return 'fal.ai rate-limited. Wait a moment.';
-    if (err.code === 'network') return 'Could not reach the backend.';
+    if (err.code === 'auth/unauthorized') return t('error.sessionExpired');
+    if (err.code === 'cost/cap-exceeded') return t('error.costCap');
+    if (err.code === 'config/missing-key') return t('error.missingKey', { key: err.detail ?? '?' });
+    if (err.code === 'upstream/no-credits') return t('error.upstreamNoCredits');
+    if (err.code === 'upstream/auth-failed') return t('error.upstreamAuth');
+    if (err.code === 'upstream/rate-limit') return t('error.upstreamRateLimit');
+    if (err.code === 'network') return t('error.network');
   }
   return err instanceof Error ? err.message : String(err);
 }

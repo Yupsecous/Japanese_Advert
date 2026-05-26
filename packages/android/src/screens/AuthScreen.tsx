@@ -13,9 +13,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, radius, spacing, type as typeStyle } from '../theme';
 import { useAppStore } from '../store';
 import { login, BackendError } from '../services/backend';
+import { useT } from '../i18n';
+import { LanguagePicker } from '../components/LanguagePicker';
 
 export function AuthScreen() {
   const setAuth = useAppStore((s) => s.setAuth);
+  const t = useT();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -29,13 +32,11 @@ export function AuthScreen() {
       await setAuth(token);
     } catch (err) {
       if (err instanceof BackendError && err.code === 'auth/bad-credentials') {
-        setError("Username and password didn't match. Check for stray spaces.");
+        setError(t('auth.invalid'));
       } else if (err instanceof BackendError && err.code === 'network') {
-        setError(
-          'Could not reach the backend. Confirm the backend is running and the URL in app.json is correct.',
-        );
+        setError(t('auth.network'));
       } else {
-        setError(err instanceof Error ? err.message : 'Sign-in failed.');
+        setError(err instanceof Error ? err.message : t('error.unknown'));
       }
     } finally {
       setSubmitting(false);
@@ -49,15 +50,15 @@ export function AuthScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.container}>
-          <Text style={styles.eyebrow}>Director's Cockpit</Text>
-          <Text style={styles.heading}>Sign in</Text>
-          <Text style={styles.subtitle}>
-            This app is access-controlled. Enter the credentials your contact
-            shared with you.
-          </Text>
+          <View style={styles.topRow}>
+            <Text style={styles.eyebrow}>{t('auth.eyebrow')}</Text>
+            <LanguagePicker />
+          </View>
+          <Text style={styles.heading}>{t('auth.heading')}</Text>
+          <Text style={styles.subtitle}>{t('auth.subtitle')}</Text>
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Username</Text>
+            <Text style={styles.label}>{t('auth.username')}</Text>
             <TextInput
               style={styles.input}
               value={username}
@@ -70,7 +71,7 @@ export function AuthScreen() {
           </View>
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('auth.password')}</Text>
             <TextInput
               style={styles.input}
               value={password}
@@ -96,14 +97,11 @@ export function AuthScreen() {
             {submitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.submitText}>Sign in</Text>
+              <Text style={styles.submitText}>{t('auth.signIn')}</Text>
             )}
           </Pressable>
 
-          <Text style={styles.footnote}>
-            Credentials are checked server-side. This is a soft gate for the
-            internal team, not a public security barrier.
-          </Text>
+          <Text style={styles.footnote}>{t('auth.footnote')}</Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -118,9 +116,14 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     justifyContent: 'center',
   },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
   eyebrow: {
     ...typeStyle.eyebrow,
-    marginBottom: spacing.sm,
   },
   heading: {
     fontSize: 32,
