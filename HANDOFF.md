@@ -4,6 +4,11 @@ What landed in the first build session, what remains, and how to run
 each piece. This document is the source of truth for the next session
 to pick up from.
 
+> **For shipping the app to a prospect** (not just testing locally), see
+> [DEPLOY.md](DEPLOY.md) — the 30-minute zero-to-APK guide. That's the
+> "common app" path: deploy backend once + build APK once + hand the
+> .apk to anyone who has an Android phone.
+
 ---
 
 ## Repo shape now

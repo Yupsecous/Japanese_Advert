@@ -17,7 +17,9 @@
     "test:watch": "vitest",
     "backend:dev": "npm run dev --workspace=@advert/backend",
     "backend:deploy": "npm run deploy --workspace=@advert/backend",
-    "android:start": "npm run start --workspace=@advert/android"
+    "android:start": "npm run start --workspace=@advert/android",
+    "android:build:apk": "npm run build:apk --workspace=@advert/android",
+    "android:build:aab": "npm run build:aab --workspace=@advert/android"
   },
   "dependencies": {
     "@types/jszip": "^3.4.0",

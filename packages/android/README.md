@@ -17,7 +17,7 @@ root).
 - **Shared code** — types, pricing tiers, brand prompt assembly come from
   `@advert/shared`. The store, services, and screens are RN-specific.
 
-## Local dev
+## Local dev (for developers; for shipping see DEPLOY.md)
 
 ```powershell
 # From repo root, install workspace deps once:
@@ -32,8 +32,25 @@ npm run android:start
 
 Then press `a` in the Expo CLI to open the Android emulator. The default
 backend URL is `http://10.0.2.2:3001` (the emulator's loopback to the
-host machine). Override via `app.json` → `expo.extra.backendUrl` for
-device or prod testing.
+host machine). Override at start time:
+
+```powershell
+$env:BACKEND_URL="https://your-deployed-backend.vercel.app"; npm run android:start
+```
+
+## Shipping an installable APK to prospects
+
+See [../../DEPLOY.md](../../DEPLOY.md). Two commands once it's set up:
+
+```powershell
+# Backend (once per code change, ~30s)
+cd packages\backend && vercel deploy --prod
+
+# APK (once per code change, ~10min, cloud build)
+npm run android:build:apk
+```
+
+The APK download URL appears in the terminal output and at expo.dev.
 
 ## Sign-in
 
