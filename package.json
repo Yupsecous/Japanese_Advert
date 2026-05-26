@@ -44,6 +44,9 @@
   },
   "overrides": {
     "react-native": "0.74.5",
+    "expo-modules-autolinking": "~1.11.0",
+    "@expo/config-plugins": "~8.0.0",
+    "@expo/prebuild-config": "~7.0.0",
     "@expo/vector-icons": {
       "react-native": "0.74.5"
     }
