@@ -27,9 +27,25 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
-// Force a single instance of react and react-native — npm workspaces
-// can otherwise resolve them from two places (root and nested), which
-// causes hook-error symptoms at runtime.
-config.resolver.disableHierarchicalLookup = true;
+// Hard-map packages that npm install consistently drops in EAS's
+// monorepo isolation. These all live at the workspace root in the
+// cloud after `npm install`; Metro's default hierarchical walk
+// stops too early to find them from inside
+// packages/android/node_modules/@react-navigation/*.
+config.resolver.extraNodeModules = {
+  'warn-once': path.resolve(workspaceRoot, 'node_modules/warn-once'),
+  '@react-navigation/elements': path.resolve(
+    workspaceRoot,
+    'node_modules/@react-navigation/elements',
+  ),
+  '@react-navigation/core': path.resolve(
+    workspaceRoot,
+    'node_modules/@react-navigation/core',
+  ),
+  '@react-navigation/routers': path.resolve(
+    workspaceRoot,
+    'node_modules/@react-navigation/routers',
+  ),
+};
 
 module.exports = config;
