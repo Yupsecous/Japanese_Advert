@@ -22,6 +22,10 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   userInterfaceStyle: 'light',
   scheme: 'advert',
+  splash: {
+    backgroundColor: '#FAF6EE',
+    resizeMode: 'contain',
+  },
   android: {
     package: 'com.advert.directorscockpit',
     minSdkVersion: 29,
