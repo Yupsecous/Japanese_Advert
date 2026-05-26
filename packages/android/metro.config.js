@@ -32,20 +32,21 @@ config.resolver.nodeModulesPaths = [
 // cloud after `npm install`; Metro's default hierarchical walk
 // stops too early to find them from inside
 // packages/android/node_modules/@react-navigation/*.
+function ws(pkg) {
+  return path.resolve(workspaceRoot, 'node_modules', pkg);
+}
+
 config.resolver.extraNodeModules = {
-  'warn-once': path.resolve(workspaceRoot, 'node_modules/warn-once'),
-  '@react-navigation/elements': path.resolve(
-    workspaceRoot,
-    'node_modules/@react-navigation/elements',
-  ),
-  '@react-navigation/core': path.resolve(
-    workspaceRoot,
-    'node_modules/@react-navigation/core',
-  ),
-  '@react-navigation/routers': path.resolve(
-    workspaceRoot,
-    'node_modules/@react-navigation/routers',
-  ),
+  'warn-once': ws('warn-once'),
+  'react-freeze': ws('react-freeze'),
+  '@react-navigation/elements': ws('@react-navigation/elements'),
+  '@react-navigation/core': ws('@react-navigation/core'),
+  '@react-navigation/routers': ws('@react-navigation/routers'),
+  'use-latest-callback': ws('use-latest-callback'),
+  'query-string': ws('query-string'),
+  nanoid: ws('nanoid'),
+  'escape-string-regexp': ws('escape-string-regexp'),
+  'fast-deep-equal': ws('fast-deep-equal'),
 };
 
 module.exports = config;
