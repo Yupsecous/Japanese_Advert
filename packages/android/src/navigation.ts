@@ -1,5 +1,6 @@
 export type RootStackParamList = {
   Brief: undefined;
   Copy: undefined;
-  NextStepPlaceholder: { step: 'image' | 'script' | 'audio' | 'design' };
+  Image: undefined;
+  NextStepPlaceholder: { step: 'script' | 'audio' | 'design' };
 };

@@ -103,9 +103,7 @@ export function CopyScreen({ navigation }: Props) {
               selected={selectedIndex === i}
               onPick={() => {
                 pickCopy(i);
-                // Image step lands in a later session; for now we navigate
-                // to a placeholder so the flow is testable end-to-end.
-                navigation.navigate('NextStepPlaceholder', { step: 'image' });
+                navigation.navigate('Image');
               }}
             />
           ))

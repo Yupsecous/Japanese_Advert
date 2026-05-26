@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setToken } from '../services/backend';
-import type { Brief, CopyVariant } from '@advert/shared';
+import type { Brief, CopyVariant, ImageQualityTier, ImageVariant } from '@advert/shared';
 
 // Slimmed-down store for v1. Web app's slices will port over in
-// subsequent sessions; for now only what auth + brief + copy screen
+// subsequent sessions; for now only what auth + brief + copy + image
 // touch.
 
 const TOKEN_KEY = 'advert.token';
+const TIER_KEY = 'advert.imageQualityTier';
 
 export type AppState = {
   // Auth
@@ -30,9 +31,26 @@ export type AppState = {
   appendCopyVariants: (v: CopyVariant[]) => void;
   pickCopy: (index: number) => void;
   resetCopy: () => void;
+
+  // Image step
+  imageVariants: ImageVariant[];
+  imageIndex: number | null;
+  setImageVariants: (v: ImageVariant[]) => void;
+  appendImageVariants: (v: ImageVariant[]) => void;
+  pickImage: (index: number) => void;
+  resetImage: () => void;
+
+  // Generation settings (durable)
+  imageQualityTier: ImageQualityTier;
+  setImageQualityTier: (t: ImageQualityTier) => Promise<void>;
 };
 
 const emptyBrief: Brief = { productName: '', targetAudience: '', adAngle: '' };
+
+function parseStoredTier(v: string | null): ImageQualityTier {
+  if (v === 'balanced' || v === 'realistic') return v;
+  return 'fast';
+}
 
 export const useAppStore = create<AppState>((set) => ({
   token: null,
@@ -52,20 +70,36 @@ export const useAppStore = create<AppState>((set) => ({
       brief: emptyBrief,
       copyVariants: [],
       copyIndex: null,
+      imageVariants: [],
+      imageIndex: null,
     });
   },
   hydrate: async () => {
-    const token = await AsyncStorage.getItem(TOKEN_KEY);
+    const [token, tier] = await Promise.all([
+      AsyncStorage.getItem(TOKEN_KEY),
+      AsyncStorage.getItem(TIER_KEY),
+    ]);
     if (token) {
       setToken(token);
-      set({ token, authed: true });
     }
-    set({ hydrating: false });
+    set({
+      token,
+      authed: !!token,
+      imageQualityTier: parseStoredTier(tier),
+      hydrating: false,
+    });
   },
 
   brief: emptyBrief,
   setBrief: (b) => set({ brief: b }),
-  resetBrief: () => set({ brief: emptyBrief, copyVariants: [], copyIndex: null }),
+  resetBrief: () =>
+    set({
+      brief: emptyBrief,
+      copyVariants: [],
+      copyIndex: null,
+      imageVariants: [],
+      imageIndex: null,
+    }),
 
   copyVariants: [],
   copyIndex: null,
@@ -74,4 +108,18 @@ export const useAppStore = create<AppState>((set) => ({
     set((s) => ({ copyVariants: [...s.copyVariants, ...v] })),
   pickCopy: (index) => set({ copyIndex: index }),
   resetCopy: () => set({ copyVariants: [], copyIndex: null }),
+
+  imageVariants: [],
+  imageIndex: null,
+  setImageVariants: (v) => set({ imageVariants: v, imageIndex: null }),
+  appendImageVariants: (v) =>
+    set((s) => ({ imageVariants: [...s.imageVariants, ...v] })),
+  pickImage: (index) => set({ imageIndex: index }),
+  resetImage: () => set({ imageVariants: [], imageIndex: null }),
+
+  imageQualityTier: 'fast',
+  setImageQualityTier: async (tier) => {
+    await AsyncStorage.setItem(TIER_KEY, tier);
+    set({ imageQualityTier: tier });
+  },
 }));

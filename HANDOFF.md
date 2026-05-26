@@ -171,10 +171,11 @@ with the web app. Listed in recommended build order.
 
 ### Android feature work
 
-1. **Image step** — tier-aware Flux call via `/api/fal/flux`, per-variant
-   refine, critique. Reuse the prompt builder from the web
-   (`src/services/imagePromptBuilder.ts`) — port to Android, keep server
-   stateless. Ship the tier badge from the web UI.
+1. ✅ **Image step (landed)** — tier-aware Flux generation, plain-English
+   refine, tier badge + picker modal, photoreal-cue prompt builder.
+   Per-variant refine and critique (Claude) still pending; the current
+   refine button re-generates the whole batch like the web's "main"
+   refine box.
 2. **Script step** — `/api/anthropic/messages` with the existing system
    prompt; 2 tonally distinct variants.
 3. **Audio step** — `/api/elevenlabs/tts` (with-timestamps); decode the

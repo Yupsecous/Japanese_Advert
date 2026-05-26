@@ -44,16 +44,18 @@ Default credentials match the web demo:
 
 Both checked server-side. Configure in `packages/backend/.env.local`.
 
-## What's in v1
+## What's in the app today
 
 - Auth gate (server-checked)
 - Brief screen (3 fields, validated)
-- Copy step — generates 2 distinct variants, "show more" appends, tap to
-  pick → routes to a placeholder for the image step.
+- Copy step — generates 2 distinct variants, "show more" appends
+- **Image step** — tier-aware Flux generation, plain-English refine, tier
+  badge in the header opens a picker modal. Photoreal cues baked into
+  every prompt. Tier choice persists in `AsyncStorage`.
 
 ## What lands next (in order)
 
-1. Image step (tier-aware Flux + per-variant refine)
+1. Per-variant refine + Claude critique on Image
 2. Script step
 3. Audio step (with kinetic-caption preview)
 4. Design step
