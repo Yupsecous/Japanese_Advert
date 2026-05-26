@@ -4,5 +4,5 @@ export type RootStackParamList = {
   Image: undefined;
   Script: undefined;
   Audio: undefined;
-  NextStepPlaceholder: { step: 'design' };
+  Design: undefined;
 };

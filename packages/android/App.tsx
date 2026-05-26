@@ -11,7 +11,7 @@ import { CopyScreen } from './src/screens/CopyScreen';
 import { ImageScreen } from './src/screens/ImageScreen';
 import { ScriptScreen } from './src/screens/ScriptScreen';
 import { AudioScreen } from './src/screens/AudioScreen';
-import { NextStepPlaceholderScreen } from './src/screens/NextStepPlaceholderScreen';
+import { DesignScreen } from './src/screens/DesignScreen';
 import { colors } from './src/theme';
 import type { RootStackParamList } from './src/navigation';
 
@@ -53,10 +53,7 @@ export default function App() {
             <Stack.Screen name="Image" component={ImageScreen} />
             <Stack.Screen name="Script" component={ScriptScreen} />
             <Stack.Screen name="Audio" component={AudioScreen} />
-            <Stack.Screen
-              name="NextStepPlaceholder"
-              component={NextStepPlaceholderScreen}
-            />
+            <Stack.Screen name="Design" component={DesignScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       ) : (

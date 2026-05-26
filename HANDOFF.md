@@ -186,6 +186,12 @@ with the web app. Listed in recommended build order.
    preserved on the variant for kinetic captions (still to land).
    Voice selection persists per-device. Kinetic-caption rendering and a
    waveform view still pending.
+4. ✅ **Design step (landed)** — claude-opus-4-7 via the Anthropic proxy
+   generates a single-file React + Tailwind landing-page component
+   (~30-60s). Rationale shown above a scrollable monospace code box.
+   "Copy code" button writes the TSX to the clipboard via
+   `expo-clipboard`. Refine box accepts plain-English direction. Finish
+   button returns to a fresh brief.
 3. **Audio step** — `/api/elevenlabs/tts` (with-timestamps); decode the
    base64 audio to a file via `expo-file-system`; play with `expo-av`;
    render the alignment as kinetic captions.

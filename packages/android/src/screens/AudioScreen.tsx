@@ -248,7 +248,7 @@ export function AudioScreen({ navigation }: Props) {
 
             <Pressable
               style={styles.continue}
-              onPress={() => navigation.navigate('NextStepPlaceholder', { step: 'design' })}
+              onPress={() => navigation.navigate('Design')}
             >
               <Text style={styles.continueText}>Continue to design step →</Text>
             </Pressable>

@@ -5,6 +5,7 @@ import type {
   AudioVariant,
   Brief,
   CopyVariant,
+  DesignVariant,
   ImageQualityTier,
   ImageVariant,
   ScriptVariant,
@@ -62,6 +63,10 @@ export type AppState = {
   voiceId: string | null;
   setVoiceId: (id: string) => Promise<void>;
 
+  // Design step
+  designVariant: DesignVariant | null;
+  setDesignVariant: (d: DesignVariant | null) => void;
+
   // Generation settings (durable)
   imageQualityTier: ImageQualityTier;
   setImageQualityTier: (t: ImageQualityTier) => Promise<void>;
@@ -97,6 +102,7 @@ export const useAppStore = create<AppState>((set) => ({
       scriptVariants: [],
       scriptIndex: null,
       audioVariant: null,
+      designVariant: null,
     });
   },
   hydrate: async () => {
@@ -129,6 +135,7 @@ export const useAppStore = create<AppState>((set) => ({
       scriptVariants: [],
       scriptIndex: null,
       audioVariant: null,
+      designVariant: null,
     }),
 
   copyVariants: [],
@@ -162,6 +169,9 @@ export const useAppStore = create<AppState>((set) => ({
     await AsyncStorage.setItem(VOICE_KEY, id);
     set({ voiceId: id });
   },
+
+  designVariant: null,
+  setDesignVariant: (d) => set({ designVariant: d }),
 
   imageQualityTier: 'fast',
   setImageQualityTier: async (tier) => {
