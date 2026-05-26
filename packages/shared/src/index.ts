@@ -1,3 +1,3 @@
-export * from './types';
-export * from './pricing';
-export * from './brand';
+export * from './types.js';
+export * from './pricing.js';
+export * from './brand.js';

@@ -6,6 +6,12 @@ dist
 .vercel
 tsconfig.tsbuildinfo
 
+# Backend tunnel logs (cloudflared writes here when running)
+cloudflared.out.log
+cloudflared.err.log
+.expo/
+expo-env.d.ts
+
 # Sample-bake working files — may contain pasted state dumps that include
 # API keys (sessionStorage state includes the keys field). Never ship these.
 samples/source-state.json

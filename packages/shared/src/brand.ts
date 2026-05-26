@@ -2,7 +2,7 @@
 // what web/android pass through. Brand prompts go INTO the system prompt
 // of every generation call.
 
-import { isBrandDictionaryEmpty, type BrandDictionary } from './types';
+import { isBrandDictionaryEmpty, type BrandDictionary } from './types.js';
 
 export function brandPromptBlock(brand: BrandDictionary | undefined): string {
   if (!brand || isBrandDictionaryEmpty(brand)) return '';

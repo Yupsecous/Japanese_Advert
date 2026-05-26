@@ -2,7 +2,7 @@
 // Single source of truth so backend rate-limiting + android UI + web UI
 // all agree on what each call costs.
 
-import type { ImageQualityTier } from './types';
+import type { ImageQualityTier } from './types.js';
 
 export const TIER_COST_USD: Record<ImageQualityTier, number> = {
   fast: 0.003,

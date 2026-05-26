@@ -10,7 +10,7 @@
       },
       "distribution": "internal",
       "env": {
-        "BACKEND_URL": "https://REPLACE-WITH-YOUR-VERCEL-URL.vercel.app"
+        "BACKEND_URL": "https://poems-palmer-beaches-pollution.trycloudflare.com"
       },
       "channel": "preview"
     },
@@ -20,7 +20,7 @@
       },
       "distribution": "store",
       "env": {
-        "BACKEND_URL": "https://REPLACE-WITH-YOUR-VERCEL-URL.vercel.app"
+        "BACKEND_URL": "https://poems-palmer-beaches-pollution.trycloudflare.com"
       },
       "channel": "production"
     }
