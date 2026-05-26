@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Director's Cockpit",
+    "slug": "directors-cockpit",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "advert",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAF6EE"
+    },
+    "android": {
+      "package": "com.advert.directorscockpit",
+      "minSdkVersion": 29,
+      "targetSdkVersion": 34,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FAF6EE"
+      }
+    },
+    "extra": {
+      "backendUrl": "http://10.0.2.2:3001",
+      "_backendUrlNote": "10.0.2.2 = host machine from Android emulator. Override via app.config.ts for prod."
+    }
+  }
+}

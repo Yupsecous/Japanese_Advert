@@ -1,0 +1,22 @@
+{
+  "name": "@advert/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev --listen 3001",
+    "deploy": "vercel deploy --prod",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@advert/shared": "*",
+    "jose": "^5.9.6",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.2.24",
+    "@types/node": "^22.10.1",
+    "typescript": "^5.6.3",
+    "vercel": "^39.1.3"
+  }
+}

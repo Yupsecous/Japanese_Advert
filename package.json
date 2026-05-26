@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -11,7 +14,10 @@
     "record-voices": "tsx scripts/record-voices.ts",
     "bake-sample": "tsx scripts/bake-sample.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "backend:dev": "npm run dev --workspace=@advert/backend",
+    "backend:deploy": "npm run deploy --workspace=@advert/backend",
+    "android:start": "npm run start --workspace=@advert/android"
   },
   "dependencies": {
     "@types/jszip": "^3.4.0",
