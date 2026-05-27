@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useAppStore } from './src/store';
 import { useLocaleStore } from './src/i18n';
+import { ErrorBoundary } from './src/ErrorBoundary';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { BriefScreen } from './src/screens/BriefScreen';
 import { CopyScreen } from './src/screens/CopyScreen';
@@ -18,30 +19,40 @@ import type { RootStackParamList } from './src/navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export default function App() {
+function AppInner() {
   const authed = useAppStore((s) => s.authed);
   const hydrating = useAppStore((s) => s.hydrating);
   const hydrate = useAppStore((s) => s.hydrate);
   const hydrateLocale = useLocaleStore((s) => s.hydrate);
 
   useEffect(() => {
-    void hydrate();
-    void hydrateLocale();
+    // Wrap in try/catch so a bad AsyncStorage read can't hang the splash
+    // forever — if anything throws, we proceed to AuthScreen.
+    (async () => {
+      try {
+        await hydrate();
+      } catch {
+        useAppStore.setState({ hydrating: false });
+      }
+      try {
+        await hydrateLocale();
+      } catch {
+        // locale defaults to 'en'; nothing else to do
+      }
+    })();
   }, [hydrate, hydrateLocale]);
 
   if (hydrating) {
     return (
-      <SafeAreaProvider>
-        <View style={styles.loader}>
-          <ActivityIndicator color={colors.brand} />
-          <StatusBar style="dark" />
-        </View>
-      </SafeAreaProvider>
+      <View style={styles.loader}>
+        <ActivityIndicator color={colors.brand} />
+        <StatusBar style="dark" />
+      </View>
     );
   }
 
   return (
-    <SafeAreaProvider>
+    <>
       <StatusBar style="dark" />
       {authed ? (
         <NavigationContainer>
@@ -62,7 +73,17 @@ export default function App() {
       ) : (
         <AuthScreen />
       )}
-    </SafeAreaProvider>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <AppInner />
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
 
