@@ -10,6 +10,7 @@
 // rolled into a flat "text-call" estimate. Numbers match
 // packages/shared/src/pricing.ts.
 
+import { sql } from 'drizzle-orm';
 import { TIER_COST_USD, KLING_COST_USD_PER_CLIP } from '@advert/shared';
 import type { ImageQualityTier } from '@advert/shared';
 import { getDb } from './db.js';
@@ -44,6 +45,34 @@ export function costForFlux(tier: ImageQualityTier): number {
 
 export function costForKling(): number {
   return KLING_COST_USD_PER_CLIP;
+}
+
+// --- Global daily spend cap (across ALL users) ---
+// Hard ceiling on total API spend per UTC day, computed from the durable
+// usage_events ledger so it survives restarts. Protects against unbounded
+// cost on the open-signup deployment (per-user caps alone don't bound the
+// total when anyone can create accounts). 0 = disabled.
+export function globalDailyCapUsd(): number {
+  return Number(process.env.GLOBAL_DAILY_CAP_USD ?? 0);
+}
+
+export async function globalDailySpendUsd(): Promise<number> {
+  try {
+    const rows = await getDb()
+      .select({ total: sql<string>`coalesce(sum(${usageEvents.costUsd}), 0)` })
+      .from(usageEvents)
+      .where(sql`${usageEvents.createdAt} >= date_trunc('day', now())`);
+    return Number(rows[0]?.total ?? 0);
+  } catch {
+    // DB unavailable — fail open (the per-user cap still applies as a backstop).
+    return 0;
+  }
+}
+
+export async function wouldExceedGlobalDailyCap(amount: number): Promise<boolean> {
+  const cap = globalDailyCapUsd();
+  if (cap <= 0) return false;
+  return (await globalDailySpendUsd()) + amount > cap;
 }
 
 // Best-effort durable usage row. Fire-and-forget — never blocks or throws

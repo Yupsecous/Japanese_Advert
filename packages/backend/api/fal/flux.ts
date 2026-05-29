@@ -11,7 +11,7 @@ import {
   requirePost,
   sendError,
 } from '../../lib/respond.js';
-import { recordSpend, costForFlux, wouldExceedCap, recordUsageEvent } from '../../lib/cost.js';
+import { recordSpend, costForFlux, wouldExceedCap, wouldExceedGlobalDailyCap, recordUsageEvent } from '../../lib/cost.js';
 import { clampImageTier, costCapForTier } from '../../lib/tiers.js';
 
 // Tier-aware Flux proxy. Client provides prompt + dimensions + tier; we
@@ -44,7 +44,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const tier = clampImageTier(session.tier, parsed.data.tier as ImageQualityTier);
 
   const cost = costForFlux(tier);
-  if (wouldExceedCap(session.sub, cost, costCapForTier(session.tier))) {
+  if (
+    wouldExceedCap(session.sub, cost, costCapForTier(session.tier)) ||
+    (await wouldExceedGlobalDailyCap(cost))
+  ) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 
