@@ -1,7 +1,12 @@
-// Transactional email via Resend's HTTP API (one POST, no SDK — matches the
-// fetch-based style of the rest of the backend). If RESEND_API_KEY/EMAIL_FROM
-// are not configured (local dev), we log the action link to the console
-// instead of sending, so the verify/reset flows are fully testable offline.
+// Transactional email (verification + password reset). Sender is chosen by
+// whatever is configured, in priority order:
+//   1. SMTP  (SMTP_HOST set)  — e.g. Titan: smtp.titan.email. Reuses the
+//      domain's existing SPF/DKIM, no second provider to verify.
+//   2. Resend (RESEND_API_KEY set) — HTTP API.
+//   3. Neither — log the action link to the console (local dev), so the
+//      verify/reset flows stay fully testable offline.
+
+import nodemailer, { type Transporter } from 'nodemailer';
 
 const RESEND_URL = 'https://api.resend.com/emails';
 
@@ -9,23 +14,49 @@ export function publicOrigin(): string {
   return process.env.PUBLIC_ORIGIN ?? 'http://localhost:5173';
 }
 
+let transporter: Transporter | null = null;
+function smtpTransport(): Transporter | null {
+  const host = process.env.SMTP_HOST;
+  if (!host) return null;
+  if (!transporter) {
+    const port = Number(process.env.SMTP_PORT ?? 587);
+    transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465, // implicit TLS on 465; STARTTLS on 587
+      auth: process.env.SMTP_USER
+        ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS ?? '' }
+        : undefined,
+    });
+  }
+  return transporter;
+}
+
 async function send(to: string, subject: string, html: string, devLink: string): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
-  if (!apiKey || !from) {
-    // eslint-disable-next-line no-console
-    console.warn(`[email] RESEND not configured — would send "${subject}" to ${to}\n         link: ${devLink}`);
+
+  const smtp = smtpTransport();
+  if (smtp && from) {
+    await smtp.sendMail({ from, to, subject, html });
     return;
   }
-  const res = await fetch(RESEND_URL, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to, subject, html }),
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`Resend ${res.status}: ${text.slice(0, 200)}`);
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (apiKey && from) {
+    const res = await fetch(RESEND_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to, subject, html }),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`Resend ${res.status}: ${text.slice(0, 200)}`);
+    }
+    return;
   }
+
+  // eslint-disable-next-line no-console
+  console.warn(`[email] no sender configured — would send "${subject}" to ${to}\n         link: ${devLink}`);
 }
 
 function layout(title: string, body: string, buttonLabel: string, url: string): string {

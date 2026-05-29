@@ -61,16 +61,28 @@ DNS can take a few minutes to propagate. Caddy can't issue a certificate until
 
 ---
 
-## Step 2 — Resend (verification + password-reset emails)
+## Step 2 — Email sender (verification + password-reset links)
 
-1. Sign up at <https://resend.com> → **Domains → Add Domain** →
-   `personifyads.online`.
-2. Resend shows DNS records (SPF `TXT`, DKIM `CNAME`/`TXT`, optionally a
-   return-path). Add them at your registrar and click **Verify** until green.
-   *(Emails silently fail to send until the domain is verified.)*
-3. **API Keys → Create API Key** → copy it → `RESEND_API_KEY`.
-4. Use a from-address on the verified domain:
-   `EMAIL_FROM="PersonifyAds <noreply@personifyads.online>"`.
+The app auto-selects: **SMTP** if `SMTP_HOST` is set, else **Resend** if
+`RESEND_API_KEY` is set, else (dev only) it logs the link to the console.
+
+**Option A — Titan SMTP (recommended; you already set Titan up on this domain).**
+Your domain's MX/SPF/DKIM already authorize Titan, so there's nothing more to
+verify. In the Titan admin, create a mailbox (e.g. `noreply@personifyads.online`)
+and set:
+
+```ini
+EMAIL_FROM=PersonifyAds <noreply@personifyads.online>
+SMTP_HOST=smtp.titan.email
+SMTP_PORT=465
+SMTP_USER=noreply@personifyads.online
+SMTP_PASS=<that mailbox's password>
+```
+
+**Option B — Resend.** Sign up at <https://resend.com>, add + verify
+`personifyads.online` (add the DNS records it shows; it uses a `send.`
+subdomain so it won't clash with your Titan root SPF), create an API key, then
+set `EMAIL_FROM` + `RESEND_API_KEY` and leave `SMTP_HOST` blank.
 
 ---
 
@@ -146,8 +158,13 @@ SESSION_TTL_SECONDS=2592000
 GOOGLE_CLIENT_ID=<from step 1>
 GOOGLE_CLIENT_SECRET=<from step 1>
 GOOGLE_REDIRECT_URI=https://personifyads.online/api/auth/google/callback
-RESEND_API_KEY=<from step 2>
 EMAIL_FROM=PersonifyAds <noreply@personifyads.online>
+# Email via Titan SMTP (Option A from step 2):
+SMTP_HOST=smtp.titan.email
+SMTP_PORT=465
+SMTP_USER=noreply@personifyads.online
+SMTP_PASS=<the Titan mailbox password>
+# ...or instead leave SMTP_HOST blank and set RESEND_API_KEY=<...> (Option B).
 AUTH_USERNAME=IAmThatIAm
 AUTH_PASSWORD=The FIrst Dream
 AUTH_JWT_SECRET=<paste generated>
@@ -243,8 +260,11 @@ screen.
 3. **Continue with Google** → consent → you're signed in.
 4. **Forgot password** → reset email → set a new password → sign in.
 
-If verification emails don't arrive: confirm the Resend domain is **verified**
-and `EMAIL_FROM` uses that domain. If Google fails with `?oauth=...`: confirm
+If verification emails don't arrive: with Titan SMTP, confirm `SMTP_USER`/
+`SMTP_PASS` are right and the mailbox exists; with Resend, confirm the domain
+is verified. `EMAIL_FROM` must be an address on your sending domain. (Check the
+service logs: `journalctl -u personifyads -n 50`.) If Google fails with
+`?oauth=...`: confirm
 the redirect URI matches exactly and the app is published/your email is a test
 user.
 
