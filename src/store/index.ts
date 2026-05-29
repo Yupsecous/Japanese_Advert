@@ -5,10 +5,16 @@ import { createBriefSlice, type BriefSlice } from './brief.slice';
 import { createStepsSlice, type StepsSlice } from './steps.slice';
 import { createAudienceSlice, type AudienceSlice } from './audience.slice';
 import { createAuthSlice, type AuthSlice } from './auth.slice';
+import { createProjectsSlice, type ProjectsSlice } from './projects.slice';
 import { type StepId, type StepState, type VariantCache } from '../types';
 import { tierStepOrder } from '../tiers';
 
-export type AppState = SettingsSlice & BriefSlice & StepsSlice & AudienceSlice & AuthSlice;
+export type AppState = SettingsSlice &
+  BriefSlice &
+  StepsSlice &
+  AudienceSlice &
+  AuthSlice &
+  ProjectsSlice;
 
 // Audio variants carry a Blob and an object URL — neither survives JSON
 // serialization, so on rehydrate we strip the audio variants and demote
@@ -36,6 +42,32 @@ function partializeCache(cache: VariantCache): VariantCache {
   return out;
 }
 
+// The serializable snapshot of an ad's working state. Shared by the
+// sessionStorage persist layer AND the server-side history (a saved project
+// stores exactly this), so reopening a project is just `loadSnapshot`.
+export function snapshotState(state: AppState) {
+  return {
+    locale: state.locale,
+    brief: state.brief,
+    briefSubmitted: state.briefSubmitted,
+    steps: {
+      audience: state.steps.audience,
+      copy: state.steps.copy,
+      image: state.steps.image,
+      script: state.steps.script,
+      audio: partializeAudio(state.steps.audio),
+      design: state.steps.design,
+    },
+    variantCache: partializeCache(state.variantCache),
+    customers: state.customers,
+    briefCache: state.briefCache,
+    deliveryLog: state.deliveryLog,
+    effectivenessData: state.effectivenessData,
+    learnedInsights: state.learnedInsights,
+    runVersion: state.runVersion,
+  };
+}
+
 export const useAppStore = create<AppState>()(
   persist(
     (...a) => ({
@@ -44,6 +76,7 @@ export const useAppStore = create<AppState>()(
       ...createStepsSlice(...a),
       ...createAudienceSlice(...a),
       ...createAuthSlice(...a),
+      ...createProjectsSlice(...a),
     }),
     {
       name: 'demo-v2-state',
@@ -61,27 +94,11 @@ export const useAppStore = create<AppState>()(
         return persisted as AppState;
       },
       storage: createJSONStorage(() => sessionStorage),
+      // Local (sessionStorage) persistence = the ad snapshot + which saved
+      // project it belongs to (so a reload resumes the same history entry).
       partialize: (state) => ({
-        locale: state.locale,
-        brief: state.brief,
-        briefSubmitted: state.briefSubmitted,
-        steps: {
-          audience: state.steps.audience,
-          copy: state.steps.copy,
-          image: state.steps.image,
-          script: state.steps.script,
-          audio: partializeAudio(state.steps.audio),
-          design: state.steps.design,
-        },
-        variantCache: partializeCache(state.variantCache),
-        // Persist the lighter audience fields. Skip generatedAssets — they
-        // can contain blob URLs (Phase 2) that don't survive serialization.
-        customers: state.customers,
-        briefCache: state.briefCache,
-        deliveryLog: state.deliveryLog,
-        effectivenessData: state.effectivenessData,
-        learnedInsights: state.learnedInsights,
-        runVersion: state.runVersion,
+        ...snapshotState(state),
+        currentProjectId: state.currentProjectId,
       }),
     },
   ),
@@ -116,4 +133,12 @@ export function activeStepId(state: AppState): StepId | null {
 export function allApproved(state: AppState): boolean {
   if (!state.briefSubmitted) return false;
   return effectiveStepOrder(state).every((id) => state.steps[id].status === 'approved');
+}
+
+// Rehydrate the working store from a saved project snapshot (server history).
+// Snapshot keys are top-level store keys, so a shallow setState merges them in.
+export function loadSnapshot(snapshot: unknown): void {
+  if (snapshot && typeof snapshot === 'object') {
+    useAppStore.setState(snapshot as Partial<AppState>);
+  }
 }

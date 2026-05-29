@@ -11,6 +11,7 @@ import { AuthGate } from './components/AuthGate';
 import { Sidebar } from './components/Sidebar';
 import { UpgradeModal } from './components/UpgradeModal';
 import { Button } from './components/ui/Button';
+import { useProjectSync } from './services/useProjectSync';
 import { useT } from './i18n/hooks';
 import { loadSamplePreset, type SamplePreset } from './services/sampleLoader';
 
@@ -24,6 +25,7 @@ export default function App() {
   const openaiKey = useAppStore((s) => s.keys.openai);
   const closeDrawer = useAppStore((s) => s.closeDrawer);
   const t = useT();
+  useProjectSync();
   const [sample, setSample] = useState<SamplePreset | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);

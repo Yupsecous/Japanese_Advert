@@ -13,6 +13,7 @@ export type ApiErrorCode =
   | 'oauth/exchange-failed'
   | 'oauth/link-requires-login'
   | 'tier/forbidden'
+  | 'project/not-found'
   | 'method/not-allowed'
   | 'body/invalid'
   | 'cost/cap-exceeded'

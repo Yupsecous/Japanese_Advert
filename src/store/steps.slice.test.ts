@@ -5,6 +5,7 @@ import { createBriefSlice } from './brief.slice';
 import { createSettingsSlice } from './settings.slice';
 import { createAudienceSlice } from './audience.slice';
 import { createAuthSlice } from './auth.slice';
+import { createProjectsSlice } from './projects.slice';
 import { isStepUnlocked, activeStepId, allApproved, type AppState } from './index';
 import {
   copyVariant,
@@ -23,6 +24,7 @@ function makeTestStore(): StoreApi<AppState> {
     ...createStepsSlice(...a),
     ...createAudienceSlice(...a),
     ...createAuthSlice(...a),
+    ...createProjectsSlice(...a),
   }));
   // These tests exercise the full 6-step pipeline (incl. Audience + Design),
   // so run as an Ultra user — Free's effective order omits those steps.

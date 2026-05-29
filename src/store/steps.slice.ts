@@ -16,9 +16,10 @@ import type { SettingsSlice } from './settings.slice';
 import type { BriefSlice } from './brief.slice';
 import type { AudienceSlice } from './audience.slice';
 import type { AuthSlice } from './auth.slice';
+import type { ProjectsSlice } from './projects.slice';
 
 // Local alias to avoid the circular type import from `store/index.ts`.
-type FullState = StepsSlice & BriefSlice & SettingsSlice & AudienceSlice & AuthSlice;
+type FullState = StepsSlice & BriefSlice & SettingsSlice & AudienceSlice & AuthSlice & ProjectsSlice;
 
 // Effective step order for the current user's tier (Free skips Audience +
 // Design). cascade/clear/begin operate over this so locked steps stay out of

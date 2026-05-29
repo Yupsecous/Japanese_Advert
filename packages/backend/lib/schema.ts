@@ -10,6 +10,7 @@ import {
   char,
   numeric,
   timestamp,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -84,7 +85,23 @@ export const usageEvents = pgTable('usage_events', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Saved ad projects — the durable, account-scoped history (sidebar). `state`
+// is a JSONB snapshot of the app's working store (brief + steps + caches).
+export const projects = pgTable('projects', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title').notNull().default('Untitled ad'),
+  locale: text('locale'),
+  // Opaque snapshot of the client store; typed as unknown at the query layer.
+  state: jsonb('state').notNull().default({}),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type OAuthAccount = typeof oauthAccounts.$inferSelect;
+export type Project = typeof projects.$inferSelect;

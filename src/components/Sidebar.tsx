@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAppStore } from '../store';
+import { useAppStore, loadSnapshot } from '../store';
 import { useT } from '../i18n/hooks';
 import { authApi } from '../services/authApi';
+import { projectsApi } from '../services/projectsApi';
 import { TIER_LABELS } from '../tiers';
 import { BrandMark } from './BrandMark';
 
@@ -38,8 +39,10 @@ export function Sidebar({
 }) {
   const t = useT();
   const user = useAppStore((s) => s.user);
-  const briefSubmitted = useAppStore((s) => s.briefSubmitted);
-  const productName = useAppStore((s) => s.brief.productName);
+  const projects = useAppStore((s) => s.projects);
+  const currentProjectId = useAppStore((s) => s.currentProjectId);
+  const setCurrentProjectId = useAppStore((s) => s.setCurrentProjectId);
+  const removeProject = useAppStore((s) => s.removeProject);
   const openDrawer = useAppStore((s) => s.openDrawer);
   const resetBrief = useAppStore((s) => s.resetBrief);
   const resetSteps = useAppStore((s) => s.resetSteps);
@@ -61,6 +64,23 @@ export function Sidebar({
     resetBrief();
     resetSteps();
   }
+  async function openProject(id: string) {
+    if (id === currentProjectId) return;
+    const r = await projectsApi.get(id);
+    if (r.ok) {
+      setCurrentProjectId(id);
+      loadSnapshot(r.data.project.state);
+    }
+  }
+  async function removeAd(id: string) {
+    const wasCurrent = id === currentProjectId;
+    removeProject(id); // optimistic
+    await projectsApi.remove(id).catch(() => undefined);
+    if (wasCurrent) {
+      resetBrief();
+      resetSteps();
+    }
+  }
   async function signOut() {
     await authApi.logout().catch(() => undefined);
     resetBrief();
@@ -76,6 +96,12 @@ export function Sidebar({
 
   const navBtn =
     'flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-sm text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink';
+
+  const todayStr = new Date().toDateString();
+  const groups = [
+    { label: t('nav.today'), items: projects.filter((p) => new Date(p.updatedAt).toDateString() === todayStr) },
+    { label: t('nav.earlier'), items: projects.filter((p) => new Date(p.updatedAt).toDateString() !== todayStr) },
+  ].filter((g) => g.items.length > 0);
 
   return (
     <aside
@@ -130,19 +156,58 @@ export function Sidebar({
         </button>
       </nav>
 
-      {/* Current ad */}
+      {/* History */}
       {!collapsed && (
         <div className="mt-5 min-h-0 flex-1 overflow-y-auto px-2.5">
           <p className="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wide text-ink-faint">
-            {t('nav.recent')}
+            {t('nav.history')}
           </p>
-          {briefSubmitted ? (
-            <div className="flex items-center gap-2 rounded-lg bg-canvas-deep px-2.5 py-2 text-sm text-ink">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
-              <span className="truncate">{productName.trim() || t('nav.untitledAd')}</span>
-            </div>
-          ) : (
+          {projects.length === 0 ? (
             <p className="px-2.5 text-xs text-ink-faint">{t('nav.noRecent')}</p>
+          ) : (
+            <div className="space-y-3">
+              {groups.map((g) => (
+                <div key={g.label}>
+                  <p className="px-2.5 pb-0.5 text-[10px] uppercase tracking-wide text-ink-faint/70">
+                    {g.label}
+                  </p>
+                  <div className="space-y-0.5">
+                    {g.items.map((p) => {
+                      const active = p.id === currentProjectId;
+                      return (
+                        <div
+                          key={p.id}
+                          className={`group flex items-center gap-1 rounded-lg pr-1 ${
+                            active ? 'bg-canvas-deep' : 'hover:bg-canvas-deep'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => void openProject(p.id)}
+                            className="flex min-w-0 flex-1 items-center gap-2 px-2.5 py-1.5 text-left text-sm text-ink"
+                            title={p.title || t('nav.untitledAd')}
+                          >
+                            {active && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />}
+                            <span className="truncate">{p.title || t('nav.untitledAd')}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void removeAd(p.id)}
+                            aria-label={t('nav.deleteAd')}
+                            title={t('nav.deleteAd')}
+                            className="rounded p-1 text-ink-faint opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100"
+                          >
+                            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+                              <path fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" d="M4 4l8 8M12 4l-8 8" />
+                            </svg>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

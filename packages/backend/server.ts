@@ -39,6 +39,10 @@ import resetPasswordHandler from './api/auth/reset-password.js';
 import googleStartHandler from './api/auth/google/start.js';
 import googleCallbackHandler from './api/auth/google/callback.js';
 
+// Saved ad projects (history).
+import projectsCollectionHandler from './api/projects/collection.js';
+import projectItemHandler from './api/projects/item.js';
+
 import { sql } from 'drizzle-orm';
 import { getDb, getPool } from './lib/db.js';
 import { sessions, emailVerificationTokens, passwordResetTokens } from './lib/schema.js';
@@ -122,6 +126,13 @@ app.post('/api/fal/kling-submit', adapt(falKlingSubmitHandler));
 app.post('/api/fal/kling-poll', adapt(falKlingPollHandler));
 app.post('/api/elevenlabs/tts', adapt(elevenlabsTtsHandler));
 app.post('/api/elevenlabs/voices', adapt(elevenlabsVoicesHandler));
+
+// Saved ad projects (account-scoped history).
+app.get('/api/projects', adapt(projectsCollectionHandler));
+app.post('/api/projects', adapt(projectsCollectionHandler));
+app.get('/api/projects/:id', adapt(projectItemHandler));
+app.put('/api/projects/:id', adapt(projectItemHandler));
+app.delete('/api/projects/:id', adapt(projectItemHandler));
 
 // Catch-all 404 for any unknown API path (before the SPA fallback so API
 // 404s return JSON rather than index.html).
