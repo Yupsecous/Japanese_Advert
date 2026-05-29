@@ -41,7 +41,7 @@ export function Stepper() {
         // Mobile: compact pill — glyph circle + step label, no "Step N" eyebrow, no connector.
         // sm+: full layout with eyebrow + connector between steps.
         const base =
-          'flex shrink-0 items-center gap-2 rounded-md border px-2.5 py-2 transition-colors sm:flex-1 sm:gap-3 sm:px-4 sm:py-3';
+          'flex shrink-0 items-center gap-2 rounded-md border px-2.5 py-2 transition-colors sm:flex-1 sm:min-w-0 sm:gap-2 sm:px-2.5 sm:py-3';
         const tone = !unlocked
           ? 'border-rule bg-canvas-deep text-ink-faint'
           : isActive
@@ -52,7 +52,7 @@ export function Stepper() {
         const interactivity = clickable ? 'cursor-pointer hover:bg-success-50/60' : 'cursor-default';
 
         return (
-          <li key={id} className="flex shrink-0 items-center gap-1.5 sm:flex-1 sm:gap-2">
+          <li key={id} className="flex shrink-0 items-center gap-1.5 sm:flex-1 sm:min-w-0 sm:gap-2">
             <button
               type="button"
               disabled={!clickable}
@@ -68,16 +68,23 @@ export function Stepper() {
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current text-[11px] font-medium sm:h-7 sm:w-7 sm:text-xs">
                 {statusGlyph(step.status) || idx + 1}
               </span>
-              <span className="flex flex-col items-start leading-tight">
-                <span className="hidden text-xs uppercase tracking-wide opacity-60 sm:block">
+              <span className="flex min-w-0 flex-col items-start leading-tight">
+                <span className="hidden truncate text-xs uppercase tracking-wide opacity-60 sm:block">
                   {t('stepper.step')} {idx + 1}
                 </span>
-                <span className="text-[13px] font-medium sm:text-sm">{t(`step.${id}`)}</span>
+                <span className="max-w-full truncate text-[13px] font-medium sm:text-sm">
+                  {t(`step.${id}`)}
+                </span>
               </span>
             </button>
-            {idx < order.length - 1 && (
-              <span className="hidden h-px w-4 bg-neutral-200 sm:block" />
-            )}
+            {/* Spacer on every step (invisible on the last) so the connector
+                never steals width from one button — keeps all buttons equal. */}
+            <span
+              aria-hidden="true"
+              className={`hidden h-px w-4 shrink-0 sm:block ${
+                idx < order.length - 1 ? 'bg-rule-strong' : 'invisible'
+              }`}
+            />
           </li>
         );
       })}
