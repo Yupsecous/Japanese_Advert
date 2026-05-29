@@ -49,7 +49,7 @@ async function request<T>(
 export const authApi = {
   me: () => request<{ user: SessionUser }>('/api/auth/me', { method: 'GET' }),
   signup: (body: { email: string; password: string; displayName?: string }) =>
-    request<{ ok: true }>('/api/auth/signup', { method: 'POST', body }),
+    request<{ ok: true; user?: SessionUser }>('/api/auth/signup', { method: 'POST', body }),
   login: (body: { email: string; password: string }) =>
     request<{ user: SessionUser }>('/api/auth/login-email', { method: 'POST', body }),
   logout: () => request<void>('/api/auth/logout', { method: 'POST' }),

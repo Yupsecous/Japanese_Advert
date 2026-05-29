@@ -8,6 +8,9 @@ interface ImportMetaEnv {
   // use the app without an account (paired with backend OPEN_ACCESS=1). Used
   // for the pre-DNS IP preview only; unset for the real accounts deploy.
   readonly VITE_OPEN_ACCESS?: string;
+  // '0' hides the "Continue with Google" button (OAuth needs an HTTPS domain,
+  // so it can't work on the bare-IP preview). Default: shown.
+  readonly VITE_GOOGLE_ENABLED?: string;
 }
 
 interface ImportMeta {

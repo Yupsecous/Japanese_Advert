@@ -7,6 +7,9 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 type Mode = 'login' | 'signup' | 'forgot' | 'reset';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+// Hide "Continue with Google" where OAuth can't work (e.g. the bare-IP/HTTP
+// preview — Google requires an HTTPS domain). Default: shown.
+const GOOGLE_ENABLED = import.meta.env.VITE_GOOGLE_ENABLED !== '0';
 
 // Reads any redirect params the backend appended (verify-email, OAuth
 // callback, reset link), returns the initial mode + a banner, then cleans the
@@ -108,6 +111,11 @@ export function AuthScreen() {
     });
     setBusy(false);
     if (res.ok) {
+      // Auto-verify preview mode returns the user already logged in.
+      if (res.data.user) {
+        setSession(res.data.user);
+        return;
+      }
       setVerifySentTo(email.trim());
       return;
     }
@@ -220,8 +228,8 @@ export function AuthScreen() {
         </p>
       )}
 
-      {/* Google — available on login + signup */}
-      {(mode === 'login' || mode === 'signup') && (
+      {/* Google — available on login + signup (when configured) */}
+      {(mode === 'login' || mode === 'signup') && GOOGLE_ENABLED && (
         <>
           <a
             href={GOOGLE_START_URL}
