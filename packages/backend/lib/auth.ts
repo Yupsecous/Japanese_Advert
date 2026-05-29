@@ -67,6 +67,12 @@ export async function authenticate(req: VercelRequest): Promise<SessionPayload |
       return null;
     }
   }
+  // Open-preview mode (OPEN_ACCESS=1): allow anonymous callers as a shared
+  // "public" principal. Used for the pre-DNS IP preview so anyone can try the
+  // app without an account. Off by default — real accounts are unaffected.
+  if (process.env.OPEN_ACCESS === '1') {
+    return { sub: 'public', sid: 'public' };
+  }
   return null;
 }
 
