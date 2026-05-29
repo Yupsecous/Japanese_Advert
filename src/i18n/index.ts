@@ -63,7 +63,7 @@ const EN: Dict = {
   'brief.eyebrow': 'The brief',
   'brief.heading': 'Three lines, four assets.',
   'brief.intro':
-    "The director's cockpit will walk you through copy, image, script, and audio — one at a time.",
+    'Personify Ads will walk you through copy, image, script, and audio — one at a time.',
   'brief.sample.title': 'First time? Try the sample brief.',
   'brief.sample.body':
     'Pre-cached run for {product}. The whole pipeline restores instantly — see the shape of the tool, then write your own.',
@@ -614,7 +614,7 @@ const JA: Dict = {
   'brief.eyebrow': 'ブリーフ',
   'brief.heading': '3行から、4つの素材へ。',
   'brief.intro':
-    'ディレクターズ・コックピットがコピー・画像・スクリプト・音声を、一つずつ順番にご案内します。',
+    'Personify Ads がコピー・画像・スクリプト・音声を、一つずつ順番にご案内します。',
   'brief.sample.title': '初めての方はサンプルブリーフをお試しください。',
   'brief.sample.body':
     '{product} のサンプル実行が事前にキャッシュ済みです。すべての工程が即座に復元され、ツールの全体像を確認できます。',
@@ -1169,7 +1169,7 @@ const PT: Dict = {
   'brief.eyebrow': 'O briefing',
   'brief.heading': 'Três linhas, quatro entregas.',
   'brief.intro':
-    'A cabine do diretor vai conduzir você por texto, imagem, roteiro e áudio — uma etapa por vez.',
+    'O Personify Ads vai conduzir você por texto, imagem, roteiro e áudio — uma etapa por vez.',
   'brief.sample.title': 'Primeira vez? Experimente o briefing de exemplo.',
   'brief.sample.body':
     'Execução pré-cacheada para {product}. Toda a pipeline é restaurada instantaneamente — veja a forma da ferramenta e depois escreva o seu.',
@@ -1728,7 +1728,7 @@ const ES: Dict = {
   'brief.eyebrow': 'El brief',
   'brief.heading': 'Tres líneas, cuatro activos.',
   'brief.intro':
-    'La cabina del director te guiará por texto, imagen, guion y audio — un paso a la vez.',
+    'Personify Ads te guiará por texto, imagen, guion y audio — un paso a la vez.',
   'brief.sample.title': '¿Primera vez? Prueba el brief de ejemplo.',
   'brief.sample.body':
     'Ejecución pre-cacheada para {product}. Toda la pipeline se restaura al instante — observa la forma de la herramienta y después escribe el tuyo.',
@@ -2286,7 +2286,7 @@ const FR: Dict = {
   'brief.eyebrow': 'Le brief',
   'brief.heading': 'Trois lignes, quatre actifs.',
   'brief.intro':
-    'Le cockpit du directeur vous guidera à travers texte, image, script et audio — une étape à la fois.',
+    'Personify Ads vous guidera à travers texte, image, script et audio — une étape à la fois.',
   'brief.sample.title': "Première fois ? Essayez le brief d'exemple.",
   'brief.sample.body':
     "Exécution pré-cachée pour {product}. Tout le pipeline est restauré instantanément — voyez la forme de l'outil, puis écrivez le vôtre.",
@@ -2844,7 +2844,7 @@ const DE: Dict = {
   'brief.eyebrow': 'Das Briefing',
   'brief.heading': 'Drei Zeilen, vier Assets.',
   'brief.intro':
-    'Das Director’s Cockpit führt Sie durch Text, Bild, Skript und Audio — Schritt für Schritt.',
+    'Personify Ads führt Sie durch Text, Bild, Skript und Audio — Schritt für Schritt.',
   'brief.sample.title': 'Zum ersten Mal hier? Probieren Sie das Beispiel-Briefing.',
   'brief.sample.body':
     'Vorgecachte Ausführung für {product}. Die gesamte Pipeline wird sofort wiederhergestellt — sehen Sie die Form des Tools und schreiben Sie dann Ihr eigenes Briefing.',
