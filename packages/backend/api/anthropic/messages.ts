@@ -6,6 +6,7 @@ import {
   sendError,
 } from '../../lib/respond.js';
 import { recordSpend, costForText, wouldExceedCap, recordUsageEvent } from '../../lib/cost.js';
+import { costCapForTier } from '../../lib/tiers.js';
 
 // Pass-through proxy for Anthropic /v1/messages. Used by copy generation
 // + critique. The dangerous-direct-browser-access header is unnecessary
@@ -18,7 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!session) return sendError(res, 401, 'auth/unauthorized');
 
   const cost = costForText();
-  if (wouldExceedCap(session.sub, cost)) {
+  if (wouldExceedCap(session.sub, cost, costCapForTier(session.tier))) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 

@@ -19,7 +19,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     // Open-preview mode: no sign-in — drop everyone straight into the app as
     // a guest. (Backend runs with OPEN_ACCESS=1 to match.)
     if (OPEN_ACCESS) {
-      setSession({ id: 'public', email: '', displayName: 'Guest', emailVerified: true });
+      setSession({ id: 'public', email: '', displayName: 'Guest', emailVerified: true, tier: 'free' });
       return;
     }
     let cancelled = false;

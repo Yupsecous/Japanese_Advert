@@ -163,6 +163,16 @@ const EN: Dict = {
   'auth.signedInAs': 'Signed in as',
   'auth.footnote': 'Your account secures access to generation. Provider keys are managed server-side.',
 
+  // Subscription tiers
+  'tier.redeemTitle': 'Have a Pro or Ultra key?',
+  'tier.redeemPlaceholder': 'Paste tier key',
+  'tier.redeemCta': 'Redeem',
+  'tier.redeemSuccess': "You're on {tier} now.",
+  'tier.redeemInvalid': "That key wasn't recognized.",
+  'tier.platformLocked': 'Meta & X ads — Ultra only',
+  'tier.platformLockedBody':
+    'Platform-ready Meta and X ad exports are an Ultra feature. Redeem an Ultra key in Settings to unlock them.',
+
   // Audience Console (Phase 1)
   'audience.heading': 'Audience',
   'audience.subtitle':

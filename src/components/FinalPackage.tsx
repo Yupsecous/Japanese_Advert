@@ -6,6 +6,7 @@ import { DirectorsNotes } from './DirectorsNotes';
 import { BackButton } from './BackButton';
 import { ViewportFrame } from './ViewportFrame';
 import { PlatformAssets } from './PlatformAssets';
+import { canMetaX } from '../tiers';
 import { useT } from '../i18n/hooks';
 import { resolveVoice } from '../data/voiceLibrary';
 import {
@@ -23,6 +24,7 @@ function scrollToStepper() {
 export function FinalPackage() {
   const state = useAppStore();
   const reopenStep = useAppStore((s) => s.reopenStep);
+  const tier = useAppStore((s) => s.user?.tier ?? 'free');
   const t = useT();
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -206,7 +208,16 @@ export function FinalPackage() {
         </section>
       )}
 
-      <PlatformAssets approvedCopy={copy} approvedImage={image} />
+      {canMetaX(tier) ? (
+        <PlatformAssets approvedCopy={copy} approvedImage={image} />
+      ) : (
+        <section className="rounded-lg border border-dashed border-amber-300 bg-amber-50 p-6">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+            {t('tier.platformLocked')}
+          </h3>
+          <p className="mt-2 text-sm text-amber-900">{t('tier.platformLockedBody')}</p>
+        </section>
+      )}
 
       <section className="rounded-lg border border-neutral-200 bg-white p-6">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">

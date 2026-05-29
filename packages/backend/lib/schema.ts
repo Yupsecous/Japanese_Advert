@@ -20,6 +20,8 @@ export const users = pgTable('users', {
   // NULL for OAuth-only accounts that never set a password.
   passwordHash: text('password_hash'),
   displayName: text('display_name'),
+  // Subscription tier: 'free' | 'pro' | 'ultra' (see lib/tiers.ts).
+  tier: text('tier').notNull().default('free'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

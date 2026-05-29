@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useAppStore } from '../store';
 import { useT } from '../i18n/hooks';
 import { authApi } from '../services/authApi';
+import { TIER_LABELS } from '../tiers';
 import { BrandSettings } from './BrandSettings';
 import { GenerationSettings } from './GenerationSettings';
 
@@ -13,6 +15,26 @@ export function SettingsDrawer() {
   const resetSteps = useAppStore((s) => s.resetSteps);
   const resetAudience = useAppStore((s) => s.resetAudience);
   const t = useT();
+
+  const [redeemKey, setRedeemKey] = useState('');
+  const [redeemBusy, setRedeemBusy] = useState(false);
+  const [redeemMsg, setRedeemMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function redeem() {
+    const key = redeemKey.trim();
+    if (!key) return;
+    setRedeemBusy(true);
+    setRedeemMsg(null);
+    const res = await authApi.redeem(key);
+    setRedeemBusy(false);
+    if (res.ok && res.data.user) {
+      setSession(res.data.user);
+      setRedeemKey('');
+      setRedeemMsg({ ok: true, text: t('tier.redeemSuccess', { tier: TIER_LABELS[res.data.user.tier] }) });
+    } else {
+      setRedeemMsg({ ok: false, text: t('tier.redeemInvalid') });
+    }
+  }
 
   // Sign out: revoke the server session, clear local auth, and wipe all
   // session-scoped state (brief, steps, cache, AND audience) so the next user
@@ -55,14 +77,55 @@ export function SettingsDrawer() {
 
         <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
           {user && (
-            <div className="space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
-                {t('auth.account')}
-              </p>
-              <p className="text-xs text-neutral-500">{t('auth.signedInAs')}</p>
-              <p className="text-sm font-medium text-neutral-800">
-                {user.displayName ? `${user.displayName} · ${user.email}` : user.email}
-              </p>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                  {t('auth.account')}
+                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-neutral-800">
+                    {user.displayName ? `${user.displayName} · ${user.email}` : user.email}
+                  </p>
+                  <span
+                    className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${
+                      user.tier === 'ultra'
+                        ? 'border-violet-300 bg-violet-50 text-violet-700'
+                        : user.tier === 'pro'
+                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                          : 'border-neutral-300 bg-neutral-50 text-neutral-600'
+                    }`}
+                  >
+                    {TIER_LABELS[user.tier]}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 rounded-md border border-neutral-200 bg-neutral-50 p-3">
+                <p className="text-xs font-medium text-neutral-700">{t('tier.redeemTitle')}</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={redeemKey}
+                    onChange={(e) => setRedeemKey(e.target.value)}
+                    placeholder={t('tier.redeemPlaceholder')}
+                    spellCheck={false}
+                    className="min-w-0 flex-1 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-neutral-900"
+                  />
+                  <button
+                    type="button"
+                    onClick={redeem}
+                    disabled={redeemBusy || redeemKey.trim().length === 0}
+                    className="shrink-0 rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:bg-ink-faint"
+                  >
+                    {redeemBusy ? '…' : t('tier.redeemCta')}
+                  </button>
+                </div>
+                {redeemMsg && (
+                  <p className={`text-xs ${redeemMsg.ok ? 'text-emerald-700' : 'text-red-600'}`}>
+                    {redeemMsg.text}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 

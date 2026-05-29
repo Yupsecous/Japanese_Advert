@@ -8,6 +8,7 @@ import {
   sendError,
 } from '../../lib/respond.js';
 import { recordSpend, costForKling, wouldExceedCap, recordUsageEvent } from '../../lib/cost.js';
+import { canKling, costCapForTier } from '../../lib/tiers.js';
 
 // Submit a Kling v1.6 image-to-video job. Returns request_id, which the
 // client passes to /api/fal/kling-poll until the job completes.
@@ -29,6 +30,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const session = await authenticate(req);
   if (!session) return sendError(res, 401, 'auth/unauthorized');
+  // Kling AI video is an Ultra-only feature.
+  if (!canKling(session.tier)) return sendError(res, 403, 'tier/forbidden');
 
   const parsed = BodyZ.safeParse(req.body);
   if (!parsed.success) {
@@ -36,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const cost = costForKling();
-  if (wouldExceedCap(session.sub, cost)) {
+  if (wouldExceedCap(session.sub, cost, costCapForTier(session.tier))) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 

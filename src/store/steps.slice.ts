@@ -9,8 +9,9 @@ import type {
   Variant,
   VariantCache,
 } from '../types';
-import { STEP_LABELS, STEP_ORDER, cacheKey } from '../types';
+import { STEP_LABELS, cacheKey } from '../types';
 import { computeStepHash } from '../services/stepHash';
+import { tierStepOrder } from '../tiers';
 import type { SettingsSlice } from './settings.slice';
 import type { BriefSlice } from './brief.slice';
 import type { AudienceSlice } from './audience.slice';
@@ -18,6 +19,11 @@ import type { AuthSlice } from './auth.slice';
 
 // Local alias to avoid the circular type import from `store/index.ts`.
 type FullState = StepsSlice & BriefSlice & SettingsSlice & AudienceSlice & AuthSlice;
+
+// Effective step order for the current user's tier (Free skips Audience +
+// Design). cascade/clear/begin operate over this so locked steps stay out of
+// the pipeline for that tier.
+const orderOf = (s: FullState): StepId[] => tierStepOrder(s.user?.tier ?? 'free');
 
 export type StepsSlice = {
   steps: Record<StepId, StepState>;
@@ -70,9 +76,10 @@ function emptySteps(): Record<StepId, StepState> {
 function cascadeNext(
   steps: Record<StepId, StepState>,
   id: StepId,
+  order: StepId[],
 ): Record<StepId, StepState> {
-  const order = STEP_ORDER.indexOf(id);
-  const nextId = order >= 0 ? STEP_ORDER[order + 1] : undefined;
+  const pos = order.indexOf(id);
+  const nextId = pos >= 0 ? order[pos + 1] : undefined;
   if (!nextId) return steps;
   if (steps[nextId].status !== 'pending') return steps;
   return { ...steps, [nextId]: { ...steps[nextId], status: 'generating' } };
@@ -81,12 +88,13 @@ function cascadeNext(
 function clearDownstream(
   steps: Record<StepId, StepState>,
   id: StepId,
+  order: StepId[],
 ): Record<StepId, StepState> {
-  const order = STEP_ORDER.indexOf(id);
-  if (order < 0) return steps;
+  const pos = order.indexOf(id);
+  if (pos < 0) return steps;
   const next = { ...steps };
-  for (let i = order + 1; i < STEP_ORDER.length; i++) {
-    const downId = STEP_ORDER[i]!;
+  for (let i = pos + 1; i < order.length; i++) {
+    const downId = order[i]!;
     next[downId] = {
       ...next[downId],
       status: 'pending',
@@ -147,6 +155,7 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
           [id]: { ...s.steps[id], variants, selectedIndex: null, critiques: {} },
         },
         id,
+        orderOf(s),
       );
       const nextCache = writeCache(s.variantCache, { ...s, steps: nextSteps }, id);
       return { steps: nextSteps, variantCache: nextCache };
@@ -171,7 +180,7 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
       // currently selected — i.e. the approved content actually changed.
       const wasSelected = step.selectedIndex === idx;
       if (wasSelected) {
-        nextSteps = clearDownstream(nextSteps, id);
+        nextSteps = clearDownstream(nextSteps, id, orderOf(s));
       }
       const nextCache = writeCache(s.variantCache, { ...s, steps: nextSteps }, id);
       return { steps: nextSteps, variantCache: nextCache };
@@ -205,7 +214,7 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
         ...s.steps,
         [id]: { ...s.steps[id], status: 'approved' },
       };
-      return { steps: cascadeNext(approved, id) };
+      return { steps: cascadeNext(approved, id, orderOf(s)) };
     }),
 
   reopenStep: (id) =>
@@ -238,11 +247,11 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
       }
 
       if (selectionChanged) {
-        nextSteps = clearDownstream(nextSteps, id);
+        nextSteps = clearDownstream(nextSteps, id, orderOf(s));
       }
 
       if (id !== 'script') {
-        nextSteps = cascadeNext(nextSteps, id);
+        nextSteps = cascadeNext(nextSteps, id, orderOf(s));
       }
 
       const nextCache = writeCache(s.variantCache, { ...s, steps: nextSteps }, id);
@@ -260,9 +269,9 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
       };
 
       if (voiceChanged) {
-        nextSteps = clearDownstream(nextSteps, id);
+        nextSteps = clearDownstream(nextSteps, id, orderOf(s));
       }
-      nextSteps = cascadeNext(nextSteps, id);
+      nextSteps = cascadeNext(nextSteps, id, orderOf(s));
 
       const nextCache = writeCache(s.variantCache, { ...s, steps: nextSteps }, id);
       return { steps: nextSteps, variantCache: nextCache };
@@ -326,7 +335,7 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
       const scriptApproved =
         id === 'script' && entry.selectedIndex !== null && entry.selectedVoiceId;
       if ((id !== 'script' && isApproved) || scriptApproved) {
-        nextSteps = cascadeNext(nextSteps, id);
+        nextSteps = cascadeNext(nextSteps, id, orderOf(s));
       }
 
       return { steps: nextSteps };
@@ -338,7 +347,7 @@ export const createStepsSlice: StateCreator<FullState, [], [], StepsSlice> = (se
 
   beginFirstStep: () =>
     set((s) => {
-      const first = STEP_ORDER[0];
+      const first = orderOf(s)[0];
       if (!first) return s;
       return {
         steps: { ...s.steps, [first]: { ...s.steps[first], status: 'generating' } },

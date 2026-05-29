@@ -5,7 +5,8 @@ import { createBriefSlice, type BriefSlice } from './brief.slice';
 import { createStepsSlice, type StepsSlice } from './steps.slice';
 import { createAudienceSlice, type AudienceSlice } from './audience.slice';
 import { createAuthSlice, type AuthSlice } from './auth.slice';
-import { STEP_ORDER, type StepId, type StepState, type VariantCache } from '../types';
+import { type StepId, type StepState, type VariantCache } from '../types';
+import { tierStepOrder } from '../tiers';
 
 export type AppState = SettingsSlice & BriefSlice & StepsSlice & AudienceSlice & AuthSlice;
 
@@ -86,19 +87,27 @@ export const useAppStore = create<AppState>()(
   ),
 );
 
+// The active step order depends on the user's tier (Free skips Audience +
+// Design). All flow helpers operate over this effective order so locked steps
+// are simply not part of the pipeline for that tier.
+export function effectiveStepOrder(state: AppState): StepId[] {
+  return tierStepOrder(state.user?.tier ?? 'free');
+}
+
 export function isStepUnlocked(state: AppState, id: StepId): boolean {
   if (!state.briefSubmitted) return false;
-  const idx = STEP_ORDER.indexOf(id);
+  const order = effectiveStepOrder(state);
+  const idx = order.indexOf(id);
   if (idx === -1) return false;
   if (idx === 0) return true;
-  const prev = STEP_ORDER[idx - 1];
+  const prev = order[idx - 1];
   if (!prev) return false;
   return state.steps[prev].status === 'approved';
 }
 
 export function activeStepId(state: AppState): StepId | null {
   if (!state.briefSubmitted) return null;
-  for (const id of STEP_ORDER) {
+  for (const id of effectiveStepOrder(state)) {
     if (state.steps[id].status !== 'approved') return id;
   }
   return null;
@@ -106,5 +115,5 @@ export function activeStepId(state: AppState): StepId | null {
 
 export function allApproved(state: AppState): boolean {
   if (!state.briefSubmitted) return false;
-  return STEP_ORDER.every((id) => state.steps[id].status === 'approved');
+  return effectiveStepOrder(state).every((id) => state.steps[id].status === 'approved');
 }

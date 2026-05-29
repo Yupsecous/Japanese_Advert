@@ -12,6 +12,7 @@ export type ApiErrorCode =
   | 'oauth/state-mismatch'
   | 'oauth/exchange-failed'
   | 'oauth/link-requires-login'
+  | 'tier/forbidden'
   | 'method/not-allowed'
   | 'body/invalid'
   | 'cost/cap-exceeded'

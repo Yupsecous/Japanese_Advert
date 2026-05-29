@@ -2,6 +2,7 @@ import { useAppStore } from '../store';
 import { useT } from '../i18n/hooks';
 import { TIER_COST_USD, TIER_LATENCY_SECONDS } from '../services/fluxClient';
 import { KLING_COST_USD_PER_CLIP, KLING_LATENCY_SECONDS } from '../services/aiVideoService';
+import { allowedImageTiers, canKling } from '../tiers';
 import type { ImageQualityTier, VideoProvider } from '../types';
 
 // Generation quality settings — global, per-browser, durable. Controls
@@ -35,6 +36,8 @@ export function GenerationSettings() {
   const setImageQualityTier = useAppStore((s) => s.setImageQualityTier);
   const videoProvider = useAppStore((s) => s.videoProvider);
   const setVideoProvider = useAppStore((s) => s.setVideoProvider);
+  const userTier = useAppStore((s) => s.user?.tier ?? 'free');
+  const allowedTiers = allowedImageTiers(userTier);
   const t = useT();
 
   return (
@@ -46,11 +49,16 @@ export function GenerationSettings() {
         <div className="space-y-1.5">
           {IMAGE_TIERS.map((tier) => {
             const selected = imageQualityTier === tier;
+            const locked = !allowedTiers.includes(tier);
             return (
               <label
                 key={tier}
-                className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors ${
-                  selected ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:bg-neutral-50'
+                className={`flex items-start gap-3 rounded-md border p-3 transition-colors ${
+                  locked
+                    ? 'cursor-not-allowed border-neutral-200 opacity-60'
+                    : selected
+                      ? 'cursor-pointer border-neutral-900 bg-neutral-50'
+                      : 'cursor-pointer border-neutral-200 hover:bg-neutral-50'
                 }`}
               >
                 <input
@@ -58,6 +66,7 @@ export function GenerationSettings() {
                   name="image-tier"
                   value={tier}
                   checked={selected}
+                  disabled={locked}
                   onChange={() => setImageQualityTier(tier)}
                   className="mt-0.5 h-4 w-4 accent-neutral-900"
                 />
@@ -68,6 +77,7 @@ export function GenerationSettings() {
                     </span>
                     <Pill tone="cost">{formatCost(TIER_COST_USD[tier])}/img</Pill>
                     <Pill tone="time">~{TIER_LATENCY_SECONDS[tier]}s</Pill>
+                    {locked && <Pill tone="note">🔒 {tier === 'realistic' ? 'Ultra' : 'Pro'}</Pill>}
                   </div>
                   <p className="mt-1 text-xs text-neutral-600">
                     {t(`generation.tier.${tier}.desc` as const)}
@@ -87,11 +97,16 @@ export function GenerationSettings() {
           {VIDEO_PROVIDERS.map((provider) => {
             const selected = videoProvider === provider;
             const isKling = provider === 'ai_kling';
+            const klingLocked = isKling && !canKling(userTier);
             return (
               <label
                 key={provider}
-                className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors ${
-                  selected ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:bg-neutral-50'
+                className={`flex items-start gap-3 rounded-md border p-3 transition-colors ${
+                  klingLocked
+                    ? 'cursor-not-allowed border-neutral-200 opacity-60'
+                    : selected
+                      ? 'cursor-pointer border-neutral-900 bg-neutral-50'
+                      : 'cursor-pointer border-neutral-200 hover:bg-neutral-50'
                 }`}
               >
                 <input
@@ -99,6 +114,7 @@ export function GenerationSettings() {
                   name="video-provider"
                   value={provider}
                   checked={selected}
+                  disabled={klingLocked}
                   onChange={() => setVideoProvider(provider)}
                   className="mt-0.5 h-4 w-4 accent-neutral-900"
                 />
@@ -111,6 +127,7 @@ export function GenerationSettings() {
                       <>
                         <Pill tone="cost">{formatCost(KLING_COST_USD_PER_CLIP)}/clip</Pill>
                         <Pill tone="time">~{KLING_LATENCY_SECONDS}s</Pill>
+                        {klingLocked && <Pill tone="note">🔒 Ultra</Pill>}
                       </>
                     ) : (
                       <Pill tone="note">free</Pill>

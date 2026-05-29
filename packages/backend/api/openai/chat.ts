@@ -6,6 +6,7 @@ import {
   sendError,
 } from '../../lib/respond.js';
 import { recordSpend, costForText, wouldExceedCap, recordUsageEvent } from '../../lib/cost.js';
+import { costCapForTier } from '../../lib/tiers.js';
 
 // Pass-through proxy for OpenAI chat completions. The client sends the
 // exact body it would send to the OpenAI endpoint; we forward it with
@@ -19,7 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!session) return sendError(res, 401, 'auth/unauthorized');
 
   const cost = costForText();
-  if (wouldExceedCap(session.sub, cost)) {
+  if (wouldExceedCap(session.sub, cost, costCapForTier(session.tier))) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 

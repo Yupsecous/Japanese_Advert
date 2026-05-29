@@ -27,11 +27,11 @@ export function sessionTotalUsd(key: string): number {
   return spend.get(key) ?? 0;
 }
 
-// Returns true if charging `amount` would exceed the cap. Cap of 0 disables.
-export function wouldExceedCap(key: string, amount: number): boolean {
-  const cap = Number(process.env.SESSION_COST_CAP_USD ?? 20);
-  if (cap <= 0) return false;
-  return sessionTotalUsd(key) + amount > cap;
+// Returns true if charging `amount` would exceed `capUsd`. Cap of 0 = unlimited.
+// Callers pass the per-tier cap (lib/tiers.ts costCapForTier).
+export function wouldExceedCap(key: string, amount: number, capUsd: number): boolean {
+  if (capUsd <= 0) return false;
+  return sessionTotalUsd(key) + amount > capUsd;
 }
 
 export function costForText(): number {

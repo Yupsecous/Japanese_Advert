@@ -1,6 +1,6 @@
-import { useAppStore, activeStepId, isStepUnlocked } from '../store';
+import { useAppStore, activeStepId, isStepUnlocked, effectiveStepOrder } from '../store';
 import { useT } from '../i18n/hooks';
-import { STEP_ORDER, type StepId, type StepStatus } from '../types';
+import { type StepId, type StepStatus } from '../types';
 
 function statusGlyph(status: StepStatus): string {
   switch (status) {
@@ -20,13 +20,14 @@ function statusGlyph(status: StepStatus): string {
 export function Stepper() {
   const state = useAppStore();
   const active = activeStepId(state);
+  const order = effectiveStepOrder(state);
   const t = useT();
 
   return (
     // Horizontal scroll fallback on very narrow viewports (<360px or long
     // localized labels). On sm+, the row sits comfortably on one line.
     <ol className="flex w-full items-center gap-1.5 overflow-x-auto pb-1 sm:gap-2 sm:overflow-visible sm:pb-0">
-      {STEP_ORDER.map((id, idx) => {
+      {order.map((id, idx) => {
         const step = state.steps[id];
         const unlocked = isStepUnlocked(state, id);
         const isActive = active === id;
@@ -74,7 +75,7 @@ export function Stepper() {
                 <span className="text-[13px] font-medium sm:text-sm">{t(`step.${id}`)}</span>
               </span>
             </button>
-            {idx < STEP_ORDER.length - 1 && (
+            {idx < order.length - 1 && (
               <span className="hidden h-px w-4 bg-neutral-200 sm:block" />
             )}
           </li>
