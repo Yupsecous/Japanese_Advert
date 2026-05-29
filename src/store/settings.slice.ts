@@ -9,7 +9,6 @@ import type {
 } from '../types';
 import { EMPTY_BRAND_DICTIONARY } from '../types';
 import type { Locale } from '../i18n';
-import { llmService } from '../services/llmService';
 
 // Brand dictionary persists in localStorage (not sessionStorage). It's
 // per-browser, not per-tab, and survives across sessions so a marketer can
@@ -102,10 +101,6 @@ export type SettingsSlice = {
   imageQualityTier: ImageQualityTier;
   // Video generation provider — global preference, durable.
   videoProvider: VideoProvider;
-  // Session-scoped auth gate. Soft-gate only — the check runs client-side
-  // and is bypassable by anyone reading the JS bundle. Used to keep the
-  // demo URL behind a shared credential for prospect previews.
-  authed: boolean;
   setKey: (provider: Provider, value: string) => void;
   openDrawer: () => void;
   closeDrawer: () => void;
@@ -116,16 +111,18 @@ export type SettingsSlice = {
   clearBrand: () => void;
   setImageQualityTier: (tier: ImageQualityTier) => void;
   setVideoProvider: (provider: VideoProvider) => void;
-  setAuthed: (v: boolean) => void;
-  signOut: () => void;
 };
 
-const emptyKeys: ApiKeys = { fal: '', eleven: '', openai: '', anthropic: '' };
+// Provider keys are now held server-side; the web is a thin client and never
+// sees a real key. These sentinel non-empty values keep the existing
+// provider-availability gates satisfied without exposing anything sensitive.
+const MANAGED = 'server-managed';
+const emptyKeys: ApiKeys = { fal: MANAGED, eleven: MANAGED, openai: MANAGED, anthropic: MANAGED };
 const emptyValidations: Validations = {
-  fal: 'unchecked',
-  eleven: 'unchecked',
-  openai: 'unchecked',
-  anthropic: 'unchecked',
+  fal: 'ok',
+  eleven: 'ok',
+  openai: 'ok',
+  anthropic: 'ok',
 };
 
 function defaultLocale(): Locale {
@@ -148,7 +145,6 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   brand: loadStoredBrand(),
   imageQualityTier: loadStoredQuality().imageQualityTier,
   videoProvider: loadStoredQuality().videoProvider,
-  authed: false,
   setKey: (provider, value) =>
     set((s) => ({
       keys: { ...s.keys, [provider]: value },
@@ -156,25 +152,9 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
     })),
   openDrawer: () => set({ drawerOpen: true }),
   closeDrawer: () => set({ drawerOpen: false }),
+  // Keys are validated server-side now; nothing to check from the client.
   validateAll: async () => {
-    const providers: Provider[] = ['fal', 'eleven', 'openai', 'anthropic'];
-    set({
-      validating: true,
-      validations: providers.reduce<Validations>((acc, p) => {
-        acc[p] = 'validating';
-        return acc;
-      }, { ...emptyValidations }),
-    });
-    const results = await llmService.validateAll(get().keys);
-    set({
-      validating: false,
-      validations: {
-        fal: results.fal.ok ? 'ok' : 'fail',
-        eleven: results.eleven.ok ? 'ok' : 'fail',
-        openai: results.openai.ok ? 'ok' : 'fail',
-        anthropic: results.anthropic.ok ? 'ok' : 'fail',
-      },
-    });
+    set({ validating: false, validations: emptyValidations });
   },
   clearKeys: () => set({ keys: emptyKeys, validations: emptyValidations }),
   setLocale: (locale) => set({ locale }),
@@ -197,6 +177,4 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
     });
     set({ videoProvider: provider });
   },
-  setAuthed: (v) => set({ authed: v }),
-  signOut: () => set({ authed: false, drawerOpen: false }),
 });

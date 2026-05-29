@@ -14,9 +14,10 @@ import { computeStepHash } from '../services/stepHash';
 import type { SettingsSlice } from './settings.slice';
 import type { BriefSlice } from './brief.slice';
 import type { AudienceSlice } from './audience.slice';
+import type { AuthSlice } from './auth.slice';
 
 // Local alias to avoid the circular type import from `store/index.ts`.
-type FullState = StepsSlice & BriefSlice & SettingsSlice & AudienceSlice;
+type FullState = StepsSlice & BriefSlice & SettingsSlice & AudienceSlice & AuthSlice;
 
 export type StepsSlice = {
   steps: Record<StepId, StepState>;

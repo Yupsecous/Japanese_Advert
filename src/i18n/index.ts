@@ -113,18 +113,55 @@ const EN: Dict = {
   'generation.video.ai_kling.desc':
     'Adds a silent 5-second real-motion clip per platform aspect, generated from the approved hero image. Ships alongside the slideshow.',
 
-  // Auth gate
+  // Auth — accounts (Google + email/password)
   'auth.heading': 'Sign in',
-  'auth.subtitle': 'This demo URL is access-controlled. Enter the credentials your contact shared with you.',
-  'auth.username': 'Username',
+  'auth.subtitle': 'Sign in to your PersonifyAds account.',
+  'auth.signupHeading': 'Create your account',
+  'auth.signupSubtitle': 'Start directing AI-generated ad campaigns.',
+  'auth.email': 'Email',
   'auth.password': 'Password',
+  'auth.confirmPassword': 'Confirm password',
+  'auth.displayName': 'Name (optional)',
   'auth.signIn': 'Sign in',
   'auth.signingIn': 'Signing in…',
-  'auth.invalid': "That username and password didn't match. Check for stray spaces.",
-  'auth.insecureContext':
-    "Sign-in needs a secure context — this URL must use HTTPS (or localhost). The current page is not secure, so credentials can't be verified.",
-  'auth.footnote':
-    'Access is shared by your point of contact. Credentials are checked client-side — this is a soft gate, not a security barrier.',
+  'auth.signUp': 'Create account',
+  'auth.signingUp': 'Creating account…',
+  'auth.googleSignIn': 'Continue with Google',
+  'auth.or': 'or',
+  'auth.noAccount': "Don't have an account?",
+  'auth.haveAccount': 'Already have an account?',
+  'auth.toSignup': 'Sign up',
+  'auth.toLogin': 'Sign in',
+  'auth.forgotLink': 'Forgot password?',
+  'auth.forgotHeading': 'Reset your password',
+  'auth.forgotSubtitle': "Enter your email and we'll send a reset link.",
+  'auth.forgotCta': 'Send reset link',
+  'auth.forgotSent': "If that email has an account, a reset link is on its way. Check your inbox.",
+  'auth.backToLogin': '← Back to sign in',
+  'auth.resetHeading': 'Choose a new password',
+  'auth.resetCta': 'Set new password',
+  'auth.resetDone': 'Your password has been reset. Sign in with your new password.',
+  'auth.resetInvalid': 'This reset link is invalid or has expired. Request a new one.',
+  'auth.verifyHeading': 'Check your email',
+  'auth.verifyBody': 'We sent a verification link to {email}. Click it to activate your account, then sign in.',
+  'auth.verifyResend': 'Resend verification email',
+  'auth.verifyResent': 'Verification email sent.',
+  'auth.verifiedBanner': 'Email verified — you can sign in now.',
+  'auth.verifyFailedBanner': 'That verification link is invalid or has expired.',
+  'auth.unverifiedError': 'Please verify your email first — check your inbox, or resend the link below.',
+  'auth.invalidCredentials': "That email and password don't match.",
+  'auth.rateLimited': 'Too many attempts. Wait a minute and try again.',
+  'auth.googleError': "Google sign-in didn't complete. Please try again.",
+  'auth.googleLinkError':
+    'An account with this email already exists. Sign in with your password, then link Google from Settings.',
+  'auth.passwordTooShort': 'Password must be at least 8 characters.',
+  'auth.passwordMismatch': "Passwords don't match.",
+  'auth.emailRequired': 'Enter a valid email address.',
+  'auth.genericError': 'Something went wrong. Please try again.',
+  'auth.loading': 'Loading…',
+  'auth.account': 'Account',
+  'auth.signedInAs': 'Signed in as',
+  'auth.footnote': 'Your account secures access to generation. Provider keys are managed server-side.',
 
   // Audience Console (Phase 1)
   'audience.heading': 'Audience',
@@ -484,8 +521,11 @@ const EN: Dict = {
   'err.translator/empty-direction': 'Type a direction first, then click Refine.',
   'err.image/all-failed':
     'All image attempts failed. Try once more — fal.ai is sometimes flaky on bursts.',
+  'err.cost/cap-exceeded':
+    "You've reached the usage limit for this session. It resets later — reach out if you need a higher cap.",
+  'err.auth/session-expired': 'Your session has expired. Please sign in again.',
   'err.unknown':
-    'Something went wrong. Try again — and if it keeps happening, open Settings and re-check your keys.',
+    'Something went wrong. Try again — and if it keeps happening, open Settings.',
 
   // Platform exports (Meta + X)
   'platform.eyebrow': 'Ad platforms',

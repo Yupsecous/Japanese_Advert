@@ -1,10 +1,13 @@
 import { AppError } from './errorMessages';
+import { backendPost } from './backendClient';
 import type { AudioAlignment } from '../types';
 
+// Routes through the backend proxy (/api/elevenlabs/tts). `apiKey` is retained
+// in the args type for call-site compatibility but is ignored.
 export type GenerateAudioArgs = {
   script: string;
   voiceId: string;
-  apiKey: string;
+  apiKey?: string;
 };
 
 export type GenerateAudioResult = {
@@ -42,10 +45,6 @@ type WithTimestampsResponse = {
 };
 
 export async function generateAudio(args: GenerateAudioArgs): Promise<GenerateAudioResult> {
-  const apiKey = args.apiKey.trim();
-  if (!apiKey) {
-    throw new AppError('eleven/missing-key');
-  }
   if (!args.voiceId) {
     throw new AppError('eleven/voice-not-found', 'empty voiceId');
   }
@@ -53,48 +52,18 @@ export async function generateAudio(args: GenerateAudioArgs): Promise<GenerateAu
     throw new AppError('eleven/bad-response', 'empty script');
   }
 
-  let res: Response;
-  try {
-    res = await fetch(
-      // The /with-timestamps variant of the standard TTS endpoint returns
-      // the same audio bytes (base64-encoded) plus per-character alignment.
-      // Same cost as the plain endpoint — ElevenLabs ships timing data for
-      // free with every TTS call. We use it for kinetic captions in the
-      // video step and for WebVTT subtitle export.
-      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(args.voiceId)}/with-timestamps`,
-      {
-        method: 'POST',
-        headers: {
-          'xi-api-key': apiKey,
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          text: args.script,
-          model_id: MODEL,
-          voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-        }),
-      },
-    );
-  } catch (err) {
-    throw new AppError('eleven/network', err instanceof Error ? err.message : 'fetch failed');
-  }
-
-  if (!res.ok) {
-    if (res.status === 401) throw new AppError('eleven/auth-failed');
-    if (res.status === 422) throw new AppError('eleven/voice-not-found');
-    if (res.status === 404) throw new AppError('eleven/voice-not-found');
-    if (res.status === 429) throw new AppError('eleven/rate-limit');
-    const text = await res.text().catch(() => '');
-    throw new AppError('eleven/bad-response', `status ${res.status}: ${text.slice(0, 200)}`);
-  }
-
-  let body: WithTimestampsResponse;
-  try {
-    body = (await res.json()) as WithTimestampsResponse;
-  } catch {
-    throw new AppError('eleven/bad-response', 'with-timestamps response was not valid JSON');
-  }
+  // The /with-timestamps variant returns the same audio (base64) plus
+  // per-character alignment used for kinetic captions + WebVTT export.
+  const body = await backendPost<WithTimestampsResponse>(
+    '/api/elevenlabs/tts',
+    {
+      voiceId: args.voiceId,
+      text: args.script,
+      modelId: MODEL,
+      voiceSettings: { stability: 0.5, similarity_boost: 0.75 },
+    },
+    'eleven',
+  );
 
   const audioB64 = body.audio_base64;
   if (!audioB64) {

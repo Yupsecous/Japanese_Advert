@@ -4,9 +4,10 @@ import { createSettingsSlice, type SettingsSlice } from './settings.slice';
 import { createBriefSlice, type BriefSlice } from './brief.slice';
 import { createStepsSlice, type StepsSlice } from './steps.slice';
 import { createAudienceSlice, type AudienceSlice } from './audience.slice';
+import { createAuthSlice, type AuthSlice } from './auth.slice';
 import { STEP_ORDER, type StepId, type StepState, type VariantCache } from '../types';
 
-export type AppState = SettingsSlice & BriefSlice & StepsSlice & AudienceSlice;
+export type AppState = SettingsSlice & BriefSlice & StepsSlice & AudienceSlice & AuthSlice;
 
 // Audio variants carry a Blob and an object URL — neither survives JSON
 // serialization, so on rehydrate we strip the audio variants and demote
@@ -41,16 +42,26 @@ export const useAppStore = create<AppState>()(
       ...createBriefSlice(...a),
       ...createStepsSlice(...a),
       ...createAudienceSlice(...a),
+      ...createAuthSlice(...a),
     }),
     {
       name: 'demo-v2-state',
       // v7 → v8: audience slice added, 'audience' inserted as STEP_ORDER[0]
-      version: 8,
+      // v8 → v9: accounts migration — provider keys + the client-side `authed`
+      //   flag are no longer persisted (server holds keys; the httpOnly
+      //   session cookie is the source of truth). Strip them from old state.
+      version: 9,
+      migrate: (persisted) => {
+        if (persisted && typeof persisted === 'object') {
+          const p = persisted as Record<string, unknown>;
+          delete p.keys;
+          delete p.authed;
+        }
+        return persisted as AppState;
+      },
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
-        keys: state.keys,
         locale: state.locale,
-        authed: state.authed,
         brief: state.brief,
         briefSubmitted: state.briefSubmitted,
         steps: {

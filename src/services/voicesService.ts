@@ -1,4 +1,4 @@
-import { AppError } from './errorMessages';
+import { backendPost } from './backendClient';
 import type { VoiceSample } from '../data/voiceLibrary';
 
 type ElevenVoice = {
@@ -39,22 +39,10 @@ function toSample(v: ElevenVoice): VoiceSample {
   };
 }
 
-export async function fetchUserVoices(apiKey: string): Promise<VoiceSample[]> {
-  const trimmed = apiKey.trim();
-  if (!trimmed) throw new AppError('eleven/missing-key');
-  let res: Response;
-  try {
-    res = await fetch('https://api.elevenlabs.io/v1/voices', {
-      headers: { 'xi-api-key': trimmed },
-    });
-  } catch (err) {
-    throw new AppError('eleven/network', err instanceof Error ? err.message : 'fetch failed');
-  }
-  if (!res.ok) {
-    if (res.status === 401) throw new AppError('eleven/auth-failed');
-    throw new AppError('eleven/bad-response', `status ${res.status}`);
-  }
-  const body = (await res.json()) as VoicesResponse;
+// Routes through the backend proxy (/api/elevenlabs/voices). The leading-
+// underscore arg is retained (ignored) for call-site compatibility.
+export async function fetchUserVoices(_apiKey?: string): Promise<VoiceSample[]> {
+  const body = await backendPost<VoicesResponse>('/api/elevenlabs/voices', {}, 'eleven');
   const voices = body.voices ?? [];
   return voices.map(toSample);
 }
