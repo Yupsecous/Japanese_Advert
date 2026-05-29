@@ -24,6 +24,11 @@ export function recordSpend(key: string, amount: number): void {
   spend.set(key, (spend.get(key) ?? 0) + amount);
 }
 
+// Refund a previously-reserved charge (on upstream failure). Never goes below 0.
+export function refundSpend(key: string, amount: number): void {
+  spend.set(key, Math.max(0, (spend.get(key) ?? 0) - amount));
+}
+
 export function sessionTotalUsd(key: string): number {
   return spend.get(key) ?? 0;
 }
@@ -35,11 +40,35 @@ export function wouldExceedCap(key: string, amount: number, capUsd: number): boo
   return sessionTotalUsd(key) + amount > capUsd;
 }
 
-export function costForText(): number {
-  return TEXT_CALL_USD;
+// Model-aware text cost: estimate worst-case output cost so the cap reflects
+// reality (Opus ~5x Sonnet, gpt-4o-mini negligible). Prevents a caller from
+// running an expensive model/large max_tokens while being billed a flat rate.
+// Rough USD per 1M output tokens.
+function perMTokOut(model: string): number {
+  const m = model.toLowerCase();
+  if (m.includes('opus')) return 75;
+  if (m.includes('sonnet')) return 15;
+  if (m.includes('gpt-4o') && !m.includes('mini')) return 10;
+  return 0.6; // gpt-4o-mini and other cheap models
 }
 
-export function costForFlux(tier: ImageQualityTier): number {
+export function costForText(model?: string, maxTokens?: number): number {
+  const tokens = maxTokens && maxTokens > 0 ? maxTokens : 1000;
+  return Math.max(TEXT_CALL_USD, (tokens / 1_000_000) * perMTokOut(model ?? ''));
+}
+
+// ElevenLabs bills per character; reflect that instead of a flat rate.
+export function costForTts(chars: number): number {
+  return Math.max(TEXT_CALL_USD, (Math.max(0, chars) / 1000) * 0.1);
+}
+
+// Realistic tier (flux-pro v1.1) is billed by fal.ai PER MEGAPIXEL (rounded up),
+// so a >1MP image costs a multiple of the base. Account for that when known.
+export function costForFlux(tier: ImageQualityTier, width?: number, height?: number): number {
+  if (tier === 'realistic' && width && height) {
+    const mp = Math.max(1, Math.ceil((width * height) / 1_000_000));
+    return TIER_COST_USD.realistic * mp;
+  }
   return TIER_COST_USD[tier];
 }
 
@@ -57,37 +86,52 @@ export function globalDailyCapUsd(): number {
 }
 
 export async function globalDailySpendUsd(): Promise<number> {
-  try {
-    const rows = await getDb()
-      .select({ total: sql<string>`coalesce(sum(${usageEvents.costUsd}), 0)` })
-      .from(usageEvents)
-      .where(sql`${usageEvents.createdAt} >= date_trunc('day', now())`);
-    return Number(rows[0]?.total ?? 0);
-  } catch {
-    // DB unavailable — fail open (the per-user cap still applies as a backstop).
-    return 0;
-  }
+  const rows = await getDb()
+    .select({ total: sql<string>`coalesce(sum(${usageEvents.costUsd}), 0)` })
+    .from(usageEvents)
+    .where(sql`${usageEvents.createdAt} >= date_trunc('day', now())`);
+  return Number(rows[0]?.total ?? 0);
 }
 
 export async function wouldExceedGlobalDailyCap(amount: number): Promise<boolean> {
   const cap = globalDailyCapUsd();
-  if (cap <= 0) return false;
-  return (await globalDailySpendUsd()) + amount > cap;
+  if (cap <= 0) return false; // cap disabled → nothing to enforce
+  try {
+    return (await globalDailySpendUsd()) + amount > cap;
+  } catch (err) {
+    // Fail CLOSED: if we can't read the ledger we must NOT spend money. (The
+    // earlier fail-open behavior meant any DB hiccup unlocked unlimited spend.)
+    // eslint-disable-next-line no-console
+    console.error('[cost] global cap check failed — blocking (fail-closed):', err);
+    return true;
+  }
 }
 
-// Best-effort durable usage row. Fire-and-forget — never blocks or throws
-// into the request path; a no-op when the DB isn't configured (Android-only
-// deploys without DATABASE_URL).
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Durable per-call ledger row, written AFTER a successful billed call. Errors
+// are logged (not swallowed) so silent under-counting — which would defeat the
+// global cap — is visible. Populates user_id when sub is a real account id.
 export function recordUsageEvent(sub: string, route: string, costUsd: number): void {
   try {
+    const values: { sub: string; route: string; costUsd: string; userId?: string } = {
+      sub,
+      route,
+      costUsd: costUsd.toFixed(5),
+    };
+    if (UUID_RE.test(sub)) values.userId = sub;
     void getDb()
       .insert(usageEvents)
-      .values({ sub, route, costUsd: costUsd.toFixed(5) })
+      .values(values)
       .then(
         () => undefined,
-        () => undefined,
+        (err) => {
+          // eslint-disable-next-line no-console
+          console.error('[cost] usage_events insert failed (cap may under-count):', err);
+        },
       );
-  } catch {
-    // DATABASE_URL not set — skip durable logging.
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[cost] usage_events skipped (no DB?):', err);
   }
 }

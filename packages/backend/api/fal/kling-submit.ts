@@ -2,40 +2,60 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { KLING_SUBMIT_URL } from '@advert/shared';
 import { authenticate } from '../../lib/auth.js';
+import { relayUpstreamError, requirePost, sendError } from '../../lib/respond.js';
 import {
-  relayUpstreamError,
-  requirePost,
-  sendError,
-} from '../../lib/respond.js';
-import { recordSpend, costForKling, wouldExceedCap, wouldExceedGlobalDailyCap, recordUsageEvent } from '../../lib/cost.js';
+  recordSpend,
+  refundSpend,
+  costForKling,
+  wouldExceedCap,
+  wouldExceedGlobalDailyCap,
+  recordUsageEvent,
+} from '../../lib/cost.js';
 import { canKling, costCapForTier } from '../../lib/tiers.js';
+import { allow } from '../../lib/ratelimit.js';
 
-// Submit a Kling v1.6 image-to-video job. Returns request_id, which the
-// client passes to /api/fal/kling-poll until the job completes.
-//
-// Splitting submit from poll keeps Vercel's 30s timeout out of the
-// critical path — Kling jobs take ~75s, so client-side polling is the
-// only viable shape.
+// Submit a Kling v1.6 image-to-video job (Ultra-only, priciest per-call op).
+// The image_url is forwarded to fal.ai, which fetches it — so we restrict it
+// to fal's own media hosts to prevent using fal as an SSRF fetch proxy for
+// arbitrary attacker URLs. Legitimate images always come from a prior Flux
+// response on *.fal.media.
 
 const BodyZ = z.object({
-  prompt: z.string().min(1),
+  prompt: z.string().min(1).max(4000),
   imageUrl: z.string().url(),
   aspect: z.enum(['9x16', '1x1']),
 });
 
 const ASPECT_RATIO = { '9x16': '9:16', '1x1': '1:1' } as const;
 
+const ALLOWED_IMAGE_HOSTS = ['fal.media', 'fal.run', 'fal.ai'];
+
+function isAllowedImageUrl(raw: string): boolean {
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    return false;
+  }
+  if (u.protocol !== 'https:') return false;
+  const host = u.hostname.toLowerCase();
+  return ALLOWED_IMAGE_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!requirePost(req, res)) return;
 
   const session = await authenticate(req);
   if (!session) return sendError(res, 401, 'auth/unauthorized');
-  // Kling AI video is an Ultra-only feature.
   if (!canKling(session.tier)) return sendError(res, 403, 'tier/forbidden');
+  if (!allow(`kling:${session.sub}`, 5, 0.05)) return sendError(res, 429, 'auth/rate-limited');
 
   const parsed = BodyZ.safeParse(req.body);
   if (!parsed.success) {
     return sendError(res, 400, 'body/invalid', parsed.error.message);
+  }
+  if (!isAllowedImageUrl(parsed.data.imageUrl)) {
+    return sendError(res, 400, 'body/invalid', 'imageUrl host not allowed');
   }
 
   const cost = costForKling();
@@ -48,6 +68,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const apiKey = process.env.FAL_API_KEY;
   if (!apiKey) return sendError(res, 500, 'config/missing-key', 'FAL_API_KEY');
+
+  // Kling bills on submission; reserve the charge now and refund if submit fails.
+  recordSpend(session.sub, cost);
 
   let upstream: Response;
   try {
@@ -65,22 +88,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }),
     });
   } catch (err) {
-    return sendError(
-      res,
-      502,
-      'upstream/error',
-      err instanceof Error ? err.message : 'fetch failed',
-    );
+    refundSpend(session.sub, cost);
+    // eslint-disable-next-line no-console
+    console.error('[fal/kling-submit] fetch failed:', err);
+    return sendError(res, 502, 'upstream/error');
   }
 
   if (!upstream.ok) {
+    refundSpend(session.sub, cost);
     return relayUpstreamError(res, upstream, 'fal/kling-submit');
   }
 
-  // Charge the cost now even though the video doesn't exist yet — Kling
-  // bills on job submission, not completion. If the client fails to poll
-  // we still owe fal.ai.
-  recordSpend(session.sub, cost);
   recordUsageEvent(session.sub, 'fal/kling-submit', cost);
   const body = await upstream.json();
   res.status(200).json(body);

@@ -37,18 +37,22 @@ export function methodNotAllowed(res: VercelResponse): void {
   sendError(res, 405, 'method/not-allowed');
 }
 
-// Maps a fetch Response to the appropriate ApiErrorCode + status.
+// Maps a fetch Response to the appropriate ApiErrorCode + status. The upstream
+// body is LOGGED server-side but NOT returned to the client — provider error
+// payloads can carry org/project ids, model names, quota internals, and request
+// ids. The client only needs the stable code.
 export async function relayUpstreamError(
   res: VercelResponse,
   upstream: Response,
   scope: string,
 ): Promise<void> {
   const text = await upstream.text().catch(() => '');
-  const detail = `${scope}: ${text.slice(0, 240)}`;
-  if (upstream.status === 401) return sendError(res, 401, 'upstream/auth-failed', detail);
-  if (upstream.status === 402) return sendError(res, 402, 'upstream/no-credits', detail);
-  if (upstream.status === 429) return sendError(res, 429, 'upstream/rate-limit', detail);
-  sendError(res, upstream.status >= 500 ? 502 : 400, 'upstream/error', detail);
+  // eslint-disable-next-line no-console
+  console.error(`[upstream] ${scope} ${upstream.status}: ${text.slice(0, 500)}`);
+  if (upstream.status === 401) return sendError(res, 401, 'upstream/auth-failed');
+  if (upstream.status === 402) return sendError(res, 402, 'upstream/no-credits');
+  if (upstream.status === 429) return sendError(res, 429, 'upstream/rate-limit');
+  sendError(res, upstream.status >= 500 ? 502 : 400, 'upstream/error');
 }
 
 export function requirePost(req: { method?: string }, res: VercelResponse): boolean {

@@ -1,31 +1,30 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { authenticate } from '../../lib/auth.js';
+import { relayUpstreamError, requirePost, sendError } from '../../lib/respond.js';
 import {
-  relayUpstreamError,
-  requirePost,
-  sendError,
-} from '../../lib/respond.js';
-import { recordSpend, costForText, wouldExceedCap, wouldExceedGlobalDailyCap, recordUsageEvent } from '../../lib/cost.js';
+  recordSpend,
+  refundSpend,
+  costForTts,
+  wouldExceedCap,
+  wouldExceedGlobalDailyCap,
+  recordUsageEvent,
+} from '../../lib/cost.js';
 import { costCapForTier } from '../../lib/tiers.js';
+import { allow } from '../../lib/ratelimit.js';
 
-// ElevenLabs /text-to-speech/{voice_id}/with-timestamps proxy. Returns
-// the same JSON shape ElevenLabs returns — an `audio_base64` string +
-// character-level alignment arrays. The client decodes the base64 into
-// a Blob (web) or writes to a file (RN).
-//
-// We don't proxy the raw streaming endpoint because alignment is what
-// makes the kinetic-captions feature possible; streaming would skip it.
+// ElevenLabs /text-to-speech/{voice_id}/with-timestamps proxy. ElevenLabs
+// bills per character, so we bound the text length and bill by length.
 
 const BodyZ = z.object({
-  voiceId: z.string().min(1),
-  text: z.string().min(1),
-  modelId: z.string().default('eleven_multilingual_v2'),
+  voiceId: z.string().min(1).max(100),
+  text: z.string().min(1).max(5000),
+  modelId: z.string().max(100).default('eleven_multilingual_v2'),
   voiceSettings: z
     .object({
-      stability: z.number().optional(),
-      similarity_boost: z.number().optional(),
-      style: z.number().optional(),
+      stability: z.number().min(0).max(1).optional(),
+      similarity_boost: z.number().min(0).max(1).optional(),
+      style: z.number().min(0).max(1).optional(),
     })
     .optional(),
 });
@@ -35,13 +34,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const session = await authenticate(req);
   if (!session) return sendError(res, 401, 'auth/unauthorized');
+  if (!allow(`tts:${session.sub}`, 15, 0.2)) return sendError(res, 429, 'auth/rate-limited');
 
   const parsed = BodyZ.safeParse(req.body);
   if (!parsed.success) {
     return sendError(res, 400, 'body/invalid', parsed.error.message);
   }
 
-  const cost = costForText();
+  const cost = costForTts(parsed.data.text.length);
   if (
     wouldExceedCap(session.sub, cost, costCapForTier(session.tier)) ||
     (await wouldExceedGlobalDailyCap(cost))
@@ -54,6 +54,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const url = `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(parsed.data.voiceId)}/with-timestamps`;
 
+  recordSpend(session.sub, cost);
+
   let upstream: Response;
   try {
     upstream = await fetch(url, {
@@ -65,25 +67,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body: JSON.stringify({
         text: parsed.data.text,
         model_id: parsed.data.modelId,
-        ...(parsed.data.voiceSettings
-          ? { voice_settings: parsed.data.voiceSettings }
-          : {}),
+        ...(parsed.data.voiceSettings ? { voice_settings: parsed.data.voiceSettings } : {}),
       }),
     });
   } catch (err) {
-    return sendError(
-      res,
-      502,
-      'upstream/error',
-      err instanceof Error ? err.message : 'fetch failed',
-    );
+    refundSpend(session.sub, cost);
+    // eslint-disable-next-line no-console
+    console.error('[elevenlabs/tts] fetch failed:', err);
+    return sendError(res, 502, 'upstream/error');
   }
 
   if (!upstream.ok) {
+    refundSpend(session.sub, cost);
     return relayUpstreamError(res, upstream, 'elevenlabs/tts');
   }
 
-  recordSpend(session.sub, cost);
   recordUsageEvent(session.sub, 'elevenlabs/tts', cost);
   const body = await upstream.json();
   res.status(200).json(body);

@@ -39,6 +39,10 @@ import resetPasswordHandler from './api/auth/reset-password.js';
 import googleStartHandler from './api/auth/google/start.js';
 import googleCallbackHandler from './api/auth/google/callback.js';
 
+import { sql } from 'drizzle-orm';
+import { getDb, getPool } from './lib/db.js';
+import { sessions, emailVerificationTokens, passwordResetTokens } from './lib/schema.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -48,9 +52,22 @@ dotenv.config({ path: path.join(__dirname, '.env.local') });
 
 const app = express();
 
-// Behind Caddy (and/or a Cloudflare tunnel): trust the first proxy hop so
-// Secure cookies are sent and req.ip / X-Forwarded-For are honored.
-app.set('trust proxy', 1);
+// Only trust X-Forwarded-For when actually behind a reverse proxy (set
+// TRUST_PROXY=1 once Caddy/Cloudflare terminates in front). Default OFF: with
+// no proxy, req.ip is the real socket address and CANNOT be spoofed via XFF —
+// which the rate limiter relies on.
+app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false);
+
+// Baseline security headers on every response. (No strict CSP yet — the Design
+// step renders generated code in an iframe via @babel/standalone; a CSP needs
+// to be scoped to that and is tracked separately.)
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
 
 // CORS: in production lock to the public origin and allow credentials (the
 // session cookie). In dev (no PUBLIC_ORIGIN) reflect the request origin so a
@@ -65,7 +82,9 @@ app.use(
   ),
 );
 
-app.use(express.json({ limit: '10mb' }));
+// Bodies are small JSON (prompts + schemas). 1MB is generous and bounds the
+// parse/allocate cost of a hostile oversized payload (was 10MB).
+app.use(express.json({ limit: '1mb' }));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type VercelLikeHandler = (req: any, res: any) => unknown | Promise<unknown>;
@@ -114,25 +133,73 @@ app.use('/api', (_req, res) => {
 // Only mounted when dist/ exists (it won't in API-only/dev-via-Vite setups).
 const distDir = path.join(__dirname, '..', '..', 'dist');
 if (existsSync(distDir)) {
-  app.use(express.static(distDir));
+  app.use(express.static(distDir, { dotfiles: 'deny' }));
   // Client-side routing fallback: any non-/api GET serves index.html.
   app.get('*', (_req, res) => {
     res.sendFile(path.join(distDir, 'index.html'));
   });
 }
 
-// Last-resort error handler — surfaces unhandled exceptions as JSON 500.
+// Last-resort error handler. Logs the real error server-side but returns ONLY
+// a stable code to the client — exception messages can leak config/internals
+// (missing-secret states, DB driver text, file paths).
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   // eslint-disable-next-line no-console
   console.error('[server] unhandled error:', err);
-  res.status(500).json({
-    code: 'unknown',
-    detail: err instanceof Error ? err.message : String(err),
-  });
+  res.status(500).json({ code: 'unknown' });
 });
 
+// Periodic GC of expired/consumed auth rows so open signup can't grow these
+// tables without bound. Best-effort; logs on failure.
+async function purgeExpiredAuthRows(): Promise<void> {
+  try {
+    const db = getDb();
+    await db
+      .delete(sessions)
+      .where(sql`expires_at < now() - interval '7 days' OR revoked_at < now() - interval '7 days'`);
+    await db
+      .delete(emailVerificationTokens)
+      .where(sql`expires_at < now() - interval '1 day' OR consumed_at IS NOT NULL`);
+    await db
+      .delete(passwordResetTokens)
+      .where(sql`expires_at < now() - interval '1 day' OR consumed_at IS NOT NULL`);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[gc] purge of expired auth rows failed:', err);
+  }
+}
+setTimeout(() => void purgeExpiredAuthRows(), 60_000).unref();
+setInterval(() => void purgeExpiredAuthRows(), 6 * 60 * 60 * 1000).unref();
+
 const port = Number(process.env.PORT ?? 3001);
-app.listen(port, () => {
+const server = app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`@advert/backend listening on http://localhost:${port}`);
+});
+
+// Graceful shutdown: stop accepting, drain in-flight requests, close the pool.
+function shutdown(signal: string): void {
+  // eslint-disable-next-line no-console
+  console.log(`[server] ${signal} received — draining`);
+  server.close(() => {
+    try {
+      void getPool().end();
+    } catch {
+      /* pool never created */
+    }
+    process.exit(0);
+  });
+  // Hard cap so a stuck connection can't block the restart forever.
+  setTimeout(() => process.exit(0), 10_000).unref();
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+// Don't let a stray rejection/exception flap the crash-restart loop; log it.
+process.on('unhandledRejection', (reason) => {
+  // eslint-disable-next-line no-console
+  console.error('[server] unhandledRejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+  // eslint-disable-next-line no-console
+  console.error('[server] uncaughtException:', err);
 });

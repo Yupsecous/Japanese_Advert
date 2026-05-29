@@ -40,7 +40,14 @@ import type {
 // through as their string form.
 export function csvEscape(value: unknown): string {
   if (value === null || value === undefined) return '';
-  const s = String(value);
+  let s = String(value);
+  // Neutralize spreadsheet formula injection: a STRING cell starting with one
+  // of these is executed as a formula by Excel/Sheets (=, +, -, @, tab, CR).
+  // Much of this data is LLM-generated, so prefix a literal quote to defuse it.
+  // Numbers/booleans are left intact (a negative number must stay numeric).
+  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(s)) {
+    s = `'${s}`;
+  }
   if (/[",\n\r]/.test(s)) {
     return `"${s.replace(/"/g, '""')}"`;
   }

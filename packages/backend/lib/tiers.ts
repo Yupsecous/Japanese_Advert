@@ -37,6 +37,35 @@ export function canMetaX(tier: Tier): boolean {
   return tier === 'ultra';
 }
 
+// Text models each plan may use on the LLM proxies. The premium "Design" step
+// uses claude-opus-4-7; restricting Opus to Pro/Ultra enforces that paywall
+// server-side (the UI gate alone was bypassable). Free gets Sonnet only.
+// OpenAI is gpt-4o-mini for everyone (the only model the app uses).
+export function allowedTextModels(tier: Tier, provider: 'anthropic' | 'openai'): string[] {
+  if (provider === 'openai') return ['gpt-4o-mini'];
+  if (tier === 'free') return ['claude-sonnet-4-6'];
+  return ['claude-sonnet-4-6', 'claude-opus-4-7'];
+}
+
+// Server backstop: clamp a requested model to one the tier may use. Defaults to
+// the cheapest allowed model rather than erroring, so generation never breaks —
+// a Free caller asking for Opus silently gets Sonnet.
+export function clampTextModel(
+  tier: Tier,
+  provider: 'anthropic' | 'openai',
+  requested: string | undefined,
+): string {
+  const allowed = allowedTextModels(tier, provider);
+  if (requested && allowed.includes(requested)) return requested;
+  return allowed[0]!;
+}
+
+// Upper bound on max_tokens per tier (cost guard). The largest legitimate
+// request is the Design step at 8000 (Pro/Ultra only); Free never needs >2000.
+export function maxTokensCeiling(tier: Tier): number {
+  return tier === 'free' ? 4000 : 16000;
+}
+
 // Cumulative API-cost cap (USD) per user. 0 = unlimited. Env-overridable.
 export function costCapForTier(tier: Tier): number {
   if (tier === 'free') return Number(process.env.TIER_FREE_CAP_USD ?? 0.5);

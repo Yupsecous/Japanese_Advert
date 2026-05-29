@@ -24,9 +24,13 @@ export function allow(key: string, capacity: number, refillPerSec: number): bool
   return true;
 }
 
+// Use the IP Express resolved (req.ip), which honors `trust proxy`. When no
+// reverse proxy is trusted (the default now), this is the real socket address
+// and CANNOT be spoofed via X-Forwarded-For. Previously this read the raw XFF
+// header unconditionally, so any client could rotate the header to mint
+// unlimited rate-limit keys and bypass every throttle.
 export function clientIp(req: VercelRequest): string {
-  const fwd = req.headers['x-forwarded-for'];
-  if (typeof fwd === 'string' && fwd.length > 0) return fwd.split(',')[0]!.trim();
-  if (Array.isArray(fwd) && fwd[0]) return fwd[0];
-  return req.socket?.remoteAddress ?? 'unknown';
+  const r = req as unknown as { ip?: string; socket?: { remoteAddress?: string } };
+  if (typeof r.ip === 'string' && r.ip.length > 0) return r.ip;
+  return r.socket?.remoteAddress ?? 'unknown';
 }

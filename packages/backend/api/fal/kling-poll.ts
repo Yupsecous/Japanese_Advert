@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { authenticate } from '../../lib/auth.js';
+import { canKling } from '../../lib/tiers.js';
+import { allow } from '../../lib/ratelimit.js';
 import {
   relayUpstreamError,
   requirePost,
@@ -24,6 +26,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const session = await authenticate(req);
   if (!session) return sendError(res, 401, 'auth/unauthorized');
+  // Kling video is Ultra-only; polling is part of that feature.
+  if (!canKling(session.tier)) return sendError(res, 403, 'tier/forbidden');
+  // Generous bucket — the client legitimately polls every ~2s.
+  if (!allow(`kling-poll:${session.sub}`, 60, 1)) return sendError(res, 429, 'auth/rate-limited');
 
   const parsed = BodyZ.safeParse(req.body);
   if (!parsed.success) {

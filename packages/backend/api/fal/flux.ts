@@ -1,30 +1,27 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import {
-  TIER_FAL_URL,
-  TIER_EXTRAS,
-  type ImageQualityTier,
-} from '@advert/shared';
+import { TIER_FAL_URL, TIER_EXTRAS, type ImageQualityTier } from '@advert/shared';
 import { authenticate } from '../../lib/auth.js';
+import { relayUpstreamError, requirePost, sendError } from '../../lib/respond.js';
 import {
-  relayUpstreamError,
-  requirePost,
-  sendError,
-} from '../../lib/respond.js';
-import { recordSpend, costForFlux, wouldExceedCap, wouldExceedGlobalDailyCap, recordUsageEvent } from '../../lib/cost.js';
+  recordSpend,
+  refundSpend,
+  costForFlux,
+  wouldExceedCap,
+  wouldExceedGlobalDailyCap,
+  recordUsageEvent,
+} from '../../lib/cost.js';
 import { clampImageTier, costCapForTier } from '../../lib/tiers.js';
+import { allow } from '../../lib/ratelimit.js';
 
-// Tier-aware Flux proxy. Client provides prompt + dimensions + tier; we
-// pick the right fal.ai endpoint and inject the per-tier inference params.
-//
-// Why tier on the server side: the per-tier cost numbers live in shared,
-// so the server can rate-limit + cap correctly without trusting the
-// client to report the tier it actually paid for.
+// Tier-aware Flux proxy. The quality tier is clamped to the caller's plan, the
+// requested dimensions are bounded, and cost is computed per-megapixel for the
+// realistic tier (which fal.ai bills that way).
 
 const BodyZ = z.object({
-  prompt: z.string().min(1),
-  width: z.number().int().positive(),
-  height: z.number().int().positive(),
+  prompt: z.string().min(1).max(4000),
+  width: z.number().int().min(64).max(2048),
+  height: z.number().int().min(64).max(2048),
   tier: z.enum(['fast', 'balanced', 'realistic']).default('fast'),
 });
 
@@ -33,17 +30,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const session = await authenticate(req);
   if (!session) return sendError(res, 401, 'auth/unauthorized');
+  // Image generation is comparatively expensive — a tighter bucket.
+  if (!allow(`flux:${session.sub}`, 10, 0.2)) return sendError(res, 429, 'auth/rate-limited');
 
   const parsed = BodyZ.safeParse(req.body);
   if (!parsed.success) {
     return sendError(res, 400, 'body/invalid', parsed.error.message);
   }
   const { prompt, width, height } = parsed.data;
-  // Clamp the requested quality to what the caller's tier allows (server
-  // backstop; the UI already restricts the picker per tier).
   const tier = clampImageTier(session.tier, parsed.data.tier as ImageQualityTier);
 
-  const cost = costForFlux(tier);
+  const cost = costForFlux(tier, width, height);
   if (
     wouldExceedCap(session.sub, cost, costCapForTier(session.tier)) ||
     (await wouldExceedGlobalDailyCap(cost))
@@ -53,6 +50,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const apiKey = process.env.FAL_API_KEY;
   if (!apiKey) return sendError(res, 500, 'config/missing-key', 'FAL_API_KEY');
+
+  recordSpend(session.sub, cost);
 
   let upstream: Response;
   try {
@@ -71,19 +70,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }),
     });
   } catch (err) {
-    return sendError(
-      res,
-      502,
-      'upstream/error',
-      err instanceof Error ? err.message : 'fetch failed',
-    );
+    refundSpend(session.sub, cost);
+    // eslint-disable-next-line no-console
+    console.error('[fal/flux] fetch failed:', err);
+    return sendError(res, 502, 'upstream/error');
   }
 
   if (!upstream.ok) {
+    refundSpend(session.sub, cost);
     return relayUpstreamError(res, upstream, 'fal/flux');
   }
 
-  recordSpend(session.sub, cost);
   recordUsageEvent(session.sub, 'fal/flux', cost);
   const body = await upstream.json();
   res.status(200).json(body);

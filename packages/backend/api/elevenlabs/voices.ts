@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { authenticate } from '../../lib/auth.js';
+import { allow } from '../../lib/ratelimit.js';
 import {
   relayUpstreamError,
   requirePost,
@@ -15,6 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const session = await authenticate(req);
   if (!session) return sendError(res, 401, 'auth/unauthorized');
+  if (!allow(`voices:${session.sub}`, 10, 0.1)) return sendError(res, 429, 'auth/rate-limited');
 
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) return sendError(res, 500, 'config/missing-key', 'ELEVENLABS_API_KEY');
