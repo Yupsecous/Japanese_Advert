@@ -17,6 +17,7 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import healthHandler from './api/health.js';
+import configHandler from './api/config.js';
 import authLoginHandler from './api/auth/login.js';
 import openaiChatHandler from './api/openai/chat.js';
 import anthropicMessagesHandler from './api/anthropic/messages.js';
@@ -101,6 +102,7 @@ function adapt(handler: VercelLikeHandler) {
 
 // --- API routes (same paths Vercel would have served) ---
 app.get('/api/health', adapt(healthHandler));
+app.get('/api/config', adapt(configHandler));
 
 // Auth: legacy shared-cred (Android, Bearer) — unchanged.
 app.post('/api/auth/login', adapt(authLoginHandler));

@@ -1,9 +1,15 @@
-// Google OAuth (Authorization Code + PKCE) via arctic. We read identity from
-// the signature-verified id_token returned by the token endpoint — never an
-// unauthenticated userinfo call — and pass email_verified through to the
-// account-linking logic (lib/users.ts).
+// Google OAuth (Authorization Code + PKCE) via arctic. Identity comes from the
+// id_token returned by the token endpoint — which we additionally verify
+// against Google's JWKS (signature + issuer + audience + expiry) as
+// defense-in-depth — never an unauthenticated userinfo call. email_verified is
+// passed through to the account-linking logic (lib/users.ts).
 
-import { Google, generateState, generateCodeVerifier, decodeIdToken } from 'arctic';
+import { Google, generateState, generateCodeVerifier } from 'arctic';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
+
+// Google's public signing keys (cached + auto-refreshed by jose).
+const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
+const GOOGLE_ISSUERS = ['https://accounts.google.com', 'accounts.google.com'];
 
 function googleClient(): Google {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -29,11 +35,16 @@ export type GoogleIdentity = {
   displayName: string | null;
 };
 
-// Exchanges the code for tokens and decodes the id_token claims. Throws if the
-// exchange fails or the token lacks an email.
+// Exchanges the code for tokens and verifies the id_token against Google's
+// JWKS (signature, issuer, audience=our client id, expiry). Throws if the
+// exchange fails, the token doesn't verify, or it lacks sub/email.
 export async function exchangeGoogleCode(code: string, codeVerifier: string): Promise<GoogleIdentity> {
   const tokens = await googleClient().validateAuthorizationCode(code, codeVerifier);
-  const claims = decodeIdToken(tokens.idToken()) as {
+  const { payload } = await jwtVerify(tokens.idToken(), GOOGLE_JWKS, {
+    issuer: GOOGLE_ISSUERS,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const claims = payload as {
     sub?: string;
     email?: string;
     email_verified?: boolean;

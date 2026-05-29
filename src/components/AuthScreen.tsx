@@ -9,9 +9,14 @@ import { Button } from './ui/Button';
 type Mode = 'login' | 'signup' | 'forgot' | 'reset';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-// Hide "Continue with Google" where OAuth can't work (e.g. the bare-IP/HTTP
-// preview — Google requires an HTTPS domain). Default: shown.
-const GOOGLE_ENABLED = import.meta.env.VITE_GOOGLE_ENABLED !== '0';
+// Show "Continue with Google" only on the real domain. OAuth requires the
+// registered HTTPS redirect URI, and the CSRF state / PKCE cookies are bound
+// to the domain host — starting the flow from the bare IP would fail at the
+// callback. So gate on the canonical host (and the build-time off switch).
+const ON_OAUTH_HOST =
+  import.meta.env.VITE_GOOGLE_ENABLED !== '0' &&
+  typeof window !== 'undefined' &&
+  window.location.hostname.endsWith('personifyads.online');
 
 // Reads any redirect params the backend appended (verify-email, OAuth
 // callback, reset link), returns the initial mode + a banner, then cleans the
@@ -65,6 +70,9 @@ export function AuthScreen() {
   const [showResend, setShowResend] = useState(false);
   // After signup, switch to a "check your email" panel.
   const [verifySentTo, setVerifySentTo] = useState('');
+  // Show "Continue with Google" only once the server confirms it's configured
+  // (and we're on the OAuth host) — avoids a button that 500s.
+  const [googleReady, setGoogleReady] = useState(false);
 
   // Clear transient messages when the user switches mode.
   useEffect(() => {
@@ -72,6 +80,20 @@ export function AuthScreen() {
     setInfo('');
     setShowResend(false);
   }, [mode]);
+
+  useEffect(() => {
+    if (!ON_OAUTH_HOST) return;
+    let cancelled = false;
+    void fetch('/api/config')
+      .then((r) => r.json())
+      .then((c) => {
+        if (!cancelled) setGoogleReady(Boolean(c?.googleEnabled));
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function mapLoginError(code: string): string {
     if (code === 'auth/bad-credentials') return t('auth.invalidCredentials');
@@ -229,7 +251,7 @@ export function AuthScreen() {
       )}
 
       {/* Google — available on login + signup (when configured) */}
-      {(mode === 'login' || mode === 'signup') && GOOGLE_ENABLED && (
+      {(mode === 'login' || mode === 'signup') && googleReady && (
         <>
           <a
             href={GOOGLE_START_URL}
