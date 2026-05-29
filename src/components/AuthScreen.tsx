@@ -3,6 +3,8 @@ import { useAppStore } from '../store';
 import { useT } from '../i18n/hooks';
 import { authApi, GOOGLE_START_URL } from '../services/authApi';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { BrandMark } from './BrandMark';
+import { Button } from './ui/Button';
 
 type Mode = 'login' | 'signup' | 'forgot' | 'reset';
 
@@ -163,8 +165,6 @@ export function AuthScreen() {
   const inputCls =
     'w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-900 disabled:opacity-50';
   const labelCls = 'text-xs font-medium uppercase tracking-wide text-neutral-500';
-  const primaryBtn =
-    'w-full rounded-md bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint';
 
   // "Check your email" panel after signup.
   if (verifySentTo) {
@@ -336,7 +336,7 @@ export function AuthScreen() {
           </div>
         )}
 
-        <button type="submit" disabled={busy} className={primaryBtn}>
+        <Button type="submit" variant="solid" disabled={busy} className="w-full py-2.5">
           {busy
             ? mode === 'signup'
               ? t('auth.signingUp')
@@ -348,7 +348,7 @@ export function AuthScreen() {
                 : mode === 'reset'
                   ? t('auth.resetCta')
                   : t('auth.signIn')}
-        </button>
+        </Button>
       </form>
 
       <div className="mt-6 text-center text-sm text-ink-soft">
@@ -377,9 +377,8 @@ function Shell({ t, children }: { t: (k: string, v?: Record<string, string | num
         <LanguageSwitcher />
       </div>
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
-          <p className="text-xs uppercase tracking-[0.2em] text-ink-soft">{t('app.title')}</p>
+        <div className="mb-6 flex justify-center">
+          <BrandMark size={30} withWordmark />
         </div>
         <div className="rounded-xl border border-rule bg-paper p-6 shadow-sm sm:p-8">{children}</div>
         <p className="mt-5 text-center text-[11px] leading-relaxed text-ink-faint">{t('auth.footnote')}</p>

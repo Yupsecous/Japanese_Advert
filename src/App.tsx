@@ -10,6 +10,7 @@ import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { AuthGate } from './components/AuthGate';
 import { Sidebar } from './components/Sidebar';
 import { UpgradeModal } from './components/UpgradeModal';
+import { Button } from './components/ui/Button';
 import { useT } from './i18n/hooks';
 import { loadSamplePreset, type SamplePreset } from './services/sampleLoader';
 
@@ -21,6 +22,7 @@ function isTestMode(): boolean {
 export default function App() {
   const briefSubmitted = useAppStore((s) => s.briefSubmitted);
   const openaiKey = useAppStore((s) => s.keys.openai);
+  const closeDrawer = useAppStore((s) => s.closeDrawer);
   const t = useT();
   const [sample, setSample] = useState<SamplePreset | null>(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -69,16 +71,12 @@ export default function App() {
               </svg>
               {t('nav.private')}
             </span>
-            <button
-              type="button"
-              onClick={() => setUpgradeOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-ink/90"
-            >
+            <Button variant="dark" size="sm" onClick={() => setUpgradeOpen(true)} className="rounded-full">
               <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
                 <path fill="currentColor" d="M10 3l1.8 3.7L15.5 8.5 11.8 10.3 10 14l-1.8-3.7L4.5 8.5 8.2 6.7Z" />
               </svg>
               {t('nav.upgrade')}
-            </button>
+            </Button>
             <LanguageSwitcher />
           </header>
 
@@ -101,7 +99,12 @@ export default function App() {
           </main>
         </div>
 
-        <SettingsDrawer />
+        <SettingsDrawer
+          onUpgrade={() => {
+            closeDrawer();
+            setUpgradeOpen(true);
+          }}
+        />
         <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
       </div>
     </AuthGate>

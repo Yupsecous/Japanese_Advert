@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppStore } from '../store';
 import { applySamplePreset, loadSamplePreset, type SamplePreset } from '../services/sampleLoader';
 import { useT } from '../i18n/hooks';
+import { Button } from './ui/Button';
 import type { Brief } from '../types';
 
 type FieldKey = keyof Brief;
@@ -73,13 +74,9 @@ export function BriefForm() {
               {t('brief.sample.body', { product: sample.brief.productName })}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => applySamplePreset(sample)}
-            className="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100"
-          >
+          <Button variant="pill" onClick={() => applySamplePreset(sample)} className="shrink-0">
             {t('brief.sample.cta')}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -112,12 +109,9 @@ export function BriefForm() {
       ))}
 
       <div className="pt-2">
-        <button
-          type="submit"
-          className="rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-dark"
-        >
+        <Button type="submit" variant="solid" className="px-5 py-2.5">
           {t('brief.start')}
-        </button>
+        </Button>
       </div>
     </form>
   );

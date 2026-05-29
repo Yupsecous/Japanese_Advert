@@ -4,6 +4,7 @@ import { useT } from '../i18n/hooks';
 import { authApi } from '../services/authApi';
 import { TIER_LABELS, type Tier } from '../tiers';
 import { BrandMark } from './BrandMark';
+import { Button } from './ui/Button';
 
 // Personify Ads plans modal — the equivalent of Grok's "SuperGrok" upgrade
 // sheet, mapped onto our Free/Pro/Ultra tiers. There are no real payments yet:
@@ -140,14 +141,9 @@ export function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => 
                 onKeyDown={(e) => e.key === 'Enter' && void redeem()}
                 className="min-w-0 flex-1 rounded-lg border border-rule-strong bg-paper px-3 py-2 text-sm outline-none focus:border-brand"
               />
-              <button
-                type="button"
-                onClick={() => void redeem()}
-                disabled={busy || key.trim().length === 0}
-                className="shrink-0 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
-              >
+              <Button variant="solid" onClick={() => void redeem()} disabled={busy || key.trim().length === 0} className="shrink-0">
                 {busy ? '…' : t('tier.redeemCta')}
-              </button>
+              </Button>
             </div>
             {msg && (
               <p className={`mt-2 text-xs ${msg.ok ? 'text-success-700' : 'text-red-600'}`}>{msg.text}</p>

@@ -173,6 +173,14 @@ const EN: Dict = {
   'tier.platformLockedBody':
     'Platform-ready Meta and X ad exports are an Ultra feature. Redeem an Ultra key in Settings to unlock them.',
 
+  // Settings modal (Grok-style)
+  'settings.navAccount': 'Account',
+  'settings.navGeneration': 'Generation',
+  'settings.navBrand': 'Brand',
+  'settings.navData': 'Data Controls',
+  'settings.change': 'Change',
+  'settings.newAdHint': 'Clear the current brief and start over.',
+
   // App shell / sidebar (Personify Ads 1.0)
   'nav.newAd': 'New ad',
   'nav.search': 'Search',

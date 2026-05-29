@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppStore } from '../store';
 import { useT } from '../i18n/hooks';
 import { EMPTY_BRAND_DICTIONARY, isBrandDictionaryEmpty, type BrandDictionary } from '../types';
+import { Button } from './ui/Button';
 
 // Parses a newline-separated text field into a clean array (trimmed,
 // deduplicated, non-empty).
@@ -224,8 +225,9 @@ export function BrandSettings() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3">
-            <button
-              type="button"
+            <Button
+              variant="pill"
+              size="sm"
               onClick={reset}
               disabled={isBrandDictionaryEmpty({
                 ...EMPTY_BRAND_DICTIONARY,
@@ -236,22 +238,16 @@ export function BrandSettings() {
                 visualRules: draft.visualRules,
                 audienceRefinement: draft.audienceRefinement,
               }) && isBrandDictionaryEmpty(brand)}
-              className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
             >
               {t('brandSettings.reset')}
-            </button>
+            </Button>
             <div className="flex items-center gap-2">
               {savedFlash && (
-                <span className="text-xs text-emerald-700">{t('brandSettings.saved')}</span>
+                <span className="text-xs text-success-700">{t('brandSettings.saved')}</span>
               )}
-              <button
-                type="button"
-                onClick={save}
-                disabled={!dirty}
-                className="rounded-md bg-neutral-900 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
-              >
+              <Button variant="solid" onClick={save} disabled={!dirty}>
                 {dirty ? t('brandSettings.save') : t('brandSettings.saved')}
-              </button>
+              </Button>
             </div>
           </div>
 
