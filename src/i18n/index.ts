@@ -27,7 +27,7 @@ type Dict = Record<string, string>;
 
 const EN: Dict = {
   // App header
-  'app.title': "Director's Cockpit",
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'New brief',
   'app.settings': 'Settings',
@@ -578,7 +578,7 @@ const EN: Dict = {
 
 const JA: Dict = {
   // App header
-  'app.title': 'ディレクターズ・コックピット',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': '新しいブリーフ',
   'app.settings': '設定',
@@ -1133,7 +1133,7 @@ const JA: Dict = {
 
 const PT: Dict = {
   // App header
-  'app.title': 'Cabine do Diretor',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'Novo briefing',
   'app.settings': 'Configurações',
@@ -1692,7 +1692,7 @@ const PT: Dict = {
 
 const ES: Dict = {
   // App header
-  'app.title': 'Cabina del Director',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'Nuevo brief',
   'app.settings': 'Ajustes',
@@ -2250,7 +2250,7 @@ const ES: Dict = {
 
 const FR: Dict = {
   // App header
-  'app.title': 'Cockpit du Directeur',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'Nouveau brief',
   'app.settings': 'Paramètres',
@@ -2808,7 +2808,7 @@ const FR: Dict = {
 
 const DE: Dict = {
   // App header
-  'app.title': 'Director’s Cockpit',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'Neues Briefing',
   'app.settings': 'Einstellungen',
