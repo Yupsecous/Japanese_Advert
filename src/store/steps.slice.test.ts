@@ -4,6 +4,7 @@ import { createStepsSlice } from './steps.slice';
 import { createBriefSlice } from './brief.slice';
 import { createSettingsSlice } from './settings.slice';
 import { createAudienceSlice } from './audience.slice';
+import { createAuthSlice } from './auth.slice';
 import { isStepUnlocked, activeStepId, allApproved, type AppState } from './index';
 import {
   copyVariant,
@@ -21,6 +22,7 @@ function makeTestStore(): StoreApi<AppState> {
     ...createBriefSlice(...a),
     ...createStepsSlice(...a),
     ...createAudienceSlice(...a),
+    ...createAuthSlice(...a),
   }));
 }
 

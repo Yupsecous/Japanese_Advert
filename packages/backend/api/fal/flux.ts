@@ -11,7 +11,7 @@ import {
   requirePost,
   sendError,
 } from '../../lib/respond.js';
-import { recordSpend, costForFlux, wouldExceedCap } from '../../lib/cost.js';
+import { recordSpend, costForFlux, wouldExceedCap, recordUsageEvent } from '../../lib/cost.js';
 
 // Tier-aware Flux proxy. Client provides prompt + dimensions + tier; we
 // pick the right fal.ai endpoint and inject the per-tier inference params.
@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { prompt, width, height, tier } = parsed.data;
 
   const cost = costForFlux(tier as ImageQualityTier);
-  if (wouldExceedCap(session.sid, cost)) {
+  if (wouldExceedCap(session.sub, cost)) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 
@@ -76,7 +76,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return relayUpstreamError(res, upstream, 'fal/flux');
   }
 
-  recordSpend(session.sid, cost);
+  recordSpend(session.sub, cost);
+  recordUsageEvent(session.sub, 'fal/flux', cost);
   const body = await upstream.json();
   res.status(200).json(body);
 }

@@ -1,13 +1,16 @@
 import { AppError } from './errorMessages';
+import { backendPost } from './backendClient';
 import { brandPromptBlock, brandVisualBlock } from './brandPrompt';
 import { languageDirective, type Locale } from '../i18n';
 import type { BrandDictionary, Brief, CopyVariant, ImageVariant } from '../types';
 
+// Routes through the backend proxy (/api/anthropic/messages). `apiKey` is
+// retained in the args type for call-site compatibility but is ignored.
 export type CritiqueImageArgs = {
   variant: ImageVariant;
   approvedCopy: CopyVariant;
   brief: Brief;
-  apiKey: string;
+  apiKey?: string;
   locale?: Locale;
   brand?: BrandDictionary;
 };
@@ -58,57 +61,24 @@ type AnthropicMessage = {
 };
 
 export async function critiqueImage(args: CritiqueImageArgs): Promise<string> {
-  const apiKey = args.apiKey.trim();
-  if (!apiKey) {
-    throw new AppError('anthropic/missing-key');
-  }
-
-  let res: Response;
-  try {
-    res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: ANTHROPIC_MODEL,
-        max_tokens: 600,
-        system: `${CRITIQUE_SYSTEM_PROMPT}\n\n${languageDirective(args.locale ?? 'en')}${brandPromptBlock(args.brand)}${brandVisualBlock(args.brand)}`,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'url', url: args.variant.imageUrl } },
-              { type: 'text', text: buildUserMessage(args) },
-            ],
-          },
-        ],
-      }),
-    });
-  } catch (err) {
-    throw new AppError('anthropic/network', err instanceof Error ? err.message : 'fetch failed');
-  }
-
-  if (!res.ok) {
-    if (res.status === 401 || res.status === 403) {
-      throw new AppError('anthropic/auth-failed', `status ${res.status}`);
-    }
-    if (res.status === 429) {
-      throw new AppError('anthropic/rate-limit');
-    }
-    const text = await res.text().catch(() => '');
-    throw new AppError('anthropic/bad-response', `status ${res.status}: ${text.slice(0, 200)}`);
-  }
-
-  let body: AnthropicMessage;
-  try {
-    body = (await res.json()) as AnthropicMessage;
-  } catch {
-    throw new AppError('anthropic/bad-response', 'response was not valid JSON');
-  }
+  const body = await backendPost<AnthropicMessage>(
+    '/api/anthropic/messages',
+    {
+      model: ANTHROPIC_MODEL,
+      max_tokens: 600,
+      system: `${CRITIQUE_SYSTEM_PROMPT}\n\n${languageDirective(args.locale ?? 'en')}${brandPromptBlock(args.brand)}${brandVisualBlock(args.brand)}`,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'url', url: args.variant.imageUrl } },
+            { type: 'text', text: buildUserMessage(args) },
+          ],
+        },
+      ],
+    },
+    'anthropic',
+  );
 
   const textBlock = body.content?.find((c) => c.type === 'text');
   const text = textBlock?.text;

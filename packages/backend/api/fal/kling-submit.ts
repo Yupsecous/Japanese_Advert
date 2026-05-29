@@ -7,7 +7,7 @@ import {
   requirePost,
   sendError,
 } from '../../lib/respond.js';
-import { recordSpend, costForKling, wouldExceedCap } from '../../lib/cost.js';
+import { recordSpend, costForKling, wouldExceedCap, recordUsageEvent } from '../../lib/cost.js';
 
 // Submit a Kling v1.6 image-to-video job. Returns request_id, which the
 // client passes to /api/fal/kling-poll until the job completes.
@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const cost = costForKling();
-  if (wouldExceedCap(session.sid, cost)) {
+  if (wouldExceedCap(session.sub, cost)) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 
@@ -74,7 +74,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Charge the cost now even though the video doesn't exist yet — Kling
   // bills on job submission, not completion. If the client fails to poll
   // we still owe fal.ai.
-  recordSpend(session.sid, cost);
+  recordSpend(session.sub, cost);
+  recordUsageEvent(session.sub, 'fal/kling-submit', cost);
   const body = await upstream.json();
   res.status(200).json(body);
 }

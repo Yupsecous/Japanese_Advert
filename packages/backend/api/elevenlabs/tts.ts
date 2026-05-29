@@ -6,7 +6,7 @@ import {
   requirePost,
   sendError,
 } from '../../lib/respond.js';
-import { recordSpend, costForText, wouldExceedCap } from '../../lib/cost.js';
+import { recordSpend, costForText, wouldExceedCap, recordUsageEvent } from '../../lib/cost.js';
 
 // ElevenLabs /text-to-speech/{voice_id}/with-timestamps proxy. Returns
 // the same JSON shape ElevenLabs returns — an `audio_base64` string +
@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const cost = costForText();
-  if (wouldExceedCap(session.sid, cost)) {
+  if (wouldExceedCap(session.sub, cost)) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 
@@ -79,7 +79,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return relayUpstreamError(res, upstream, 'elevenlabs/tts');
   }
 
-  recordSpend(session.sid, cost);
+  recordSpend(session.sub, cost);
+  recordUsageEvent(session.sub, 'elevenlabs/tts', cost);
   const body = await upstream.json();
   res.status(200).json(body);
 }

@@ -27,7 +27,7 @@ type Dict = Record<string, string>;
 
 const EN: Dict = {
   // App header
-  'app.title': "Director's Cockpit",
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'New brief',
   'app.settings': 'Settings',
@@ -113,18 +113,55 @@ const EN: Dict = {
   'generation.video.ai_kling.desc':
     'Adds a silent 5-second real-motion clip per platform aspect, generated from the approved hero image. Ships alongside the slideshow.',
 
-  // Auth gate
+  // Auth — accounts (Google + email/password)
   'auth.heading': 'Sign in',
-  'auth.subtitle': 'This demo URL is access-controlled. Enter the credentials your contact shared with you.',
-  'auth.username': 'Username',
+  'auth.subtitle': 'Sign in to your PersonifyAds account.',
+  'auth.signupHeading': 'Create your account',
+  'auth.signupSubtitle': 'Start directing AI-generated ad campaigns.',
+  'auth.email': 'Email',
   'auth.password': 'Password',
+  'auth.confirmPassword': 'Confirm password',
+  'auth.displayName': 'Name (optional)',
   'auth.signIn': 'Sign in',
   'auth.signingIn': 'Signing in…',
-  'auth.invalid': "That username and password didn't match. Check for stray spaces.",
-  'auth.insecureContext':
-    "Sign-in needs a secure context — this URL must use HTTPS (or localhost). The current page is not secure, so credentials can't be verified.",
-  'auth.footnote':
-    'Access is shared by your point of contact. Credentials are checked client-side — this is a soft gate, not a security barrier.',
+  'auth.signUp': 'Create account',
+  'auth.signingUp': 'Creating account…',
+  'auth.googleSignIn': 'Continue with Google',
+  'auth.or': 'or',
+  'auth.noAccount': "Don't have an account?",
+  'auth.haveAccount': 'Already have an account?',
+  'auth.toSignup': 'Sign up',
+  'auth.toLogin': 'Sign in',
+  'auth.forgotLink': 'Forgot password?',
+  'auth.forgotHeading': 'Reset your password',
+  'auth.forgotSubtitle': "Enter your email and we'll send a reset link.",
+  'auth.forgotCta': 'Send reset link',
+  'auth.forgotSent': "If that email has an account, a reset link is on its way. Check your inbox.",
+  'auth.backToLogin': '← Back to sign in',
+  'auth.resetHeading': 'Choose a new password',
+  'auth.resetCta': 'Set new password',
+  'auth.resetDone': 'Your password has been reset. Sign in with your new password.',
+  'auth.resetInvalid': 'This reset link is invalid or has expired. Request a new one.',
+  'auth.verifyHeading': 'Check your email',
+  'auth.verifyBody': 'We sent a verification link to {email}. Click it to activate your account, then sign in.',
+  'auth.verifyResend': 'Resend verification email',
+  'auth.verifyResent': 'Verification email sent.',
+  'auth.verifiedBanner': 'Email verified — you can sign in now.',
+  'auth.verifyFailedBanner': 'That verification link is invalid or has expired.',
+  'auth.unverifiedError': 'Please verify your email first — check your inbox, or resend the link below.',
+  'auth.invalidCredentials': "That email and password don't match.",
+  'auth.rateLimited': 'Too many attempts. Wait a minute and try again.',
+  'auth.googleError': "Google sign-in didn't complete. Please try again.",
+  'auth.googleLinkError':
+    'An account with this email already exists. Sign in with your password, then link Google from Settings.',
+  'auth.passwordTooShort': 'Password must be at least 8 characters.',
+  'auth.passwordMismatch': "Passwords don't match.",
+  'auth.emailRequired': 'Enter a valid email address.',
+  'auth.genericError': 'Something went wrong. Please try again.',
+  'auth.loading': 'Loading…',
+  'auth.account': 'Account',
+  'auth.signedInAs': 'Signed in as',
+  'auth.footnote': 'Your account secures access to generation. Provider keys are managed server-side.',
 
   // Audience Console (Phase 1)
   'audience.heading': 'Audience',
@@ -484,8 +521,11 @@ const EN: Dict = {
   'err.translator/empty-direction': 'Type a direction first, then click Refine.',
   'err.image/all-failed':
     'All image attempts failed. Try once more — fal.ai is sometimes flaky on bursts.',
+  'err.cost/cap-exceeded':
+    "You've reached the usage limit for this session. It resets later — reach out if you need a higher cap.",
+  'err.auth/session-expired': 'Your session has expired. Please sign in again.',
   'err.unknown':
-    'Something went wrong. Try again — and if it keeps happening, open Settings and re-check your keys.',
+    'Something went wrong. Try again — and if it keeps happening, open Settings.',
 
   // Platform exports (Meta + X)
   'platform.eyebrow': 'Ad platforms',
@@ -538,7 +578,7 @@ const EN: Dict = {
 
 const JA: Dict = {
   // App header
-  'app.title': 'ディレクターズ・コックピット',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': '新しいブリーフ',
   'app.settings': '設定',
@@ -623,18 +663,53 @@ const JA: Dict = {
   'generation.video.ai_kling.desc':
     '承認済みヒーロー画像からプラットフォーム別アスペクト比ごとに無音5秒の実モーションクリップを生成。スライドショーと併送されます。',
 
-  // Auth gate
+  // Auth — accounts (Google + email/password)
   'auth.heading': 'サインイン',
-  'auth.subtitle':
-    'このデモURLはアクセス制限されています。担当者から共有された認証情報を入力してください。',
-  'auth.username': 'ユーザー名',
+  'auth.subtitle': 'PersonifyAds アカウントにサインインしてください。',
+  'auth.signupHeading': 'アカウントを作成',
+  'auth.signupSubtitle': 'AI 生成の広告キャンペーンを始めましょう。',
+  'auth.email': 'メールアドレス',
   'auth.password': 'パスワード',
+  'auth.confirmPassword': 'パスワード（確認）',
+  'auth.displayName': '名前（任意）',
   'auth.signIn': 'サインイン',
   'auth.signingIn': 'サインイン中…',
-  'auth.invalid':
-    'ユーザー名またはパスワードが一致しません。余計な空白が混ざっていないかご確認ください。',
-  'auth.insecureContext':
-    'サインインにはセキュアな接続が必要です。このURLはHTTPS(またはlocalhost)で配信する必要があります。現在のページはセキュアではないため、認証情報を検証できません。',
+  'auth.signUp': 'アカウント作成',
+  'auth.signingUp': '作成中…',
+  'auth.googleSignIn': 'Google で続行',
+  'auth.or': 'または',
+  'auth.noAccount': 'アカウントをお持ちでないですか？',
+  'auth.haveAccount': 'すでにアカウントをお持ちですか？',
+  'auth.toSignup': '新規登録',
+  'auth.toLogin': 'サインイン',
+  'auth.forgotLink': 'パスワードをお忘れですか？',
+  'auth.forgotHeading': 'パスワードをリセット',
+  'auth.forgotSubtitle': 'メールアドレスを入力すると、リセットリンクをお送りします。',
+  'auth.forgotCta': 'リセットリンクを送信',
+  'auth.forgotSent': 'そのメールアドレスのアカウントが存在する場合、リセットリンクを送信しました。受信トレイをご確認ください。',
+  'auth.backToLogin': '← サインインに戻る',
+  'auth.resetHeading': '新しいパスワードを設定',
+  'auth.resetCta': '新しいパスワードを設定',
+  'auth.resetDone': 'パスワードをリセットしました。新しいパスワードでサインインしてください。',
+  'auth.resetInvalid': 'このリセットリンクは無効か期限切れです。もう一度リクエストしてください。',
+  'auth.verifyHeading': 'メールをご確認ください',
+  'auth.verifyBody': '{email} に確認リンクを送信しました。リンクをクリックしてアカウントを有効化し、サインインしてください。',
+  'auth.verifyResend': '確認メールを再送信',
+  'auth.verifyResent': '確認メールを送信しました。',
+  'auth.verifiedBanner': 'メールを確認しました。サインインできます。',
+  'auth.verifyFailedBanner': 'この確認リンクは無効か期限切れです。',
+  'auth.unverifiedError': '先にメールアドレスを確認してください。受信トレイをご確認いただくか、下のボタンから再送信してください。',
+  'auth.invalidCredentials': 'メールアドレスまたはパスワードが一致しません。',
+  'auth.rateLimited': '試行回数が多すぎます。少し待ってから再度お試しください。',
+  'auth.googleError': 'Google サインインを完了できませんでした。もう一度お試しください。',
+  'auth.googleLinkError': 'このメールアドレスのアカウントは既に存在します。パスワードでサインインし、設定から Google を連携してください。',
+  'auth.passwordTooShort': 'パスワードは 8 文字以上である必要があります。',
+  'auth.passwordMismatch': 'パスワードが一致しません。',
+  'auth.emailRequired': '有効なメールアドレスを入力してください。',
+  'auth.genericError': '問題が発生しました。もう一度お試しください。',
+  'auth.loading': '読み込み中…',
+  'auth.account': 'アカウント',
+  'auth.signedInAs': 'サインイン中：',
 
   // Audience Console (Phase 1)
   'audience.heading': '顧客',
@@ -731,8 +806,7 @@ const JA: Dict = {
   'report.packaging': 'パッケージング中…',
   'report.fileCount': '{n} ファイル',
 
-  'auth.footnote':
-    'アクセス情報は担当者から共有されます。認証はクライアント側で行われるため、ソフトゲートであってセキュリティバリアではありません。',
+  'auth.footnote': 'アカウントにより生成機能へのアクセスが保護されます。プロバイダーキーはサーバー側で管理されます。',
 
   // Brand dictionary
   'brandSettings.heading': 'ブランドボイスとルール',
@@ -1059,7 +1133,7 @@ const JA: Dict = {
 
 const PT: Dict = {
   // App header
-  'app.title': 'Cabine do Diretor',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'Novo briefing',
   'app.settings': 'Configurações',
@@ -1144,17 +1218,53 @@ const PT: Dict = {
   'generation.video.ai_kling.desc':
     'Adiciona um clipe silencioso de 5 segundos com movimento real por aspecto de plataforma, gerado a partir da imagem hero aprovada. Sai junto com o slideshow.',
 
-  // Auth gate
+  // Auth — accounts (Google + email/password)
   'auth.heading': 'Entrar',
-  'auth.subtitle':
-    'Esta URL de demo é controlada por acesso. Digite as credenciais que seu contato compartilhou com você.',
-  'auth.username': 'Usuário',
+  'auth.subtitle': 'Entre na sua conta PersonifyAds.',
+  'auth.signupHeading': 'Crie sua conta',
+  'auth.signupSubtitle': 'Comece a dirigir campanhas de anúncios geradas por IA.',
+  'auth.email': 'E-mail',
   'auth.password': 'Senha',
+  'auth.confirmPassword': 'Confirmar senha',
+  'auth.displayName': 'Nome (opcional)',
   'auth.signIn': 'Entrar',
   'auth.signingIn': 'Entrando…',
-  'auth.invalid': 'Usuário e senha não conferem. Verifique se há espaços extras.',
-  'auth.insecureContext':
-    'O login exige um contexto seguro — esta URL precisa usar HTTPS (ou localhost). A página atual não é segura, então as credenciais não podem ser verificadas.',
+  'auth.signUp': 'Criar conta',
+  'auth.signingUp': 'Criando conta…',
+  'auth.googleSignIn': 'Continuar com Google',
+  'auth.or': 'ou',
+  'auth.noAccount': 'Não tem uma conta?',
+  'auth.haveAccount': 'Já tem uma conta?',
+  'auth.toSignup': 'Cadastre-se',
+  'auth.toLogin': 'Entrar',
+  'auth.forgotLink': 'Esqueceu a senha?',
+  'auth.forgotHeading': 'Redefinir sua senha',
+  'auth.forgotSubtitle': 'Digite seu e-mail e enviaremos um link de redefinição.',
+  'auth.forgotCta': 'Enviar link de redefinição',
+  'auth.forgotSent': 'Se houver uma conta com esse e-mail, o link de redefinição está a caminho. Verifique sua caixa de entrada.',
+  'auth.backToLogin': '← Voltar para entrar',
+  'auth.resetHeading': 'Escolha uma nova senha',
+  'auth.resetCta': 'Definir nova senha',
+  'auth.resetDone': 'Sua senha foi redefinida. Entre com a nova senha.',
+  'auth.resetInvalid': 'Este link de redefinição é inválido ou expirou. Solicite um novo.',
+  'auth.verifyHeading': 'Verifique seu e-mail',
+  'auth.verifyBody': 'Enviamos um link de verificação para {email}. Clique nele para ativar sua conta e depois entre.',
+  'auth.verifyResend': 'Reenviar e-mail de verificação',
+  'auth.verifyResent': 'E-mail de verificação enviado.',
+  'auth.verifiedBanner': 'E-mail verificado — você já pode entrar.',
+  'auth.verifyFailedBanner': 'Esse link de verificação é inválido ou expirou.',
+  'auth.unverifiedError': 'Verifique seu e-mail primeiro — confira a caixa de entrada ou reenvie o link abaixo.',
+  'auth.invalidCredentials': 'E-mail e senha não conferem.',
+  'auth.rateLimited': 'Muitas tentativas. Aguarde um minuto e tente novamente.',
+  'auth.googleError': 'O login com Google não foi concluído. Tente novamente.',
+  'auth.googleLinkError': 'Já existe uma conta com este e-mail. Entre com sua senha e depois vincule o Google nas Configurações.',
+  'auth.passwordTooShort': 'A senha deve ter pelo menos 8 caracteres.',
+  'auth.passwordMismatch': 'As senhas não coincidem.',
+  'auth.emailRequired': 'Digite um e-mail válido.',
+  'auth.genericError': 'Algo deu errado. Tente novamente.',
+  'auth.loading': 'Carregando…',
+  'auth.account': 'Conta',
+  'auth.signedInAs': 'Conectado como',
 
   // Audience Console (Phase 1)
   'audience.heading': 'Público',
@@ -1582,7 +1692,7 @@ const PT: Dict = {
 
 const ES: Dict = {
   // App header
-  'app.title': 'Cabina del Director',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'Nuevo brief',
   'app.settings': 'Ajustes',
@@ -1667,17 +1777,53 @@ const ES: Dict = {
   'generation.video.ai_kling.desc':
     'Añade un clip silencioso de 5 segundos con movimiento real por cada aspecto de plataforma, generado a partir de la imagen hero aprobada. Se entrega junto con el slideshow.',
 
-  // Auth gate
+  // Auth — accounts (Google + email/password)
   'auth.heading': 'Iniciar sesión',
-  'auth.subtitle':
-    'Esta URL de demo está controlada por acceso. Ingresa las credenciales que tu contacto compartió contigo.',
-  'auth.username': 'Usuario',
+  'auth.subtitle': 'Inicia sesión en tu cuenta de PersonifyAds.',
+  'auth.signupHeading': 'Crea tu cuenta',
+  'auth.signupSubtitle': 'Empieza a dirigir campañas de anuncios generadas por IA.',
+  'auth.email': 'Correo electrónico',
   'auth.password': 'Contraseña',
+  'auth.confirmPassword': 'Confirmar contraseña',
+  'auth.displayName': 'Nombre (opcional)',
   'auth.signIn': 'Iniciar sesión',
   'auth.signingIn': 'Iniciando sesión…',
-  'auth.invalid': 'El usuario y la contraseña no coinciden. Verifica que no haya espacios extra.',
-  'auth.insecureContext':
-    'El inicio de sesión requiere un contexto seguro — esta URL debe usar HTTPS (o localhost). La página actual no es segura, por lo que las credenciales no pueden verificarse.',
+  'auth.signUp': 'Crear cuenta',
+  'auth.signingUp': 'Creando cuenta…',
+  'auth.googleSignIn': 'Continuar con Google',
+  'auth.or': 'o',
+  'auth.noAccount': '¿No tienes una cuenta?',
+  'auth.haveAccount': '¿Ya tienes una cuenta?',
+  'auth.toSignup': 'Regístrate',
+  'auth.toLogin': 'Iniciar sesión',
+  'auth.forgotLink': '¿Olvidaste tu contraseña?',
+  'auth.forgotHeading': 'Restablece tu contraseña',
+  'auth.forgotSubtitle': 'Ingresa tu correo y te enviaremos un enlace para restablecerla.',
+  'auth.forgotCta': 'Enviar enlace de restablecimiento',
+  'auth.forgotSent': 'Si existe una cuenta con ese correo, el enlace de restablecimiento está en camino. Revisa tu bandeja de entrada.',
+  'auth.backToLogin': '← Volver a iniciar sesión',
+  'auth.resetHeading': 'Elige una nueva contraseña',
+  'auth.resetCta': 'Establecer nueva contraseña',
+  'auth.resetDone': 'Tu contraseña se ha restablecido. Inicia sesión con la nueva contraseña.',
+  'auth.resetInvalid': 'Este enlace de restablecimiento no es válido o ha caducado. Solicita uno nuevo.',
+  'auth.verifyHeading': 'Revisa tu correo',
+  'auth.verifyBody': 'Enviamos un enlace de verificación a {email}. Haz clic en él para activar tu cuenta y luego inicia sesión.',
+  'auth.verifyResend': 'Reenviar correo de verificación',
+  'auth.verifyResent': 'Correo de verificación enviado.',
+  'auth.verifiedBanner': 'Correo verificado: ya puedes iniciar sesión.',
+  'auth.verifyFailedBanner': 'Ese enlace de verificación no es válido o ha caducado.',
+  'auth.unverifiedError': 'Primero verifica tu correo: revisa tu bandeja de entrada o reenvía el enlace abajo.',
+  'auth.invalidCredentials': 'El correo y la contraseña no coinciden.',
+  'auth.rateLimited': 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.',
+  'auth.googleError': 'No se completó el inicio de sesión con Google. Inténtalo de nuevo.',
+  'auth.googleLinkError': 'Ya existe una cuenta con este correo. Inicia sesión con tu contraseña y luego vincula Google en Configuración.',
+  'auth.passwordTooShort': 'La contraseña debe tener al menos 8 caracteres.',
+  'auth.passwordMismatch': 'Las contraseñas no coinciden.',
+  'auth.emailRequired': 'Ingresa un correo electrónico válido.',
+  'auth.genericError': 'Algo salió mal. Inténtalo de nuevo.',
+  'auth.loading': 'Cargando…',
+  'auth.account': 'Cuenta',
+  'auth.signedInAs': 'Sesión iniciada como',
 
   // Audience Console (Phase 1)
   'audience.heading': 'Audiencia',
@@ -2104,7 +2250,7 @@ const ES: Dict = {
 
 const FR: Dict = {
   // App header
-  'app.title': 'Cockpit du Directeur',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'Nouveau brief',
   'app.settings': 'Paramètres',
@@ -2189,18 +2335,53 @@ const FR: Dict = {
   'generation.video.ai_kling.desc':
     "Ajoute un clip silencieux de 5 secondes en mouvement réel par aspect de plateforme, généré à partir de l'image hero approuvée. Livré aux côtés du slideshow.",
 
-  // Auth gate
+  // Auth — accounts (Google + email/password)
   'auth.heading': 'Connexion',
-  'auth.subtitle':
-    "L'accès à cette démo est restreint. Saisissez les identifiants que votre contact vous a transmis.",
-  'auth.username': 'Identifiant',
+  'auth.subtitle': 'Connectez-vous à votre compte PersonifyAds.',
+  'auth.signupHeading': 'Créez votre compte',
+  'auth.signupSubtitle': 'Commencez à diriger des campagnes publicitaires générées par IA.',
+  'auth.email': 'E-mail',
   'auth.password': 'Mot de passe',
+  'auth.confirmPassword': 'Confirmer le mot de passe',
+  'auth.displayName': 'Nom (facultatif)',
   'auth.signIn': 'Se connecter',
   'auth.signingIn': 'Connexion…',
-  'auth.invalid':
-    "L'identifiant et le mot de passe ne correspondent pas. Vérifiez les espaces parasites.",
-  'auth.insecureContext':
-    "La connexion nécessite un contexte sécurisé — cette URL doit utiliser HTTPS (ou localhost). La page actuelle n'est pas sécurisée, donc les identifiants ne peuvent pas être vérifiés.",
+  'auth.signUp': 'Créer un compte',
+  'auth.signingUp': 'Création du compte…',
+  'auth.googleSignIn': 'Continuer avec Google',
+  'auth.or': 'ou',
+  'auth.noAccount': "Vous n'avez pas de compte ?",
+  'auth.haveAccount': 'Vous avez déjà un compte ?',
+  'auth.toSignup': "S'inscrire",
+  'auth.toLogin': 'Se connecter',
+  'auth.forgotLink': 'Mot de passe oublié ?',
+  'auth.forgotHeading': 'Réinitialisez votre mot de passe',
+  'auth.forgotSubtitle': 'Saisissez votre e-mail et nous vous enverrons un lien de réinitialisation.',
+  'auth.forgotCta': 'Envoyer le lien de réinitialisation',
+  'auth.forgotSent': 'Si un compte existe pour cet e-mail, le lien de réinitialisation est en route. Vérifiez votre boîte de réception.',
+  'auth.backToLogin': '← Retour à la connexion',
+  'auth.resetHeading': 'Choisissez un nouveau mot de passe',
+  'auth.resetCta': 'Définir le nouveau mot de passe',
+  'auth.resetDone': 'Votre mot de passe a été réinitialisé. Connectez-vous avec le nouveau mot de passe.',
+  'auth.resetInvalid': 'Ce lien de réinitialisation est invalide ou a expiré. Demandez-en un nouveau.',
+  'auth.verifyHeading': 'Vérifiez votre e-mail',
+  'auth.verifyBody': "Nous avons envoyé un lien de vérification à {email}. Cliquez dessus pour activer votre compte, puis connectez-vous.",
+  'auth.verifyResend': "Renvoyer l'e-mail de vérification",
+  'auth.verifyResent': 'E-mail de vérification envoyé.',
+  'auth.verifiedBanner': 'E-mail vérifié — vous pouvez maintenant vous connecter.',
+  'auth.verifyFailedBanner': 'Ce lien de vérification est invalide ou a expiré.',
+  'auth.unverifiedError': "Vérifiez d'abord votre e-mail — consultez votre boîte de réception ou renvoyez le lien ci-dessous.",
+  'auth.invalidCredentials': 'E-mail et mot de passe ne correspondent pas.',
+  'auth.rateLimited': "Trop de tentatives. Attendez une minute et réessayez.",
+  'auth.googleError': "La connexion avec Google n'a pas abouti. Réessayez.",
+  'auth.googleLinkError': 'Un compte existe déjà avec cet e-mail. Connectez-vous avec votre mot de passe, puis liez Google dans les Paramètres.',
+  'auth.passwordTooShort': 'Le mot de passe doit comporter au moins 8 caractères.',
+  'auth.passwordMismatch': 'Les mots de passe ne correspondent pas.',
+  'auth.emailRequired': 'Saisissez une adresse e-mail valide.',
+  'auth.genericError': "Une erreur s'est produite. Réessayez.",
+  'auth.loading': 'Chargement…',
+  'auth.account': 'Compte',
+  'auth.signedInAs': 'Connecté en tant que',
 
   // Audience Console (Phase 1)
   'audience.heading': 'Audience',
@@ -2627,7 +2808,7 @@ const FR: Dict = {
 
 const DE: Dict = {
   // App header
-  'app.title': 'Director’s Cockpit',
+  'app.title': 'Personify Ads',
   'app.version': 'v2',
   'app.newBrief': 'Neues Briefing',
   'app.settings': 'Einstellungen',
@@ -2712,18 +2893,53 @@ const DE: Dict = {
   'generation.video.ai_kling.desc':
     'Fügt einen stummen 5-Sekunden-Clip mit echter Bewegung pro Plattform-Aspekt hinzu, generiert aus dem freigegebenen Hero-Bild. Wird zusammen mit der Slideshow ausgeliefert.',
 
-  // Auth gate
+  // Auth — accounts (Google + email/password)
   'auth.heading': 'Anmelden',
-  'auth.subtitle':
-    'Diese Demo-URL ist zugriffsgeschützt. Geben Sie die Zugangsdaten ein, die Ihr Ansprechpartner geteilt hat.',
-  'auth.username': 'Benutzername',
+  'auth.subtitle': 'Melden Sie sich bei Ihrem PersonifyAds-Konto an.',
+  'auth.signupHeading': 'Konto erstellen',
+  'auth.signupSubtitle': 'Starten Sie mit KI-generierten Werbekampagnen.',
+  'auth.email': 'E-Mail',
   'auth.password': 'Passwort',
+  'auth.confirmPassword': 'Passwort bestätigen',
+  'auth.displayName': 'Name (optional)',
   'auth.signIn': 'Anmelden',
   'auth.signingIn': 'Anmeldung läuft…',
-  'auth.invalid':
-    'Benutzername und Passwort stimmen nicht überein. Prüfen Sie auf zusätzliche Leerzeichen.',
-  'auth.insecureContext':
-    'Die Anmeldung erfordert einen sicheren Kontext — diese URL muss HTTPS verwenden (oder localhost). Die aktuelle Seite ist nicht sicher, daher können die Zugangsdaten nicht überprüft werden.',
+  'auth.signUp': 'Konto erstellen',
+  'auth.signingUp': 'Konto wird erstellt…',
+  'auth.googleSignIn': 'Mit Google fortfahren',
+  'auth.or': 'oder',
+  'auth.noAccount': 'Noch kein Konto?',
+  'auth.haveAccount': 'Schon ein Konto?',
+  'auth.toSignup': 'Registrieren',
+  'auth.toLogin': 'Anmelden',
+  'auth.forgotLink': 'Passwort vergessen?',
+  'auth.forgotHeading': 'Passwort zurücksetzen',
+  'auth.forgotSubtitle': 'Geben Sie Ihre E-Mail ein und wir senden Ihnen einen Link zum Zurücksetzen.',
+  'auth.forgotCta': 'Link zum Zurücksetzen senden',
+  'auth.forgotSent': 'Falls ein Konto mit dieser E-Mail existiert, ist der Link zum Zurücksetzen unterwegs. Prüfen Sie Ihren Posteingang.',
+  'auth.backToLogin': '← Zurück zur Anmeldung',
+  'auth.resetHeading': 'Neues Passwort wählen',
+  'auth.resetCta': 'Neues Passwort festlegen',
+  'auth.resetDone': 'Ihr Passwort wurde zurückgesetzt. Melden Sie sich mit dem neuen Passwort an.',
+  'auth.resetInvalid': 'Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen. Fordern Sie einen neuen an.',
+  'auth.verifyHeading': 'Prüfen Sie Ihre E-Mail',
+  'auth.verifyBody': 'Wir haben einen Bestätigungslink an {email} gesendet. Klicken Sie darauf, um Ihr Konto zu aktivieren, und melden Sie sich dann an.',
+  'auth.verifyResend': 'Bestätigungs-E-Mail erneut senden',
+  'auth.verifyResent': 'Bestätigungs-E-Mail gesendet.',
+  'auth.verifiedBanner': 'E-Mail bestätigt — Sie können sich jetzt anmelden.',
+  'auth.verifyFailedBanner': 'Dieser Bestätigungslink ist ungültig oder abgelaufen.',
+  'auth.unverifiedError': 'Bestätigen Sie zuerst Ihre E-Mail — prüfen Sie Ihren Posteingang oder senden Sie den Link unten erneut.',
+  'auth.invalidCredentials': 'E-Mail und Passwort stimmen nicht überein.',
+  'auth.rateLimited': 'Zu viele Versuche. Warten Sie eine Minute und versuchen Sie es erneut.',
+  'auth.googleError': 'Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuchen Sie es erneut.',
+  'auth.googleLinkError': 'Es existiert bereits ein Konto mit dieser E-Mail. Melden Sie sich mit Ihrem Passwort an und verknüpfen Sie Google dann in den Einstellungen.',
+  'auth.passwordTooShort': 'Das Passwort muss mindestens 8 Zeichen lang sein.',
+  'auth.passwordMismatch': 'Die Passwörter stimmen nicht überein.',
+  'auth.emailRequired': 'Geben Sie eine gültige E-Mail-Adresse ein.',
+  'auth.genericError': 'Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.',
+  'auth.loading': 'Wird geladen…',
+  'auth.account': 'Konto',
+  'auth.signedInAs': 'Angemeldet als',
 
   // Audience Console (Phase 1)
   'audience.heading': 'Zielgruppe',

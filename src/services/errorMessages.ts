@@ -37,6 +37,8 @@ export type ErrorCode =
   | 'translator/wrong-shape'
   | 'translator/empty-direction'
   | 'image/all-failed'
+  | 'cost/cap-exceeded'
+  | 'auth/session-expired'
   | 'unknown';
 
 type ErrorEntry = {
@@ -144,6 +146,13 @@ const MESSAGES: Record<ErrorCode, ErrorEntry> = {
   },
   'image/all-failed': {
     message: 'All image attempts failed. Try once more — fal.ai is sometimes flaky on bursts.',
+  },
+  'cost/cap-exceeded': {
+    message:
+      "You've reached the usage limit for this session. It resets later — reach out if you need a higher cap.",
+  },
+  'auth/session-expired': {
+    message: 'Your session has expired. Please sign in again.',
   },
   unknown: {
     message: 'Something went wrong. Try again — and if it keeps happening, open Settings and re-check your keys.',
