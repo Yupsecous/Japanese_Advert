@@ -7,6 +7,7 @@ import { InlineError } from './InlineError';
 import { BackButton } from './BackButton';
 import { ViewportFrame } from './ViewportFrame';
 import { useT } from '../i18n/hooks';
+import { buttonClass } from './ui/Button';
 import {
   copyVariantsOf,
   designVariantsOf,
@@ -332,14 +333,14 @@ export function DesignStep() {
               type="button"
               onClick={() => pickVariant('design', 0)}
               disabled={step.status === 'approved'}
-              className="rounded-md bg-brand px-5 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:bg-ink-faint"
+              className={buttonClass('solid')}
             >
               {step.status === 'approved' ? t('common.selected') : t('design.approve')}
             </button>
             <button
               type="button"
               onClick={() => setShowCode((v) => !v)}
-              className="rounded-md border border-neutral-300 bg-white px-3.5 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+              className={buttonClass('pill')}
             >
               {showCode ? t('design.hideCode') : t('design.showCode')}
             </button>
@@ -370,7 +371,7 @@ export function DesignStep() {
                 type="button"
                 onClick={runRefine}
                 disabled={loading !== null || refineText.trim().length === 0 || keyMissing}
-                className="self-start rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
+                className={`self-start ${buttonClass('solid')}`}
               >
                 {loading === 'refine' ? t('common.refining') : t('common.refine')}
               </button>

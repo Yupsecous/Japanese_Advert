@@ -7,6 +7,7 @@ import { CacheRestorePill } from './CacheRestorePill';
 import { InlineError } from './InlineError';
 import { BackButton } from './BackButton';
 import { useT } from '../i18n/hooks';
+import { buttonClass } from './ui/Button';
 import { resolveVoice } from '../data/voiceLibrary';
 import {
   copyVariantsOf,
@@ -127,7 +128,7 @@ function ScriptCard({
           type="button"
           onClick={onPick}
           disabled={isRefining}
-          className="ml-auto rounded-md bg-brand px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-50"
+          className={`ml-auto ${buttonClass('solid', 'sm')}`}
         >
           {t('common.pickThis')}
         </button>
@@ -166,7 +167,7 @@ function ScriptCard({
               <button
                 type="submit"
                 disabled={direction.trim().length === 0}
-                className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+                className={buttonClass('solid', 'sm')}
               >
                 {t('refineOne.apply')}
               </button>
@@ -523,7 +524,7 @@ export function ScriptStep() {
                   type="button"
                   onClick={runMore}
                   disabled={loading !== null || apiKeyMissing}
-                  className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className={buttonClass('pill')}
                 >
                   {loading === 'more' ? t('common.generating') : t('common.showMore')}
                 </button>
@@ -551,7 +552,7 @@ export function ScriptStep() {
                     type="button"
                     onClick={runRefine}
                     disabled={loading !== null || refineText.trim().length === 0 || apiKeyMissing}
-                    className="self-start rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
+                    className={`self-start ${buttonClass('solid')}`}
                   >
                     {loading === 'refine' ? t('common.refining') : t('common.refine')}
                   </button>

@@ -13,6 +13,7 @@ import { InlineError } from './InlineError';
 import { BackButton } from './BackButton';
 import { AppError, isAppError } from '../services/errorMessages';
 import { useT } from '../i18n/hooks';
+import { buttonClass } from './ui/Button';
 import { resolveVoice } from '../data/voiceLibrary';
 import {
   audioVariantsOf,
@@ -300,7 +301,7 @@ export function AudioStep() {
                   setErrorObj(null);
                   reopenStep('script');
                 }}
-                className="mt-2 rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
+                className={`mt-2 ${buttonClass('solid', 'sm')}`}
               >
                 {t('audio.voiceNotFoundCta')}
               </button>
@@ -365,14 +366,14 @@ export function AudioStep() {
               type="button"
               onClick={() => void runGenerate({ regenerate: true })}
               disabled={isGenerating || keyMissing}
-              className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className={buttonClass('pill')}
             >
               {isGenerating ? t('audio.rendering') : t('audio.regenerate')}
             </button>
             <button
               type="button"
               onClick={approve}
-              className="rounded-md bg-brand px-5 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+              className={buttonClass('solid')}
             >
               {t('audio.approve')}
             </button>

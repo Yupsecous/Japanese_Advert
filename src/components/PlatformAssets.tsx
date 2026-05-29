@@ -15,6 +15,7 @@ import {
 } from '../services/exportService';
 import { InlineError } from './InlineError';
 import { useT } from '../i18n/hooks';
+import { buttonClass } from './ui/Button';
 import {
   audioVariantsOf,
   scriptVariantsOf,
@@ -483,7 +484,7 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
                 type="button"
                 onClick={runGenerate}
                 disabled={keysMissing}
-                className="rounded-md bg-brand px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
+                className={buttonClass('solid')}
               >
                 {t('platform.generate')}
                 <span className="ml-2 font-mono text-[11px] tabular-nums opacity-80">~{costLabel}</span>
@@ -540,7 +541,7 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
                   type="button"
                   onClick={() => void runDownload('meta')}
                   disabled={downloading !== null}
-                  className="rounded-md bg-neutral-900 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:opacity-50"
+                  className={buttonClass('solid', 'sm')}
                 >
                   {downloading === 'meta' ? t('platform.downloading') : t('platform.downloadMeta')}
                 </button>
@@ -630,7 +631,7 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
                   type="button"
                   onClick={() => void runDownload('x')}
                   disabled={downloading !== null}
-                  className="rounded-md bg-neutral-900 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:opacity-50"
+                  className={buttonClass('solid', 'sm')}
                 >
                   {downloading === 'x' ? t('platform.downloading') : t('platform.downloadX')}
                 </button>
@@ -738,7 +739,7 @@ export function PlatformAssets({ approvedCopy, approvedImage }: Props) {
                 type="button"
                 onClick={runGenerate}
                 disabled={downloading !== null}
-                className="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-sm font-medium text-neutral-800 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+                className={buttonClass('pill', 'sm')}
               >
                 {t('platform.regenerate')}
               </button>

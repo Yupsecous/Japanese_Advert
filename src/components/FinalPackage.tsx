@@ -8,6 +8,7 @@ import { ViewportFrame } from './ViewportFrame';
 import { PlatformAssets } from './PlatformAssets';
 import { canMetaX } from '../tiers';
 import { useT } from '../i18n/hooks';
+import { buttonClass } from './ui/Button';
 import { resolveVoice } from '../data/voiceLibrary';
 import {
   audioVariantsOf,
@@ -95,18 +96,14 @@ export function FinalPackage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={scrollToStepper}
-              className="rounded-md border border-rule bg-white px-3 py-1.5 text-sm text-ink-soft transition-colors hover:bg-canvas-deep hover:text-ink"
-            >
+            <button type="button" onClick={scrollToStepper} className={buttonClass('pill', 'sm')}>
               {t('final.editAny')}
             </button>
             <button
               type="button"
               onClick={handleDownload}
               disabled={downloading}
-              className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark disabled:bg-ink-faint"
+              className={buttonClass('solid')}
             >
               {downloading ? t('final.packaging') : t('final.download')}
             </button>

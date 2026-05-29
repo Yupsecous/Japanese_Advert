@@ -8,6 +8,7 @@ import {
 import { InlineError } from './InlineError';
 import { AudienceConsole } from './AudienceConsole';
 import { useT } from '../i18n/hooks';
+import { buttonClass } from './ui/Button';
 import type { Customer } from '../types';
 
 // AudienceStep is STEP_ORDER[0] of the new 6-step pipeline. Optional: the
@@ -332,14 +333,14 @@ export function AudienceStep() {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100"
+          className={buttonClass('pill', 'sm')}
         >
           {t('audience.uploadCta')}
         </button>
         <button
           type="button"
           onClick={() => void handleLoadSample()}
-          className="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100"
+          className={buttonClass('pill', 'sm')}
         >
           {t('audience.loadSample')}
         </button>
@@ -397,7 +398,7 @@ export function AudienceStep() {
               type="button"
               onClick={handleConvert}
               disabled={apiKeyMissing}
-              className="rounded-md bg-brand px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
+              className={buttonClass('solid')}
             >
               {t('audience.convert')}
             </button>
@@ -407,7 +408,7 @@ export function AudienceStep() {
               <button
                 type="button"
                 onClick={handleApprove}
-                className="rounded-md bg-brand px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark"
+                className={buttonClass('solid')}
               >
                 {t('audience.approve')}
               </button>

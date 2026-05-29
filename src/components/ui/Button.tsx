@@ -27,6 +27,13 @@ const VARIANTS: Record<ButtonVariant, string> = {
   light: 'bg-white text-ink hover:bg-white/90',
 };
 
+// The exact class string for a given variant/size — so plain <button>s (e.g.
+// deep in the step screens) can adopt the identical Grok style without being
+// rewritten into the component. Single source of truth for the look.
+export function buttonClass(variant: ButtonVariant = 'pill', size: ButtonSize = 'md'): string {
+  return `${BASE} ${SIZES[size]} ${VARIANTS[variant]}`;
+}
+
 export function Button({
   variant = 'pill',
   size = 'md',
@@ -39,7 +46,7 @@ export function Button({
   children?: ReactNode;
 }) {
   return (
-    <button {...props} className={`${BASE} ${SIZES[size]} ${VARIANTS[variant]} ${className}`}>
+    <button {...props} className={`${buttonClass(variant, size)} ${className}`}>
       {children}
     </button>
   );

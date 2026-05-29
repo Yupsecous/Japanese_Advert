@@ -4,6 +4,7 @@ import { llmService } from '../services/llmService';
 import { computeStepHash } from '../services/stepHash';
 import { CacheRestorePill } from './CacheRestorePill';
 import { InlineError } from './InlineError';
+import { Button } from './ui/Button';
 import { useT } from '../i18n/hooks';
 import {
   copyVariantsOf,
@@ -104,14 +105,9 @@ function VariantCard({
         <span className="rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700">
           {variant.cta}
         </span>
-        <button
-          type="button"
-          onClick={onPick}
-          disabled={isRefining}
-          className="rounded-md bg-brand px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-50"
-        >
+        <Button variant="solid" size="sm" onClick={onPick} disabled={isRefining}>
           {t('common.pickThis')}
-        </button>
+        </Button>
       </div>
       <div className="mt-3 border-t border-neutral-100 pt-3">
         {!refineOpen ? (
@@ -144,13 +140,9 @@ function VariantCard({
               >
                 {t('refineOne.cancel')}
               </button>
-              <button
-                type="submit"
-                disabled={direction.trim().length === 0}
-                className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
-              >
+              <Button type="submit" variant="solid" size="sm" disabled={direction.trim().length === 0}>
                 {t('refineOne.apply')}
-              </button>
+              </Button>
             </div>
           </form>
         )}
@@ -428,14 +420,9 @@ export function CopyStep() {
           )}
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={runMore}
-              disabled={loading !== null || apiKeyMissing}
-              className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
+            <Button variant="pill" onClick={runMore} disabled={loading !== null || apiKeyMissing}>
               {loading === 'more' ? t('common.generating') : t('common.showMore')}
-            </button>
+            </Button>
             <span className="text-xs text-neutral-500">
               {t('common.variantsSoFar', { n: variants.length, s: variants.length === 1 ? '' : 's' })}
             </span>
@@ -456,14 +443,14 @@ export function CopyStep() {
                 disabled={loading !== null}
                 className="flex-1 resize-none rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 disabled:bg-neutral-50"
               />
-              <button
-                type="button"
+              <Button
+                variant="solid"
                 onClick={runRefine}
                 disabled={loading !== null || refineText.trim().length === 0 || apiKeyMissing}
-                className="self-start rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
+                className="self-start"
               >
                 {loading === 'refine' ? t('common.refining') : t('common.refine')}
-              </button>
+              </Button>
             </div>
           </div>
         </>
