@@ -78,7 +78,7 @@ export default function App() {
     <AuthGate>
     <div className="min-h-full bg-white">
       <header className="border-b border-rule bg-paper/80 backdrop-blur">
-        <div className="mx-auto flex max-w-[1920px] flex-wrap items-center justify-between gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex min-w-0 items-baseline gap-2 sm:gap-3">
             <div className="h-2 w-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
             <p className="truncate font-serif text-base font-medium tracking-tight text-ink sm:text-lg">
@@ -124,13 +124,13 @@ export default function App() {
           </div>
         </div>
         {!showOnboarding && (
-          <div className="mx-auto max-w-[1920px] px-4 pb-4 sm:px-6">
+          <div className="mx-auto max-w-[1600px] px-4 pb-4 sm:px-6">
             <Stepper />
           </div>
         )}
       </header>
 
-      <main className="mx-auto max-w-[1920px] px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8">
         {showOnboarding ? (
           <OnboardingState sample={sample} />
         ) : briefSubmitted ? (
