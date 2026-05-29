@@ -28,7 +28,7 @@ type Dict = Record<string, string>;
 const EN: Dict = {
   // App header
   'app.title': 'Personify Ads',
-  'app.version': 'v2',
+  'app.version': '1.0',
   'app.newBrief': 'New brief',
   'app.settings': 'Settings',
   'app.language': 'Language',
@@ -172,6 +172,50 @@ const EN: Dict = {
   'tier.platformLocked': 'Meta & X ads — Ultra only',
   'tier.platformLockedBody':
     'Platform-ready Meta and X ad exports are an Ultra feature. Redeem an Ultra key in Settings to unlock them.',
+
+  // App shell / sidebar (Personify Ads 1.0)
+  'nav.newAd': 'New ad',
+  'nav.search': 'Search',
+  'nav.settings': 'Settings',
+  'nav.upgrade': 'Upgrade',
+  'nav.upgradePlan': 'Upgrade plan',
+  'nav.account': 'Account',
+  'nav.signOut': 'Sign out',
+  'nav.recent': 'Current ad',
+  'nav.noRecent': 'No ad yet — start one above.',
+  'nav.collapse': 'Collapse sidebar',
+  'nav.expand': 'Expand sidebar',
+  'nav.private': 'Private',
+  'nav.privateHint': 'Nothing here is shared. Generation runs through your backend.',
+  'nav.untitledAd': 'Untitled ad',
+
+  // Upgrade / plans modal
+  'upgrade.title': 'Unlock the full power of Personify Ads',
+  'upgrade.subtitle': 'Pick a plan, then redeem your key below.',
+  'upgrade.currentPlan': 'Current plan',
+  'upgrade.yourPlan': 'Your plan',
+  'upgrade.cta': 'Have a key? Redeem below',
+  'upgrade.redeemTitle': 'Redeem a Pro or Ultra key',
+  'upgrade.close': 'Close',
+  'upgrade.perMonth': '/mo',
+  'upgrade.free.name': 'Free',
+  'upgrade.free.price': '$0',
+  'upgrade.free.tagline': 'Try the core pipeline',
+  'upgrade.free.f1': 'Copy, Image, Script & Audio steps',
+  'upgrade.free.f2': 'Fast image model',
+  'upgrade.free.f3': 'Usage-capped, no card required',
+  'upgrade.pro.name': 'Pro',
+  'upgrade.pro.price': '$19',
+  'upgrade.pro.tagline': 'The full creative pipeline',
+  'upgrade.pro.f1': 'All six steps incl. Audience & Design',
+  'upgrade.pro.f2': 'Fast + balanced image quality',
+  'upgrade.pro.f3': 'Higher usage cap',
+  'upgrade.ultra.name': 'Ultra',
+  'upgrade.ultra.price': '$49',
+  'upgrade.ultra.tagline': 'Everything, max quality',
+  'upgrade.ultra.f1': 'Realistic (Flux Pro) images',
+  'upgrade.ultra.f2': 'Kling AI video clips',
+  'upgrade.ultra.f3': 'Meta & X platform ad exports',
 
   // Audience Console (Phase 1)
   'audience.heading': 'Audience',
@@ -589,7 +633,7 @@ const EN: Dict = {
 const JA: Dict = {
   // App header
   'app.title': 'Personify Ads',
-  'app.version': 'v2',
+  'app.version': '1.0',
   'app.newBrief': '新しいブリーフ',
   'app.settings': '設定',
   'app.language': '言語',
@@ -1144,7 +1188,7 @@ const JA: Dict = {
 const PT: Dict = {
   // App header
   'app.title': 'Personify Ads',
-  'app.version': 'v2',
+  'app.version': '1.0',
   'app.newBrief': 'Novo briefing',
   'app.settings': 'Configurações',
   'app.language': 'Idioma',
@@ -1703,7 +1747,7 @@ const PT: Dict = {
 const ES: Dict = {
   // App header
   'app.title': 'Personify Ads',
-  'app.version': 'v2',
+  'app.version': '1.0',
   'app.newBrief': 'Nuevo brief',
   'app.settings': 'Ajustes',
   'app.language': 'Idioma',
@@ -2261,7 +2305,7 @@ const ES: Dict = {
 const FR: Dict = {
   // App header
   'app.title': 'Personify Ads',
-  'app.version': 'v2',
+  'app.version': '1.0',
   'app.newBrief': 'Nouveau brief',
   'app.settings': 'Paramètres',
   'app.language': 'Langue',
@@ -2819,7 +2863,7 @@ const FR: Dict = {
 const DE: Dict = {
   // App header
   'app.title': 'Personify Ads',
-  'app.version': 'v2',
+  'app.version': '1.0',
   'app.newBrief': 'Neues Briefing',
   'app.settings': 'Einstellungen',
   'app.language': 'Sprache',
