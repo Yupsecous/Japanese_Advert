@@ -17,13 +17,19 @@ import {
 // Fresh store per test — no persist middleware, no sessionStorage
 // interference. Tests the slice's invariants in isolation.
 function makeTestStore(): StoreApi<AppState> {
-  return create<AppState>()((...a) => ({
+  const store = create<AppState>()((...a) => ({
     ...createSettingsSlice(...a),
     ...createBriefSlice(...a),
     ...createStepsSlice(...a),
     ...createAudienceSlice(...a),
     ...createAuthSlice(...a),
   }));
+  // These tests exercise the full 6-step pipeline (incl. Audience + Design),
+  // so run as an Ultra user — Free's effective order omits those steps.
+  store
+    .getState()
+    .setSession({ id: 'test', email: 't@test.dev', displayName: null, emailVerified: true, tier: 'ultra' });
+  return store;
 }
 
 let store: StoreApi<AppState>;

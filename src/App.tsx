@@ -9,113 +9,12 @@ import { TranslatorHarness } from './components/TranslatorHarness';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { AuthGate } from './components/AuthGate';
 import { useT } from './i18n/hooks';
-import { computeStepHash } from './services/stepHash';
 import { loadSamplePreset, type SamplePreset } from './services/sampleLoader';
-import { isBrandDictionaryEmpty, STEP_ORDER, type RefineEntry, type StepId } from './types';
+import { isBrandDictionaryEmpty } from './types';
 
 function isTestMode(): boolean {
   if (typeof window === 'undefined') return false;
   return new URLSearchParams(window.location.search).get('test') === '1';
-}
-
-function lastGenerationKind(history: RefineEntry[]): RefineEntry['kind'] | null {
-  for (let i = history.length - 1; i >= 0; i--) {
-    const h = history[i];
-    if (!h) continue;
-    if (
-      h.kind === 'initial' ||
-      h.kind === 'more' ||
-      h.kind === 'refine' ||
-      h.kind === 'critique-applied' ||
-      h.kind === 'cache-restore'
-    ) {
-      return h.kind;
-    }
-  }
-  return null;
-}
-
-function HashReadout() {
-  const state = useAppStore();
-  const rows = STEP_ORDER.map((id: StepId) => {
-    const step = state.steps[id];
-    const isLocked = step.status === 'pending' && step.variants.length === 0;
-    const hash = isLocked ? null : computeStepHash(state, id);
-    const namespaceCount = Object.keys(state.variantCache).filter((k) =>
-      k.startsWith(`${id}:`),
-    ).length;
-    const lastKind = lastGenerationKind(step.history);
-    const source =
-      step.variants.length === 0
-        ? '—'
-        : lastKind === 'cache-restore'
-          ? 'cache hit'
-          : 'fresh';
-    return { id, hash, source, namespaceCount, status: step.status };
-  });
-  return (
-    <table className="mt-2 w-full text-[11px] font-mono">
-      <thead>
-        <tr className="text-neutral-500">
-          <th className="text-left font-normal">step</th>
-          <th className="text-left font-normal">hash</th>
-          <th className="text-left font-normal">status</th>
-          <th className="text-left font-normal">source</th>
-          <th className="text-left font-normal">cache entries</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.id} className="text-neutral-700">
-            <td>{r.id}</td>
-            <td>{r.hash ?? '—'}</td>
-            <td>{r.status}</td>
-            <td>{r.source}</td>
-            <td>{r.namespaceCount}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
-function DebugPanel() {
-  const [open, setOpen] = useState(false);
-  const state = useAppStore();
-  const snapshot = {
-    briefSubmitted: state.briefSubmitted,
-    brief: state.brief,
-    validations: state.validations,
-    steps: Object.fromEntries(
-      Object.entries(state.steps).map(([id, s]) => [
-        id,
-        {
-          status: s.status,
-          variants: s.variants.length,
-          selectedIndex: s.selectedIndex,
-          history: s.history.length,
-        },
-      ]),
-    ),
-  };
-  return (
-    <details
-      open={open}
-      onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
-      className="mt-8 rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs"
-    >
-      <summary className="cursor-pointer select-none font-medium text-neutral-600">Debug</summary>
-      <div className="mt-3">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
-          Step hashes (live)
-        </p>
-        <HashReadout />
-      </div>
-      <pre className="mt-4 overflow-x-auto whitespace-pre-wrap text-[11px] leading-relaxed text-neutral-700">
-        {JSON.stringify(snapshot, null, 2)}
-      </pre>
-    </details>
-  );
 }
 
 export default function App() {
@@ -179,7 +78,7 @@ export default function App() {
     <AuthGate>
     <div className="min-h-full bg-white">
       <header className="border-b border-rule bg-paper/80 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-y-2 px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex min-w-0 items-baseline gap-2 sm:gap-3">
             <div className="h-2 w-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
             <p className="truncate font-serif text-base font-medium tracking-tight text-ink sm:text-lg">
@@ -225,13 +124,13 @@ export default function App() {
           </div>
         </div>
         {!showOnboarding && (
-          <div className="mx-auto max-w-5xl px-4 pb-4 sm:px-6">
+          <div className="mx-auto max-w-[1600px] px-4 pb-4 sm:px-6">
             <Stepper />
           </div>
         )}
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8">
         {showOnboarding ? (
           <OnboardingState sample={sample} />
         ) : briefSubmitted ? (
@@ -239,7 +138,6 @@ export default function App() {
         ) : (
           <BriefForm />
         )}
-        <DebugPanel />
       </main>
 
       <SettingsDrawer />

@@ -11,7 +11,8 @@ import {
   requirePost,
   sendError,
 } from '../../lib/respond.js';
-import { recordSpend, costForFlux, wouldExceedCap, recordUsageEvent } from '../../lib/cost.js';
+import { recordSpend, costForFlux, wouldExceedCap, wouldExceedGlobalDailyCap, recordUsageEvent } from '../../lib/cost.js';
+import { clampImageTier, costCapForTier } from '../../lib/tiers.js';
 
 // Tier-aware Flux proxy. Client provides prompt + dimensions + tier; we
 // pick the right fal.ai endpoint and inject the per-tier inference params.
@@ -37,10 +38,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!parsed.success) {
     return sendError(res, 400, 'body/invalid', parsed.error.message);
   }
-  const { prompt, width, height, tier } = parsed.data;
+  const { prompt, width, height } = parsed.data;
+  // Clamp the requested quality to what the caller's tier allows (server
+  // backstop; the UI already restricts the picker per tier).
+  const tier = clampImageTier(session.tier, parsed.data.tier as ImageQualityTier);
 
-  const cost = costForFlux(tier as ImageQualityTier);
-  if (wouldExceedCap(session.sub, cost)) {
+  const cost = costForFlux(tier);
+  if (
+    wouldExceedCap(session.sub, cost, costCapForTier(session.tier)) ||
+    (await wouldExceedGlobalDailyCap(cost))
+  ) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 
@@ -49,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   let upstream: Response;
   try {
-    upstream = await fetch(TIER_FAL_URL[tier as ImageQualityTier], {
+    upstream = await fetch(TIER_FAL_URL[tier], {
       method: 'POST',
       headers: {
         Authorization: `Key ${apiKey}`,
@@ -60,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         image_size: { width, height },
         num_images: 1,
         enable_safety_checker: true,
-        ...TIER_EXTRAS[tier as ImageQualityTier],
+        ...TIER_EXTRAS[tier],
       }),
     });
   } catch (err) {

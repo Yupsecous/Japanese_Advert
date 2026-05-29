@@ -2,7 +2,16 @@ import { SignJWT, jwtVerify } from 'jose';
 import type { VercelRequest } from '@vercel/node';
 import { getCookie, SESSION_COOKIE } from './cookies.js';
 import { findSessionUser } from './sessions.js';
+import { isTier, type Tier } from './tiers.js';
 import type { User, Session } from './schema.js';
+
+// Resolved caller identity used by routes (proxy cost cap, tier enforcement).
+// `tier` is derived per auth mechanism — not stored in the JWT.
+export type AuthSession = {
+  sub: string;
+  sid: string;
+  tier: Tier;
+};
 
 // HMAC-signed JWTs (HS256). Stateless — used by the Android app via the
 // Authorization: Bearer header. The web app instead uses a server-side
@@ -46,13 +55,15 @@ export async function verifyToken(token: string): Promise<SessionPayload> {
 // the Android contract and avoids ambiguity. Otherwise we try the web
 // session cookie. For real users sub = users.id and sid = sessions.id; for
 // the legacy shared-cred JWT they remain {username, random-uuid} as before.
-export async function authenticate(req: VercelRequest): Promise<SessionPayload | null> {
+export async function authenticate(req: VercelRequest): Promise<AuthSession | null> {
   const header = req.headers.authorization;
   if (header && header.startsWith('Bearer ')) {
     const token = header.slice('Bearer '.length).trim();
     if (!token) return null;
     try {
-      return await verifyToken(token);
+      const payload = await verifyToken(token);
+      // The Android/internal Bearer flow is unrestricted (owner tooling).
+      return { sub: payload.sub, sid: payload.sid, tier: 'ultra' };
     } catch {
       return null;
     }
@@ -61,11 +72,19 @@ export async function authenticate(req: VercelRequest): Promise<SessionPayload |
   if (raw) {
     try {
       const found = await findSessionUser(raw);
-      if (found) return { sub: found.user.id, sid: found.session.id };
+      if (found) {
+        const tier: Tier = isTier(found.user.tier) ? found.user.tier : 'free';
+        return { sub: found.user.id, sid: found.session.id, tier };
+      }
     } catch {
       // DB unreachable etc. — degrade to unauthenticated rather than 500.
       return null;
     }
+  }
+  // Open-preview mode (OPEN_ACCESS=1): allow anonymous callers as a shared
+  // "public" principal (Free tier). Off by default.
+  if (process.env.OPEN_ACCESS === '1') {
+    return { sub: 'public', sid: 'public', tier: 'free' };
   }
   return null;
 }

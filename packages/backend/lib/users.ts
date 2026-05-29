@@ -6,6 +6,7 @@ import { hash, verify } from '@node-rs/argon2';
 import { and, eq } from 'drizzle-orm';
 import { getDb } from './db.js';
 import { users, oauthAccounts, type User } from './schema.js';
+import { isTier, type Tier } from './tiers.js';
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -17,6 +18,7 @@ export type PublicUser = {
   email: string;
   displayName: string | null;
   emailVerified: boolean;
+  tier: Tier;
 };
 
 export function toPublicUser(u: User): PublicUser {
@@ -25,7 +27,15 @@ export function toPublicUser(u: User): PublicUser {
     email: u.email,
     displayName: u.displayName,
     emailVerified: u.emailVerifiedAt !== null,
+    tier: isTier(u.tier) ? u.tier : 'free',
   };
+}
+
+export async function setUserTier(userId: string, tier: Tier): Promise<void> {
+  await getDb()
+    .update(users)
+    .set({ tier, updatedAt: new Date() })
+    .where(eq(users.id, userId));
 }
 
 export async function hashPassword(password: string): Promise<string> {

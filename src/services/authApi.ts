@@ -4,6 +4,8 @@
 // All requests are same-origin (or via VITE_API_BASE_URL) with the httpOnly
 // session cookie included.
 
+import type { Tier } from '../tiers';
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export type SessionUser = {
@@ -11,6 +13,7 @@ export type SessionUser = {
   email: string;
   displayName: string | null;
   emailVerified: boolean;
+  tier: Tier;
 };
 
 export type AuthResult<T> =
@@ -49,7 +52,7 @@ async function request<T>(
 export const authApi = {
   me: () => request<{ user: SessionUser }>('/api/auth/me', { method: 'GET' }),
   signup: (body: { email: string; password: string; displayName?: string }) =>
-    request<{ ok: true }>('/api/auth/signup', { method: 'POST', body }),
+    request<{ ok: true; user?: SessionUser }>('/api/auth/signup', { method: 'POST', body }),
   login: (body: { email: string; password: string }) =>
     request<{ user: SessionUser }>('/api/auth/login-email', { method: 'POST', body }),
   logout: () => request<void>('/api/auth/logout', { method: 'POST' }),
@@ -59,6 +62,11 @@ export const authApi = {
     request<{ ok: true }>('/api/auth/reset-password', { method: 'POST', body: { token, password } }),
   resendVerification: (email: string) =>
     request<{ ok: true }>('/api/auth/resend-verification', { method: 'POST', body: { email } }),
+  redeem: (key: string) =>
+    request<{ ok: true; user: SessionUser | null; tier: Tier }>('/api/auth/redeem', {
+      method: 'POST',
+      body: { key },
+    }),
 };
 
 export const GOOGLE_START_URL = `${API_BASE}/api/auth/google/start`;
