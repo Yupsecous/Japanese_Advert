@@ -59,6 +59,11 @@ async function generateCustomerCopy(args: {
   locale: Locale;
   brand?: BrandDictionary;
 }): Promise<{ headline: string; caption: string; cta: string }> {
+  // System = everything CONSTANT across the whole batch (instructions + tool
+  // intent + brand + language + the shared campaign brief). With cacheSystem
+  // this becomes Anthropic's cached prefix, so customers 2..N read it from
+  // cache instead of re-billing it. The campaign brief lives here (not in the
+  // per-customer user message) precisely so it's part of that shared prefix.
   const system = `You write one ad-copy variant tuned to ONE specific customer. The campaign brief describes the product. The individual brief specifies the tone and audience-line for THIS customer. Your output is a single variant — not options — because this asset will be delivered to this one recipient only.
 
 Rules:
@@ -70,12 +75,16 @@ Rules:
 
 Return only via the submit_customer_copy tool.${brandPromptBlock(args.brand)}
 
-Language: ${languageDirective(args.locale)}`;
+Language: ${languageDirective(args.locale)}
 
+Campaign brief (shared across every recipient in this campaign): { product: "${args.campaignBrief.productName}", audience: "${args.campaignBrief.targetAudience}", angle: "${args.campaignBrief.adAngle}" }`;
+
+  // User = only the per-customer variable parts (individual brief, social
+  // signal, segment) — deliberately NOT cached.
   const user = [
-    `Campaign brief: { product: "${args.campaignBrief.productName}", audience: "${args.campaignBrief.targetAudience}", angle: "${args.campaignBrief.adAngle}" }`,
     `Individual brief: { audience: "${args.individualBrief.audience}", tone: "${args.individualBrief.tone}", rationale: "${args.individualBrief.rationale}" }`,
     `Customer signal: ${args.customer.socialSignalSummary}`,
+    `Customer segment: ${args.customer.segment}`,
     '',
     `Write the personalized copy for this recipient.`,
   ].join('\n');
@@ -88,6 +97,7 @@ Language: ${languageDirective(args.locale)}`;
     toolDescription: 'Submit one personalized ad copy variant for this specific customer.',
     inputSchema: COPY_SCHEMA as unknown as Record<string, unknown>,
     maxTokens: 700,
+    cacheSystem: true,
   });
   const parsed = CopyZ.safeParse(raw);
   if (!parsed.success) {
