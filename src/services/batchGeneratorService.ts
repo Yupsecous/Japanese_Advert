@@ -236,9 +236,18 @@ export async function generateAssetsForCustomer(
 ): Promise<GeneratedAssetSet> {
   const { campaignBrief, individualBrief, customer, apiKeys, locale, brand, tier } = args;
 
+  // Only generate a Flux image for recipients whose recommended format is
+  // visual ('image' / 'video'). For 'text' / 'voice' recipients an image adds
+  // no value, so we skip BOTH the OpenAI image-prompt call and the Flux call
+  // entirely — the single biggest per-customer cost when it isn't needed.
+  const wantsImage =
+    individualBrief.recommendedFormat === 'image' ||
+    individualBrief.recommendedFormat === 'video';
+
   // Image generation has two steps (prompt builder then Flux), so wrap it
   // as a single promise.
   const imagePromise = (async () => {
+    if (!wantsImage) return null;
     if (!apiKeys.fal.trim() || !apiKeys.openai.trim()) return null;
     const prompt = await generateCustomerImagePrompt({
       campaignBrief,
