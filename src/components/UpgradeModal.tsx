@@ -5,6 +5,7 @@ import { authApi } from '../services/authApi';
 import { TIER_LABELS, type Tier } from '../tiers';
 import { BrandMark } from './BrandMark';
 import { Button } from './ui/Button';
+import { CryptoPaymentModal } from './CryptoPaymentModal';
 
 // Personify Ads plans modal — the equivalent of Grok's "SuperGrok" upgrade
 // sheet, mapped onto our Free/Pro/Ultra tiers. There are no real payments yet:
@@ -27,6 +28,7 @@ export function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => 
   const [key, setKey] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [cryptoTier, setCryptoTier] = useState<'pro' | 'ultra' | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -62,6 +64,7 @@ export function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => 
   ];
 
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
@@ -150,7 +153,40 @@ export function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => 
             )}
           </div>
         )}
+
+        {user && (
+          <div className="mt-3 rounded-xl border border-rule bg-canvas-deep p-4">
+            <p className="text-sm font-medium text-ink">{t('pay.section')}</p>
+            <p className="mt-0.5 text-xs text-ink-soft">{t('pay.sectionHint')}</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {(['pro', 'ultra'] as const).map((tr) => (
+                <Button
+                  key={tr}
+                  variant="dark"
+                  onClick={() => setCryptoTier(tr)}
+                  disabled={current === tr}
+                >
+                  {current === tr ? t('upgrade.yourPlan') : t('pay.payTier', { tier: TIER_LABELS[tr] })}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
+
+      {cryptoTier && (
+        <CryptoPaymentModal
+          tier={cryptoTier}
+          open
+          onClose={() => setCryptoTier(null)}
+          onSuccess={(u) => {
+            setSession(u);
+            setCryptoTier(null);
+            setMsg({ ok: true, text: t('pay.success', { tier: TIER_LABELS[u.tier] }) });
+          }}
+        />
+      )}
+    </>
   );
 }

@@ -8,6 +8,7 @@ import {
   uuid,
   text,
   char,
+  integer,
   numeric,
   timestamp,
   jsonb,
@@ -100,8 +101,30 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Non-custodial crypto payment orders (buy a tier by paying on-chain). See
+// db/migrations/0005_payment_orders.sql and lib/payments/*.
+export const paymentOrders = pgTable('payment_orders', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  tier: text('tier').notNull(), // 'pro' | 'ultra'
+  chain: text('chain').notNull(), // 'ethereum' | 'arbitrum' | 'bnb' | 'bitcoin' | 'solana'
+  asset: text('asset').notNull(), // 'ETH' | 'BNB' | 'BTC' | 'SOL' | 'USDT' | 'USDC'
+  address: text('address').notNull(), // receiving address locked at order time
+  amountAtomic: text('amount_atomic').notNull(), // smallest-unit amount, decimal string
+  decimals: integer('decimals').notNull(),
+  amountUsd: numeric('amount_usd', { precision: 12, scale: 2 }).notNull(),
+  status: text('status').notNull().default('pending'), // 'pending' | 'confirmed' | 'expired'
+  txHash: text('tx_hash'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type OAuthAccount = typeof oauthAccounts.$inferSelect;
 export type Project = typeof projects.$inferSelect;
+export type PaymentOrder = typeof paymentOrders.$inferSelect;

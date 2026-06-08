@@ -14,5 +14,6 @@
     "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": ["api", "lib", "server.ts", "migrate.ts"]
+  "include": ["api", "lib", "server.ts", "migrate.ts"],
+  "exclude": ["**/*.test.ts"]
 }

@@ -32,6 +32,9 @@ export function toPublicUser(u: User): PublicUser {
 }
 
 export async function setUserTier(userId: string, tier: Tier): Promise<void> {
+  // Fail-safe at the boundary: never write a non-tier value to users.tier even
+  // if a future caller forgets to validate (would silently break tier gating).
+  if (!isTier(tier)) throw new Error(`setUserTier: invalid tier ${String(tier)}`);
   await getDb()
     .update(users)
     .set({ tier, updatedAt: new Date() })

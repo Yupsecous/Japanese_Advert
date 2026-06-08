@@ -44,6 +44,11 @@ import googleCallbackHandler from './api/auth/google/callback.js';
 import projectsCollectionHandler from './api/projects/collection.js';
 import projectItemHandler from './api/projects/item.js';
 
+// Crypto payments (non-custodial tier upgrades).
+import paymentsOptionsHandler from './api/payments/options.js';
+import paymentsCreateOrderHandler from './api/payments/create-order.js';
+import paymentsVerifyHandler from './api/payments/verify.js';
+
 import { sql } from 'drizzle-orm';
 import { getDb, getPool } from './lib/db.js';
 import { sessions, emailVerificationTokens, passwordResetTokens } from './lib/schema.js';
@@ -135,6 +140,11 @@ app.post('/api/projects', adapt(projectsCollectionHandler));
 app.get('/api/projects/:id', adapt(projectItemHandler));
 app.put('/api/projects/:id', adapt(projectItemHandler));
 app.delete('/api/projects/:id', adapt(projectItemHandler));
+
+// Crypto payments — buy a tier by paying on-chain (non-custodial, pay-then-verify).
+app.get('/api/payments/crypto/options', adapt(paymentsOptionsHandler));
+app.post('/api/payments/crypto/create-order', adapt(paymentsCreateOrderHandler));
+app.post('/api/payments/crypto/verify', adapt(paymentsVerifyHandler));
 
 // Catch-all 404 for any unknown API path (before the SPA fallback so API
 // 404s return JSON rather than index.html).
