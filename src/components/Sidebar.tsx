@@ -112,7 +112,7 @@ export function Sidebar({
       {/* Logo + collapse toggle */}
       <div className={`flex items-center px-3 py-4 ${collapsed ? 'justify-center' : 'justify-between'}`}>
         {collapsed ? (
-          <BrandMark size={26} />
+          <BrandMark size={32} />
         ) : (
           <BrandMark size={26} withWordmark />
         )}

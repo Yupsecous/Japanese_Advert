@@ -22,14 +22,17 @@ export function BrandMark({
     );
   }
 
-  // Symbol SVG is portrait (309×451). Fix width; let height scale naturally.
+  // Symbol SVG is portrait (309×451). Derive height from aspect ratio so
+  // the img never collapses to 0 when height:auto fails to resolve.
+  const h = Math.round(size * (451 / 309));
   return (
     <img
       src={logoSymbol}
       alt="Personify Ads"
       width={size}
+      height={h}
       className={`shrink-0 ${className}`}
-      style={{ width: size, height: 'auto' }}
+      style={{ width: size, height: h }}
     />
   );
 }
