@@ -49,6 +49,14 @@ import paymentsOptionsHandler from './api/payments/options.js';
 import paymentsCreateOrderHandler from './api/payments/create-order.js';
 import paymentsVerifyHandler from './api/payments/verify.js';
 
+// Stripe card payments.
+import stripeCheckoutHandler from './api/payments/stripe-checkout.js';
+import stripeWebhookHandler from './api/payments/stripe-webhook.js';
+import stripePortalHandler from './api/payments/stripe-portal.js';
+
+// Admin dashboard.
+import adminStatsHandler from './api/admin/stats.js';
+
 import { sql } from 'drizzle-orm';
 import { getDb, getPool } from './lib/db.js';
 import { sessions, emailVerificationTokens, passwordResetTokens } from './lib/schema.js';
@@ -90,6 +98,15 @@ app.use(
       ? { origin: publicOrigin, credentials: true }
       : { origin: true, credentials: true },
   ),
+);
+
+// Stripe webhook needs the raw body for signature verification.
+// MUST be registered before app.use(express.json()) so this route's
+// express.raw() middleware captures the body before the global parser runs.
+app.post(
+  '/api/payments/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  adapt(stripeWebhookHandler),
 );
 
 // Bodies are small JSON (prompts + schemas). 1MB is generous and bounds the
@@ -145,6 +162,14 @@ app.delete('/api/projects/:id', adapt(projectItemHandler));
 app.get('/api/payments/crypto/options', adapt(paymentsOptionsHandler));
 app.post('/api/payments/crypto/create-order', adapt(paymentsCreateOrderHandler));
 app.post('/api/payments/crypto/verify', adapt(paymentsVerifyHandler));
+
+// Stripe card payments — subscription billing.
+app.post('/api/payments/stripe/create-checkout', adapt(stripeCheckoutHandler));
+app.post('/api/payments/stripe/portal', adapt(stripePortalHandler));
+// Note: /api/payments/stripe/webhook is registered above (before express.json).
+
+// Admin dashboard.
+app.get('/api/admin/stats', adapt(adminStatsHandler));
 
 // Catch-all 404 for any unknown API path (before the SPA fallback so API
 // 404s return JSON rather than index.html).

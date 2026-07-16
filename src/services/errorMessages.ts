@@ -27,6 +27,7 @@ export type ErrorCode =
   | 'eleven/rate-limit'
   | 'eleven/network'
   | 'eleven/bad-response'
+  | 'eleven/no-credits'
   | 'eleven/missing-key'
   | 'anthropic/auth-failed'
   | 'anthropic/rate-limit'
@@ -111,6 +112,9 @@ const MESSAGES: Record<ErrorCode, ErrorEntry> = {
   },
   'eleven/bad-response': {
     message: 'ElevenLabs returned an unexpected response. Try again — this usually clears on retry.',
+  },
+  'eleven/no-credits': {
+    message: 'ElevenLabs is out of credits — using your browser voice instead.',
   },
   'eleven/missing-key': {
     message: 'Add your ElevenLabs key in Settings to render audio.',

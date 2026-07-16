@@ -1,4 +1,4 @@
-import { AppError } from './errorMessages';
+import { AppError, isAppError } from './errorMessages';
 import { backendPost } from './backendClient';
 import type { AudioAlignment } from '../types';
 
@@ -44,6 +44,27 @@ type WithTimestampsResponse = {
   };
 };
 
+// Plays text via the browser's built-in Web Speech API and returns a
+// synthetic result (empty blob, no alignment). Called when ElevenLabs quota
+// is exhausted — audio plays immediately; the returned URL is a silent stub.
+async function speechSynthesisFallback(text: string): Promise<GenerateAudioResult> {
+  return new Promise<GenerateAudioResult>((resolve, reject) => {
+    if (!('speechSynthesis' in window)) {
+      reject(new AppError('eleven/bad-response', 'Web Speech API not supported'));
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => {
+      const blob = new Blob([], { type: 'audio/mpeg' });
+      resolve({ blob, url: URL.createObjectURL(blob) });
+    };
+    utterance.onerror = (e) => {
+      reject(new AppError('eleven/bad-response', String(e.error)));
+    };
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
 export async function generateAudio(args: GenerateAudioArgs): Promise<GenerateAudioResult> {
   if (!args.voiceId) {
     throw new AppError('eleven/voice-not-found', 'empty voiceId');
@@ -54,16 +75,24 @@ export async function generateAudio(args: GenerateAudioArgs): Promise<GenerateAu
 
   // The /with-timestamps variant returns the same audio (base64) plus
   // per-character alignment used for kinetic captions + WebVTT export.
-  const body = await backendPost<WithTimestampsResponse>(
-    '/api/elevenlabs/tts',
-    {
-      voiceId: args.voiceId,
-      text: args.script,
-      modelId: MODEL,
-      voiceSettings: { stability: 0.5, similarity_boost: 0.75 },
-    },
-    'eleven',
-  );
+  let body: WithTimestampsResponse;
+  try {
+    body = await backendPost<WithTimestampsResponse>(
+      '/api/elevenlabs/tts',
+      {
+        voiceId: args.voiceId,
+        text: args.script,
+        modelId: MODEL,
+        voiceSettings: { stability: 0.5, similarity_boost: 0.75 },
+      },
+      'eleven',
+    );
+  } catch (err) {
+    if (isAppError(err) && err.code === 'eleven/no-credits') {
+      return speechSynthesisFallback(args.script);
+    }
+    throw err;
+  }
 
   const audioB64 = body.audio_base64;
   if (!audioB64) {

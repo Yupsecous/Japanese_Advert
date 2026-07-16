@@ -18,7 +18,7 @@ export type ChatCompletionsJsonArgs = {
 type ChatResponse = { choices?: { message?: { content?: string } }[] };
 
 export async function chatCompletionsJson(args: ChatCompletionsJsonArgs): Promise<unknown> {
-  const model = args.model ?? 'gpt-4o-mini';
+  const model = args.model ?? 'openai/gpt-4o-mini';
   const temperature = args.temperature ?? 0.85;
   const maxTokens = args.maxTokens ?? 1000;
 

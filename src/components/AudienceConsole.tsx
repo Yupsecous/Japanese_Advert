@@ -535,8 +535,12 @@ function DistributionPanel({
     <section className="rounded-lg border border-rule bg-white p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <h4 className="text-base font-semibold tracking-tight text-ink">{t('dist.heading')}</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-base font-semibold tracking-tight text-ink">{t('dist.heading')}</h4>
+            <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">{t('sim.badge')}</span>
+          </div>
           <p className="mt-1 max-w-2xl text-sm text-ink-soft">{t('dist.subtitle')}</p>
+          <p className="mt-0.5 text-xs text-amber-600">{t('sim.hint')}</p>
         </div>
         {deliveredCount > 0 && (
           <button
@@ -678,8 +682,12 @@ function EffectivenessDashboardPanel({
     <section className="rounded-lg border border-rule bg-white p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <h4 className="text-base font-semibold tracking-tight text-ink">{t('dash.heading')}</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-base font-semibold tracking-tight text-ink">{t('dash.heading')}</h4>
+            <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">{t('sim.badge')}</span>
+          </div>
           <p className="mt-1 max-w-2xl text-sm text-ink-soft">{t('dash.subtitle')}</p>
+          <p className="mt-0.5 text-xs text-amber-600">{t('sim.hint')}</p>
         </div>
         {hasData && (
           <button
@@ -997,8 +1005,12 @@ function FeedbackLoopPanel({
   return (
     <section className="rounded-lg border border-rule bg-gradient-to-br from-emerald-50 via-white to-white p-6">
       <div>
-        <h4 className="text-base font-semibold tracking-tight text-ink">{t('feedback.heading')}</h4>
+        <div className="flex items-center gap-2">
+          <h4 className="text-base font-semibold tracking-tight text-ink">{t('feedback.heading')}</h4>
+          <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">{t('sim.badge')}</span>
+        </div>
         <p className="mt-1 max-w-2xl text-sm text-ink-soft">{t('feedback.subtitle')}</p>
+        <p className="mt-0.5 text-xs text-amber-600">{t('sim.hint')}</p>
       </div>
 
       {error !== null && (

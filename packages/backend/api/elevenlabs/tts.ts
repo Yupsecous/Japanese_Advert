@@ -79,6 +79,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!upstream.ok) {
     refundSpend(session.sub, cost);
+    // Signal the frontend to fall back to the browser's Web Speech API.
+    if (upstream.status === 402) {
+      return sendError(res, 402, 'tts/no-credits');
+    }
     return relayUpstreamError(res, upstream, 'elevenlabs/tts');
   }
 

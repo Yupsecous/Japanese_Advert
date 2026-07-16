@@ -13,6 +13,7 @@ import {
 } from '../../lib/cost.js';
 import { clampImageTier, costCapForTier } from '../../lib/tiers.js';
 import { allow } from '../../lib/ratelimit.js';
+import { fluxViaOpenRouter } from '../../lib/openrouter-fallback.js';
 
 // Tier-aware Flux proxy. The quality tier is clamped to the caller's plan, the
 // requested dimensions are bounded, and cost is computed per-megapixel for the
@@ -78,6 +79,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!upstream.ok) {
     refundSpend(session.sub, cost);
+    // On quota exhaustion, retry via OpenRouter image generation.
+    if (upstream.status === 402) {
+      const orKey = process.env.OPENROUTER_API_KEY;
+      if (orKey) {
+        try {
+          const fallback = await fluxViaOpenRouter(orKey, prompt, width, height);
+          recordUsageEvent(session.sub, 'fal/flux[or-fallback]', cost);
+          return res.status(200).json(fallback);
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('[fal/flux] openrouter fallback failed:', err);
+        }
+      }
+    }
     return relayUpstreamError(res, upstream, 'fal/flux');
   }
 

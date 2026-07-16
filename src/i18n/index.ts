@@ -267,6 +267,37 @@ const EN: Dict = {
   'pay.err.generic': "Couldn't verify that payment. Please try again.",
   'pay.err.create': "Couldn't start the payment. Please try again.",
 
+  // Stripe card billing
+  'stripe.section': 'Pay by card',
+  'stripe.sectionHint': 'Monthly or annual subscription. Cancel anytime.',
+  'stripe.monthly': 'Monthly',
+  'stripe.annual': 'Annual',
+  'stripe.annualSave': 'Save 20%',
+  'stripe.perYear': '/yr billed annually',
+  'stripe.subscribe': 'Subscribe',
+  'stripe.manageSubscription': 'Manage subscription',
+  'stripe.redirecting': 'Redirecting to Stripe…',
+  'stripe.portalHint': 'Update payment method, change plan, or cancel.',
+  'stripe.alreadySubscribed': 'You have an active subscription.',
+
+  // Admin dashboard
+  'admin.title': 'Admin',
+  'admin.users': 'Users',
+  'admin.tiers': 'By tier',
+  'admin.newLast7': 'New (7d)',
+  'admin.newLast30': 'New (30d)',
+  'admin.revenue': 'Crypto Revenue',
+  'admin.pending': 'Pending crypto orders',
+  'admin.stripe': 'Stripe Subscriptions',
+  'admin.spend': 'API Spend (24h)',
+  'admin.sessions': 'Active Sessions',
+  'admin.loading': 'Loading dashboard…',
+  'admin.error': 'Failed to load stats. Check that ADMIN_EMAILS is set.',
+
+  // Simulated data disclosure
+  'sim.badge': 'Simulated',
+  'sim.hint': 'Projected data — real delivery tracking coming soon.',
+
   // Audience Console (Phase 1)
   'audience.heading': 'Audience',
   'audience.subtitle':
@@ -611,6 +642,7 @@ const EN: Dict = {
   'err.eleven/network': "Couldn't reach ElevenLabs. Check your internet and try again.",
   'err.eleven/bad-response':
     'ElevenLabs returned an unexpected response. Try again — this usually clears on retry.',
+  'err.eleven/no-credits': 'ElevenLabs is out of credits — using your browser voice instead.',
   'err.eleven/missing-key': 'Add your ElevenLabs key in Settings to render audio.',
   'err.anthropic/auth-failed':
     "Your Anthropic key isn't being accepted. Open Settings and check it.",
@@ -837,6 +869,19 @@ const JA: Dict = {
   'pay.err.price': 'ライブ価格を取得できませんでした。少し待ってからもう一度試してください。',
   'pay.err.generic': 'その支払いを検証できませんでした。もう一度お試しください。',
   'pay.err.create': '支払いを開始できませんでした。もう一度お試しください。',
+  'stripe.section': 'カードで支払う',
+  'stripe.sectionHint': '月額または年額プラン。いつでもキャンセル可能。',
+  'stripe.monthly': '月額',
+  'stripe.annual': '年額',
+  'stripe.annualSave': '20%割引',
+  'stripe.perYear': '/年（年払い）',
+  'stripe.subscribe': '登録する',
+  'stripe.manageSubscription': 'サブスクリプション管理',
+  'stripe.redirecting': 'Stripeへリダイレクト中…',
+  'stripe.portalHint': '支払い方法の変更やキャンセルができます。',
+  'stripe.alreadySubscribed': 'アクティブなサブスクリプションがあります。',
+  'sim.badge': 'シミュレーション',
+  'sim.hint': '予測データ — 実際の配信追跡は近日公開予定。',
   'err.cost/cap-exceeded': "このセッションの利用上限に達しました。後でリセットされます — 上限の引き上げが必要な場合はご連絡ください。",
   'err.auth/session-expired': "セッションの有効期限が切れました。再度サインインしてください。",
 
@@ -1262,6 +1307,7 @@ const JA: Dict = {
   'err.eleven/network': 'ElevenLabsに接続できませんでした。ネットワークを確認してください。',
   'err.eleven/bad-response':
     'ElevenLabsから予期しない応答がありました。通常は再試行で解消します。',
+  'err.eleven/no-credits': 'ElevenLabsのクレジットが不足しています — ブラウザの音声を使用します。',
   'err.eleven/missing-key': '設定からElevenLabsキーを追加してください。',
   'err.anthropic/auth-failed':
     'Anthropicキーが受け付けられませんでした。設定を確認してください。',
@@ -1487,6 +1533,19 @@ const PT: Dict = {
   'pay.err.price': 'Não consegui buscar um preço ao vivo. Tente novamente em um momento.',
   'pay.err.generic': 'Não consegui verificar esse pagamento. Tente novamente.',
   'pay.err.create': 'Não consegui iniciar o pagamento. Tente novamente.',
+  'stripe.section': 'Pagar com cartão',
+  'stripe.sectionHint': 'Assinatura mensal ou anual. Cancele quando quiser.',
+  'stripe.monthly': 'Mensal',
+  'stripe.annual': 'Anual',
+  'stripe.annualSave': 'Economize 20%',
+  'stripe.perYear': '/ano (cobrado anualmente)',
+  'stripe.subscribe': 'Assinar',
+  'stripe.manageSubscription': 'Gerenciar assinatura',
+  'stripe.redirecting': 'Redirecionando para Stripe…',
+  'stripe.portalHint': 'Atualize o método de pagamento ou cancele.',
+  'stripe.alreadySubscribed': 'Você já tem uma assinatura ativa.',
+  'sim.badge': 'Simulado',
+  'sim.hint': 'Dados projetados — rastreamento de entrega real em breve.',
   'err.cost/cap-exceeded': "Você atingiu o limite de uso desta sessão. Ele é redefinido depois — fale com a gente se precisar de um limite maior.",
   'err.auth/session-expired': "Sua sessão expirou. Faça login novamente.",
 
@@ -1915,6 +1974,7 @@ const PT: Dict = {
   'err.eleven/network': 'Não foi possível alcançar a ElevenLabs. Verifique sua conexão.',
   'err.eleven/bad-response':
     'A ElevenLabs retornou uma resposta inesperada. Tente de novo — geralmente se resolve no retry.',
+  'err.eleven/no-credits': 'Créditos ElevenLabs esgotados — usando voz do navegador.',
   'err.eleven/missing-key': 'Adicione sua chave ElevenLabs em Configurações para renderizar áudio.',
   'err.anthropic/auth-failed':
     'Sua chave Anthropic não está sendo aceita. Abra Configurações e verifique.',
@@ -2141,6 +2201,19 @@ const ES: Dict = {
   'pay.err.price': 'No se pudo obtener un precio en vivo. Inténtalo en un momento.',
   'pay.err.generic': 'No se pudo verificar ese pago. Por favor inténtalo de nuevo.',
   'pay.err.create': 'No se pudo iniciar el pago. Por favor inténtalo de nuevo.',
+  'stripe.section': 'Pagar con tarjeta',
+  'stripe.sectionHint': 'Suscripción mensual o anual. Cancela cuando quieras.',
+  'stripe.monthly': 'Mensual',
+  'stripe.annual': 'Anual',
+  'stripe.annualSave': 'Ahorra 20%',
+  'stripe.perYear': '/año (facturado anualmente)',
+  'stripe.subscribe': 'Suscribirse',
+  'stripe.manageSubscription': 'Gestionar suscripción',
+  'stripe.redirecting': 'Redirigiendo a Stripe…',
+  'stripe.portalHint': 'Actualiza el método de pago o cancela.',
+  'stripe.alreadySubscribed': 'Ya tienes una suscripción activa.',
+  'sim.badge': 'Simulado',
+  'sim.hint': 'Datos proyectados — seguimiento de entrega real próximamente.',
   'err.cost/cap-exceeded': "Has alcanzado el límite de uso de esta sesión. Se restablece más tarde — escríbenos si necesitas un límite mayor.",
   'err.auth/session-expired': "Tu sesión ha expirado. Inicia sesión de nuevo.",
 
@@ -2568,6 +2641,7 @@ const ES: Dict = {
   'err.eleven/network': 'No se pudo contactar con ElevenLabs. Verifica tu conexión.',
   'err.eleven/bad-response':
     'ElevenLabs devolvió una respuesta inesperada. Reintenta — suele resolverse al reintentar.',
+  'err.eleven/no-credits': 'ElevenLabs sin créditos — usando la voz del navegador.',
   'err.eleven/missing-key': 'Añade tu clave ElevenLabs en Ajustes para renderizar audio.',
   'err.anthropic/auth-failed':
     'Tu clave Anthropic no está siendo aceptada. Abre Ajustes y verifícala.',
@@ -2794,6 +2868,19 @@ const FR: Dict = {
   'pay.err.price': 'Impossible de récupérer un prix en direct. Réessayez dans un moment.',
   'pay.err.generic': 'Impossible de vérifier ce paiement. Veuillez réessayer.',
   'pay.err.create': 'Impossible de démarrer le paiement. Veuillez réessayer.',
+  'stripe.section': 'Payer par carte',
+  'stripe.sectionHint': 'Abonnement mensuel ou annuel. Annulez à tout moment.',
+  'stripe.monthly': 'Mensuel',
+  'stripe.annual': 'Annuel',
+  'stripe.annualSave': 'Économisez 20%',
+  'stripe.perYear': '/an (facturé annuellement)',
+  'stripe.subscribe': "S'abonner",
+  'stripe.manageSubscription': "Gérer l'abonnement",
+  'stripe.redirecting': 'Redirection vers Stripe…',
+  'stripe.portalHint': 'Mettez à jour votre moyen de paiement ou annulez.',
+  'stripe.alreadySubscribed': 'Vous avez déjà un abonnement actif.',
+  'sim.badge': 'Simulé',
+  'sim.hint': 'Données projetées — suivi de livraison réel bientôt disponible.',
   'err.cost/cap-exceeded': "Vous avez atteint la limite d'utilisation de cette session. Elle se réinitialise plus tard — contactez-nous si vous avez besoin d'un plafond plus élevé.",
   'err.auth/session-expired': "Votre session a expiré. Veuillez vous reconnecter.",
 
@@ -3221,6 +3308,7 @@ const FR: Dict = {
   'err.eleven/network': "Impossible de joindre ElevenLabs. Vérifiez votre connexion.",
   'err.eleven/bad-response':
     'ElevenLabs a renvoyé une réponse inattendue. Réessayez — cela se résout généralement au retry.',
+  'err.eleven/no-credits': 'ElevenLabs n\'a plus de crédits — utilisation de la voix du navigateur.',
   'err.eleven/missing-key': "Ajoutez votre clé ElevenLabs dans les paramètres pour générer l'audio.",
   'err.anthropic/auth-failed':
     "Votre clé Anthropic n'est pas acceptée. Ouvrez les paramètres et vérifiez.",
@@ -3447,6 +3535,19 @@ const DE: Dict = {
   'pay.err.price': 'Aktuellen Preis konnte nicht abgerufen werden. Versuche es in einem Moment erneut.',
   'pay.err.generic': 'Diese Zahlung konnte nicht bestätigt werden. Versuche es bitte erneut.',
   'pay.err.create': 'Die Zahlung konnte nicht gestartet werden. Versuche es bitte erneut.',
+  'stripe.section': 'Per Karte bezahlen',
+  'stripe.sectionHint': 'Monatliches oder jährliches Abonnement. Jederzeit kündbar.',
+  'stripe.monthly': 'Monatlich',
+  'stripe.annual': 'Jährlich',
+  'stripe.annualSave': 'Spare 20%',
+  'stripe.perYear': '/Jahr (jährlich abgerechnet)',
+  'stripe.subscribe': 'Abonnieren',
+  'stripe.manageSubscription': 'Abonnement verwalten',
+  'stripe.redirecting': 'Weiterleitung zu Stripe…',
+  'stripe.portalHint': 'Zahlungsmethode ändern oder kündigen.',
+  'stripe.alreadySubscribed': 'Du hast bereits ein aktives Abonnement.',
+  'sim.badge': 'Simuliert',
+  'sim.hint': 'Prognosedaten — echtes Liefertracking demnächst verfügbar.',
   'err.cost/cap-exceeded': "Du hast das Nutzungslimit dieser Sitzung erreicht. Es wird später zurückgesetzt — melde dich, wenn du ein höheres Limit brauchst.",
   'err.auth/session-expired': "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
 
@@ -3877,6 +3978,7 @@ const DE: Dict = {
   'err.eleven/network': 'ElevenLabs konnte nicht erreicht werden. Prüfen Sie Ihre Verbindung.',
   'err.eleven/bad-response':
     'ElevenLabs hat eine unerwartete Antwort geliefert. Versuchen Sie es erneut — meist behebt ein Retry das Problem.',
+  'err.eleven/no-credits': 'ElevenLabs hat keine Guthaben mehr — Browser-Stimme wird verwendet.',
   'err.eleven/missing-key': 'Fügen Sie Ihren ElevenLabs-Schlüssel in den Einstellungen hinzu, um Audio zu rendern.',
   'err.anthropic/auth-failed':
     'Ihr Anthropic-Schlüssel wird nicht akzeptiert. Öffnen Sie die Einstellungen und prüfen Sie ihn.',

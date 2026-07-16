@@ -12,10 +12,10 @@ import {
 import { costCapForTier, clampTextModel, maxTokensCeiling } from '../../lib/tiers.js';
 import { allow } from '../../lib/ratelimit.js';
 
-// Proxy for OpenAI chat completions. The body is validated rather than
-// forwarded opaquely: model is clamped to the tier allow-list (gpt-4o-mini)
-// and max_tokens is bounded, so the server key can't be used as a general,
-// flat-rate LLM relay.
+// Proxy for LLM chat completions via OpenRouter (openrouter.ai).
+// OpenRouter is API-compatible with OpenAI's chat/completions endpoint,
+// so we just swap the base URL and key. Model is clamped to the tier
+// allow-list and max_tokens is bounded to prevent key abuse.
 
 const MAX_BODY_BYTES = 512_000;
 
@@ -50,18 +50,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return sendError(res, 402, 'cost/cap-exceeded');
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return sendError(res, 500, 'config/missing-key', 'OPENAI_API_KEY');
+  const apiKey = process.env.OPENROUTER_API_KEY ?? process.env.OPENAI_API_KEY;
+  if (!apiKey) return sendError(res, 500, 'config/missing-key', 'OPENROUTER_API_KEY');
 
   recordSpend(session.sub, cost);
 
   let upstream: Response;
   try {
-    upstream = await fetch('https://api.openai.com/v1/chat/completions', {
+    upstream = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://personifyads.online',
+        'X-Title': 'Personify Ads',
       },
       body: JSON.stringify({ ...body, model, max_tokens: maxTokens }),
     });

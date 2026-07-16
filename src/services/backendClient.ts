@@ -30,6 +30,7 @@ function mapProviderError(scope: ProviderScope, status: number, body: BackendErr
   }
   if (code === 'upstream/auth-failed') return new AppError(`${scope}/auth-failed` as ErrorCode, body.detail);
   if (code === 'upstream/rate-limit') return new AppError(`${scope}/rate-limit` as ErrorCode, body.detail);
+  if (code === 'tts/no-credits') return new AppError('eleven/no-credits', body.detail);
   if (code === 'upstream/no-credits') {
     if (scope === 'fal') return new AppError('fal/no-credits', body.detail);
     if (scope === 'openai') return new AppError('openai/insufficient-quota', body.detail);

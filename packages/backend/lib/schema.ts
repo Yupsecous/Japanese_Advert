@@ -24,6 +24,9 @@ export const users = pgTable('users', {
   displayName: text('display_name'),
   // Subscription tier: 'free' | 'pro' | 'ultra' (see lib/tiers.ts).
   tier: text('tier').notNull().default('free'),
+  // stripe_customer_id lives in DB (migration 0006) but is omitted from this
+  // Drizzle definition so select() never references it before migration runs.
+  // Access it via raw SQL in lib/users.ts (setStripeCustomerId / findUserByStripeCustomerId).
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -121,6 +124,10 @@ export const paymentOrders = pgTable('payment_orders', {
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
 });
+
+// stripe_subscriptions table defined by migration 0006.
+// Accessed via raw SQL in lib/payments/stripe-service.ts so the app starts
+// cleanly before the migration has been applied.
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

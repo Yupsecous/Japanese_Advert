@@ -3,7 +3,7 @@
 // constraint enforces one account per address.
 
 import { hash, verify } from '@node-rs/argon2';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { getDb } from './db.js';
 import { users, oauthAccounts, type User } from './schema.js';
 import { isTier, type Tier } from './tiers.js';
@@ -19,7 +19,17 @@ export type PublicUser = {
   displayName: string | null;
   emailVerified: boolean;
   tier: Tier;
+  isAdmin: boolean;
 };
+
+function adminEmails(): Set<string> {
+  const raw = process.env.ADMIN_EMAILS ?? '';
+  return new Set(raw.split(',').map((e) => e.trim().toLowerCase()).filter(Boolean));
+}
+
+export function isAdminEmail(email: string): boolean {
+  return adminEmails().has(email.toLowerCase());
+}
 
 export function toPublicUser(u: User): PublicUser {
   return {
@@ -28,6 +38,7 @@ export function toPublicUser(u: User): PublicUser {
     displayName: u.displayName,
     emailVerified: u.emailVerifiedAt !== null,
     tier: isTier(u.tier) ? u.tier : 'free',
+    isAdmin: isAdminEmail(u.email),
   };
 }
 
@@ -92,6 +103,21 @@ export async function setUserPassword(userId: string, passwordHash: string): Pro
     .update(users)
     .set({ passwordHash, updatedAt: new Date() })
     .where(eq(users.id, userId));
+}
+
+export async function setStripeCustomerId(userId: string, customerId: string): Promise<void> {
+  // stripe_customer_id column added by migration 0006 — use raw SQL so this
+  // file compiles before the column exists (Drizzle schema omits the field).
+  await getDb().execute(
+    sql`UPDATE users SET stripe_customer_id = ${customerId}, updated_at = now() WHERE id = ${userId}`,
+  );
+}
+
+export async function findUserByStripeCustomerId(customerId: string): Promise<User | undefined> {
+  const result = await getDb().execute<User>(
+    sql`SELECT * FROM users WHERE stripe_customer_id = ${customerId} LIMIT 1`,
+  );
+  return result.rows[0];
 }
 
 export async function markEmailVerified(userId: string): Promise<void> {

@@ -83,7 +83,7 @@ type ValidationConfig = {
 
 const ENDPOINTS: Record<Provider, ValidationConfig> = {
   openai: {
-    url: 'https://api.openai.com/v1/models',
+    url: 'https://openrouter.ai/api/v1/models',
     init: (key) => ({
       method: 'GET',
       headers: { Authorization: `Bearer ${key}` },

@@ -195,27 +195,38 @@ export async function generateIndividualBriefBatch(
       if (!customer) return;
       inFlight += 1;
       emit();
-      try {
-        const brief = await generateIndividualBrief({
-          brief: args.brief,
-          customer,
-          apiKey: args.apiKey,
-          ...(args.locale ? { locale: args.locale } : {}),
-          ...(args.brand ? { brand: args.brand } : {}),
-        });
-        briefs[customer.id] = brief;
-        succeeded += 1;
-      } catch (err) {
-        failures.push({
-          customerId: customer.id,
-          error: err instanceof Error ? err.message : String(err),
-        });
-        failed += 1;
-      } finally {
-        completed += 1;
-        inFlight -= 1;
-        emit();
+      let attempt = 0;
+      let done = false;
+      while (!done && attempt < 4) {
+        try {
+          const brief = await generateIndividualBrief({
+            brief: args.brief,
+            customer,
+            apiKey: args.apiKey,
+            ...(args.locale ? { locale: args.locale } : {}),
+            ...(args.brand ? { brand: args.brand } : {}),
+          });
+          briefs[customer.id] = brief;
+          succeeded += 1;
+          done = true;
+        } catch (err) {
+          const isRateLimit = err instanceof AppError && err.code === 'anthropic/rate-limit';
+          if (isRateLimit && attempt < 3) {
+            attempt += 1;
+            await new Promise((r) => setTimeout(r, 1000 * attempt));
+          } else {
+            failures.push({
+              customerId: customer.id,
+              error: err instanceof Error ? err.message : String(err),
+            });
+            failed += 1;
+            done = true;
+          }
+        }
       }
+      completed += 1;
+      inFlight -= 1;
+      emit();
     }
   }
 

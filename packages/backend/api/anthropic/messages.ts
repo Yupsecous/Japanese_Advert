@@ -11,6 +11,7 @@ import {
 } from '../../lib/cost.js';
 import { costCapForTier, clampTextModel, maxTokensCeiling } from '../../lib/tiers.js';
 import { allow } from '../../lib/ratelimit.js';
+import { anthropicViaOpenRouter } from '../../lib/openrouter-fallback.js';
 
 // Proxy for Anthropic /v1/messages (copy generation + critique + design).
 // The body is NO LONGER forwarded opaquely: the model is clamped to the
@@ -25,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const session = await authenticate(req);
   if (!session) return sendError(res, 401, 'auth/unauthorized');
-  if (!allow(`anthropic:${session.sub}`, 20, 0.5)) return sendError(res, 429, 'auth/rate-limited');
+  if (!allow(`anthropic:${session.sub}`, 30, 5)) return sendError(res, 429, 'auth/rate-limited');
 
   const body = req.body as Record<string, unknown> | undefined;
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -77,6 +78,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!upstream.ok) {
     refundSpend(session.sub, cost);
+    // On quota exhaustion, retry via OpenRouter before surfacing the error.
+    if (upstream.status === 402) {
+      const orKey = process.env.OPENROUTER_API_KEY;
+      if (orKey) {
+        try {
+          const fallback = await anthropicViaOpenRouter(orKey, body, model, maxTokens);
+          recordUsageEvent(session.sub, 'anthropic/messages[or-fallback]', cost);
+          return res.status(200).json(fallback);
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('[anthropic/messages] openrouter fallback failed:', err);
+        }
+      }
+    }
     return relayUpstreamError(res, upstream, 'anthropic/messages');
   }
 

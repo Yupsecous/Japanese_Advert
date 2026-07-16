@@ -14,6 +14,7 @@ export type SessionUser = {
   displayName: string | null;
   emailVerified: boolean;
   tier: Tier;
+  isAdmin?: boolean;
 };
 
 export type AuthResult<T> =

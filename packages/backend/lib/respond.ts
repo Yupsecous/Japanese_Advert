@@ -23,6 +23,7 @@ export type ApiErrorCode =
   | 'payment/unconfirmed'
   | 'payment/mismatch'
   | 'payment/verify-failed'
+  | 'payment/stripe-error'
   | 'method/not-allowed'
   | 'body/invalid'
   | 'cost/cap-exceeded'
@@ -31,6 +32,7 @@ export type ApiErrorCode =
   | 'upstream/no-credits'
   | 'upstream/rate-limit'
   | 'upstream/timeout'
+  | 'tts/no-credits'
   | 'config/missing-key'
   | 'unknown';
 

@@ -40,9 +40,9 @@ export function canMetaX(tier: Tier): boolean {
 // Text models each plan may use on the LLM proxies. The premium "Design" step
 // uses claude-opus-4-7; restricting Opus to Pro/Ultra enforces that paywall
 // server-side (the UI gate alone was bypassable). Free gets Sonnet only.
-// OpenAI is gpt-4o-mini for everyone (the only model the app uses).
+// OpenAI-compat calls go through OpenRouter — model uses the provider/name format.
 export function allowedTextModels(tier: Tier, provider: 'anthropic' | 'openai'): string[] {
-  if (provider === 'openai') return ['gpt-4o-mini'];
+  if (provider === 'openai') return ['openai/gpt-4o-mini'];
   if (tier === 'free') return ['claude-sonnet-4-6'];
   return ['claude-sonnet-4-6', 'claude-opus-4-7'];
 }
