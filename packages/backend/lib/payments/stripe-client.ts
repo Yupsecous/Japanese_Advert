@@ -11,8 +11,19 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
+// Card payment is only "enabled" with a secret key AND at least one price.
+// A key alone is not enough: create-checkout looks up STRIPE_PRICE_<TIER>_<PERIOD>
+// and 503s with "No price configured" when it is missing, so reporting enabled
+// on the key alone makes /api/config advertise a card-payment path in the UI
+// that cannot complete. Better to hide it until the catalog is wired up.
 export function stripeEnabled(): boolean {
-  return !!process.env.STRIPE_SECRET_KEY;
+  if (!process.env.STRIPE_SECRET_KEY) return false;
+  return (
+    !!stripePriceId('pro', 'monthly') ||
+    !!stripePriceId('pro', 'annual') ||
+    !!stripePriceId('ultra', 'monthly') ||
+    !!stripePriceId('ultra', 'annual')
+  );
 }
 
 export type StripeTier = 'pro' | 'ultra';
