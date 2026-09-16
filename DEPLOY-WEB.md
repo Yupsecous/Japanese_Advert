@@ -1,7 +1,7 @@
-# Deploy the web app to personifyads.online
+# Deploy the web app to personify.my
 
 This is the runbook for shipping the **web** app (real accounts + PostgreSQL)
-to a Linux VPS, served at `https://personifyads.online` behind Caddy
+to a Linux VPS, served at `https://personify.my` behind Caddy
 (automatic Let's Encrypt TLS). You run these steps on your VPS; nothing here
 touches your machine automatically.
 
@@ -21,7 +21,7 @@ Bearer-JWT `/api/auth/login`.)
 ## Prerequisites you provide
 
 - A VPS (Ubuntu 22.04/24.04 LTS) with root/sudo SSH access and a public IPv4.
-- The domain `personifyads.online` at a registrar where you can edit DNS.
+- The domain `personify.my` at a registrar where you can edit DNS.
 - Secrets ready to paste into **one file** on the server (never into chat):
   the four provider keys, a Google OAuth client id/secret, a Resend API key,
   and two random 32-byte secrets you'll generate.
@@ -39,7 +39,7 @@ A     www    <YOUR_VPS_IPV4>     (optional; Caddy will redirect www → apex)
 ```
 
 DNS can take a few minutes to propagate. Caddy can't issue a certificate until
-`personifyads.online` resolves to the VPS.
+`personify.my` resolves to the VPS.
 
 ---
 
@@ -54,8 +54,8 @@ DNS can take a few minutes to propagate. Caddy can't issue a certificate until
    **Publish app** when you want anyone to sign in.)
 3. **APIs & Services → Credentials → Create credentials → OAuth client ID**:
    - Application type: **Web application**
-   - **Authorized JavaScript origins:** `https://personifyads.online`
-   - **Authorized redirect URIs:** `https://personifyads.online/api/auth/google/callback`
+   - **Authorized JavaScript origins:** `https://personify.my`
+   - **Authorized redirect URIs:** `https://personify.my/api/auth/google/callback`
 4. Copy the **Client ID** and **Client secret** — they go in `.env.local`
    as `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
 
@@ -68,19 +68,19 @@ The app auto-selects: **SMTP** if `SMTP_HOST` is set, else **Resend** if
 
 **Option A — Titan SMTP (recommended; you already set Titan up on this domain).**
 Your domain's MX/SPF/DKIM already authorize Titan, so there's nothing more to
-verify. In the Titan admin, create a mailbox (e.g. `noreply@personifyads.online`)
+verify. In the Titan admin, create a mailbox (e.g. `noreply@personify.my`)
 and set:
 
 ```ini
-EMAIL_FROM=PersonifyAds <noreply@personifyads.online>
+EMAIL_FROM=PersonifyAds <noreply@personify.my>
 SMTP_HOST=smtp.titan.email
 SMTP_PORT=465
-SMTP_USER=noreply@personifyads.online
+SMTP_USER=noreply@personify.my
 SMTP_PASS=<that mailbox's password>
 ```
 
 **Option B — Resend.** Sign up at <https://resend.com>, add + verify
-`personifyads.online` (add the DNS records it shows; it uses a `send.`
+`personify.my` (add the DNS records it shows; it uses a `send.`
 subdomain so it won't clash with your Titan root SPF), create an API key, then
 set `EMAIL_FROM` + `RESEND_API_KEY` and leave `SMTP_HOST` blank.
 
@@ -151,18 +151,18 @@ Create `packages/backend/.env.local` (this file is gitignored). Use
 
 ```ini
 PORT=3001
-PUBLIC_ORIGIN=https://personifyads.online
+PUBLIC_ORIGIN=https://personify.my
 DATABASE_URL=postgres://advert:CHOOSE_A_STRONG_PASSWORD@localhost:5432/advert
 SESSION_COOKIE_SECRET=<paste generated>
 SESSION_TTL_SECONDS=2592000
 GOOGLE_CLIENT_ID=<from step 1>
 GOOGLE_CLIENT_SECRET=<from step 1>
-GOOGLE_REDIRECT_URI=https://personifyads.online/api/auth/google/callback
-EMAIL_FROM=PersonifyAds <noreply@personifyads.online>
+GOOGLE_REDIRECT_URI=https://personify.my/api/auth/google/callback
+EMAIL_FROM=PersonifyAds <noreply@personify.my>
 # Email via Titan SMTP (Option A from step 2):
 SMTP_HOST=smtp.titan.email
 SMTP_PORT=465
-SMTP_USER=noreply@personifyads.online
+SMTP_USER=noreply@personify.my
 SMTP_PASS=<the Titan mailbox password>
 # ...or instead leave SMTP_HOST blank and set RESEND_API_KEY=<...> (Option B).
 AUTH_USERNAME=IAmThatIAm
@@ -230,13 +230,13 @@ curl -s localhost:3001/api/health           # {"ok":true,...}
 Replace `/etc/caddy/Caddyfile` with:
 
 ```caddy
-personifyads.online {
+personify.my {
     encode zstd gzip
     reverse_proxy localhost:3001
 }
 
-www.personifyads.online {
-    redir https://personifyads.online{uri} permanent
+www.personify.my {
+    redir https://personify.my{uri} permanent
 }
 ```
 
@@ -246,14 +246,14 @@ sudo systemctl reload caddy
 ```
 
 Caddy now fetches a Let's Encrypt cert automatically (DNS from Step 0 must be
-live). Visit **https://personifyads.online** — you should see the sign-in
+live). Visit **https://personify.my** — you should see the sign-in
 screen.
 
 ---
 
 ## Step 10 — Smoke test
 
-1. `curl https://personifyads.online/api/health` → `{"ok":true,...}`
+1. `curl https://personify.my/api/health` → `{"ok":true,...}`
 2. In a browser: **Create account** → check your inbox → click the
    verification link (lands on `/login?verified=1`) → sign in → you reach the
    brief screen. Run one generation step (uses your server-side keys).

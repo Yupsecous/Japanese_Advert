@@ -16,7 +16,7 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const ON_OAUTH_HOST =
   import.meta.env.VITE_GOOGLE_ENABLED !== '0' &&
   typeof window !== 'undefined' &&
-  window.location.hostname.endsWith('personifyads.online');
+  window.location.hostname.endsWith('personify.my');
 
 // Reads any redirect params the backend appended (verify-email, OAuth
 // callback, reset link), returns the initial mode + a banner, then cleans the

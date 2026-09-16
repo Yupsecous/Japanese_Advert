@@ -6,7 +6,7 @@
 const OR_BASE = 'https://openrouter.ai/api/v1';
 const OR_HEADERS = {
   'Content-Type': 'application/json',
-  'HTTP-Referer': 'https://personifyads.online',
+  'HTTP-Referer': 'https://personify.my',
   'X-Title': 'Personify Ads',
 };
 
