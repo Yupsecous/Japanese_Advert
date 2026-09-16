@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { authenticate } from '../../lib/auth.js';
 import { sendError, requirePost } from '../../lib/respond.js';
 import { allow } from '../../lib/ratelimit.js';
-import { findUserById, setStripeCustomerId } from '../../lib/users.js';
+import { findUserById, getStripeCustomerId, setStripeCustomerId } from '../../lib/users.js';
 import { getStripe, stripeEnabled, stripePriceId, type StripeTier, type StripePeriod } from '../../lib/payments/stripe-client.js';
 
 // POST /api/payments/stripe/create-checkout
@@ -31,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const stripe = getStripe();
   const origin = process.env.PUBLIC_ORIGIN ?? 'http://localhost:3001';
 
-  let customerId = user.stripeCustomerId ?? undefined;
+  let customerId = (await getStripeCustomerId(user.id)) ?? undefined;
   if (!customerId) {
     const customer = await stripe.customers.create({
       email: user.email,

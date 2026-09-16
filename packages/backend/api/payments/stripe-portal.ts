@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { authenticate } from '../../lib/auth.js';
 import { sendError, requirePost } from '../../lib/respond.js';
 import { allow } from '../../lib/ratelimit.js';
-import { findUserById } from '../../lib/users.js';
+import { findUserById, getStripeCustomerId } from '../../lib/users.js';
 import { getStripe, stripeEnabled } from '../../lib/payments/stripe-client.js';
 
 // POST /api/payments/stripe/portal
@@ -19,7 +19,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!allow(`stripe-portal:${session.sub}`, 3, 0.05)) return sendError(res, 429, 'auth/rate-limited');
 
   const user = await findUserById(session.sub);
-  if (!user?.stripeCustomerId) {
+  if (!user) return sendError(res, 401, 'auth/unauthorized');
+
+  const customerId = await getStripeCustomerId(user.id);
+  if (!customerId) {
     return sendError(res, 404, 'payment/not-found', 'No Stripe subscription found');
   }
 
@@ -27,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = process.env.PUBLIC_ORIGIN ?? 'http://localhost:3001';
 
   const portalSession = await stripe.billingPortal.sessions.create({
-    customer: user.stripeCustomerId,
+    customer: customerId,
     return_url: `${origin}/`,
   });
 

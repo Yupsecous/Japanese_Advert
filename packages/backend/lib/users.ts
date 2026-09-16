@@ -113,6 +113,20 @@ export async function setStripeCustomerId(userId: string, customerId: string): P
   );
 }
 
+// Reads stripe_customer_id for one user. Raw SQL for the same reason as
+// setStripeCustomerId: the column is added by migration 0006 and is
+// deliberately absent from the Drizzle `users` definition, so a plain
+// select() neither requests nor returns it. Routes MUST use this helper —
+// reading `user.stripeCustomerId` off findUserById() silently yields
+// undefined, which previously made the billing portal 404 for every
+// customer and created a duplicate Stripe customer on every checkout.
+export async function getStripeCustomerId(userId: string): Promise<string | null> {
+  const result = await getDb().execute<{ stripe_customer_id: string | null }>(
+    sql`SELECT stripe_customer_id FROM users WHERE id = ${userId} LIMIT 1`,
+  );
+  return result.rows[0]?.stripe_customer_id ?? null;
+}
+
 export async function findUserByStripeCustomerId(customerId: string): Promise<User | undefined> {
   const result = await getDb().execute<User>(
     sql`SELECT * FROM users WHERE stripe_customer_id = ${customerId} LIMIT 1`,
