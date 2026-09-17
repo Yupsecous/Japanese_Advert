@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# API surface — no indexable content, and crawling it burns rate limit.
+Disallow: /api/
+# Owner-only dashboard.
+Disallow: /admin
+# Dev-only translator tuning harness.
+Disallow: /?test=1
+
+Sitemap: https://personify.my/sitemap.xml

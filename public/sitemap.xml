@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Single entry: the app is a client-rendered SPA and the locale is held in
+  client state, not in the URL, so there is exactly one indexable URL today.
+  Add per-locale paths (/ja/, /pt/, ...) plus hreflang here if locale ever
+  moves into the route.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://personify.my/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
